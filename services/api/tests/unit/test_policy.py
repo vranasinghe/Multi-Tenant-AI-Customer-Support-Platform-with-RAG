@@ -43,6 +43,18 @@ def test_agent_cannot_manage_members_or_billing_or_org_settings() -> None:
 def test_viewer_is_read_only() -> None:
     writes = {p for p in PERMISSIONS[Role.VIEWER] if p.endswith((":write", ":manage", ":delete"))}
     assert writes == set()
+    assert has_permission(Role.VIEWER, "analytics:read")
+    assert has_permission(Role.VIEWER, "conversation:read")
+    assert not has_permission(Role.VIEWER, "conversation:write")
+    assert not has_permission(Role.VIEWER, "conversation:export")
+    assert not has_permission(Role.VIEWER, "conversation:delete")
+
+
+def test_agent_can_write_conversations_but_not_export() -> None:
+    assert has_permission(Role.AGENT, "conversation:write")
+    assert not has_permission(Role.AGENT, "conversation:export")
+    assert not has_permission(Role.AGENT, "conversation:delete")
+    assert has_permission(Role.ADMIN, "conversation:export")
 
 
 def test_roles_are_strictly_nested() -> None:

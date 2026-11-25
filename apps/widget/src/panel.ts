@@ -308,6 +308,44 @@ export function mountFrame(script: HTMLScriptElement) {
         }
         if (!finished) throw Error("Connection interrupted. Please try again.");
         status.textContent = "";
+        const actions = el("div");
+        actions.setAttribute("role", "group");
+        actions.setAttribute("aria-label", "Conversation follow-up");
+        const yes = el("button", "Helpful");
+        const no = el("button", "Not helpful");
+        const human = el("button", "Talk to a person");
+        async function scored(score: number, button: HTMLButtonElement) {
+          try {
+            await request("/public/v1/chat/satisfaction", {
+              method: "PUT",
+              body: JSON.stringify({ score }),
+            });
+            yes.disabled = true;
+            no.disabled = true;
+            button.setAttribute("aria-pressed", "true");
+            status.textContent = "Thanks for the feedback.";
+          } catch (err) {
+            status.textContent = err instanceof Error ? err.message : "Could not save rating";
+          }
+        }
+        yes.onclick = () => void scored(5, yes);
+        no.onclick = () => void scored(1, no);
+        human.onclick = async () => {
+          const reason = window.prompt("Tell us why a person should follow up.");
+          if (!reason?.trim()) return;
+          try {
+            await request("/public/v1/chat/handoff", {
+              method: "POST",
+              body: JSON.stringify({ reason: reason.trim() }),
+            });
+            human.disabled = true;
+            status.textContent = "A teammate will follow up.";
+          } catch (err) {
+            status.textContent = err instanceof Error ? err.message : "Could not request a person";
+          }
+        };
+        actions.append(yes, no, human);
+        log.append(actions);
       } finally {
         await reader.cancel().catch(() => undefined);
         reader.releaseLock();

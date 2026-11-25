@@ -23,6 +23,7 @@ from app.core.rate_limit import Limit
 from app.integrations.llm import ProviderError
 from app.models.chatbots import Chatbot
 from app.models.conversations import ChatUsage, Conversation, Message
+from app.models.identity import utcnow
 from app.models.tenancy import Organization
 from app.rag.retrieval import RenderedEvidence, authorize_chunks, search
 from app.schemas.conversations import SendMessage
@@ -158,6 +159,7 @@ def message_out(message: Message) -> dict[str, Any]:
         "usage_estimated": message.usage_estimated,
         "error_code": message.error_code,
         "feedback": message.feedback,
+        "latency_ms": message.latency_ms,
     }
 
 
@@ -359,6 +361,18 @@ async def _prepare(  # noqa: PLR0912, PLR0915
                     amount=amount,
                     settings=s,
                 )
+                now = utcnow()
+                persisted = await db.scalar(
+                    select(Conversation).where(
+                        Conversation.org_id == org_id, Conversation.id == conversation_id
+                    )
+                )
+                if persisted is None:
+                    raise not_found()
+                persisted.last_message_at = now
+                persisted.updated_at = now
+                if not persisted.preview:
+                    persisted.preview = body.content[:180]
                 db.add(
                     Message(
                         org_id=org_id,
@@ -456,6 +470,8 @@ async def stream(services: AppServices, turn: Turn) -> AsyncGenerator[str]:  # n
     marker_stream = CitationStream(turn.chunks)
     received_bytes = 0
     status = "interrupted"
+    started = asyncio.get_running_loop().time()
+    first_token_at: float | None = None
     error: str | None = None
     input_tokens = output_tokens = 0
     charged = turn.reserved_tokens
@@ -473,6 +489,7 @@ async def stream(services: AppServices, turn: Turn) -> AsyncGenerator[str]:  # n
             )
             content = strip_unknown_citations(content, turn.chunks)
             status = "fallback"
+            first_token_at = asyncio.get_running_loop().time()
             yield event("delta", {"text": content})
         else:
             async with asyncio.timeout(services.settings.llm_timeout_seconds):
@@ -489,6 +506,8 @@ async def stream(services: AppServices, turn: Turn) -> AsyncGenerator[str]:  # n
                             raise ProviderError("output_limit")
                         piece = marker_stream.feed(part.text)
                         if piece:
+                            if first_token_at is None:
+                                first_token_at = asyncio.get_running_loop().time()
                             content += piece
                             yield event("delta", {"text": piece})
                         if part.input_tokens is not None and part.output_tokens is not None:
@@ -542,6 +561,11 @@ async def stream(services: AppServices, turn: Turn) -> AsyncGenerator[str]:  # n
             try:
                 async with asyncio.timeout(10), services.session_factory() as db:
                     await set_org_context(db, turn.org_id)
+                    latency_ms = (
+                        int((first_token_at - started) * 1000)
+                        if first_token_at is not None
+                        else None
+                    )
                     await db.execute(
                         update(Message)
                         .where(Message.org_id == turn.org_id, Message.id == turn.message_id)
@@ -554,7 +578,39 @@ async def stream(services: AppServices, turn: Turn) -> AsyncGenerator[str]:  # n
                             estimated_cost_usd=amount,
                             usage_estimated=estimated,
                             error_code=error,
+                            latency_ms=latency_ms,
                         )
+                    )
+                    if status == "fallback":
+                        from app.services.conversation_events import (  # noqa: PLC0415
+                            latest_user_question,
+                            load_conversation,
+                            record_unanswered,
+                        )
+
+                        conversation = await load_conversation(
+                            db, turn.org_id, turn.conversation_id
+                        )
+                        question, user_message_id = await latest_user_question(
+                            db, turn.org_id, turn.conversation_id
+                        )
+                        if question:
+                            await record_unanswered(
+                                db,
+                                conversation=conversation,
+                                question=question,
+                                reason="insufficient_evidence",
+                                message_id=user_message_id,
+                                actor_type="system",
+                                actor_id=None,
+                            )
+                    await db.execute(
+                        update(Conversation)
+                        .where(
+                            Conversation.org_id == turn.org_id,
+                            Conversation.id == turn.conversation_id,
+                        )
+                        .values(last_message_at=utcnow(), updated_at=utcnow())
                     )
                     await db.execute(
                         update(ChatUsage)

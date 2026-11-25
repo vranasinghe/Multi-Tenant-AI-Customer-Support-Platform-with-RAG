@@ -95,6 +95,7 @@ export interface ApiClient {
   patch<T>(path: string, body: unknown): Promise<T>;
   put<T>(path: string, body: unknown): Promise<T>;
   delete<T = void>(path: string): Promise<T>;
+  download(path: string): Promise<Blob>;
 }
 
 export function createApiClient({ baseUrl, fetchImpl }: ApiClientOptions): ApiClient {
@@ -139,6 +140,30 @@ export function createApiClient({ baseUrl, fetchImpl }: ApiClientOptions): ApiCl
     return (await response.json()) as T;
   }
 
+  async function download(path: string): Promise<Blob> {
+    const headers: Record<string, string> = {
+      Accept: "text/csv, application/json",
+      "X-Requested-With": "platform",
+    };
+    let response: Response;
+    try {
+      response = await (fetchImpl ?? fetch)(`${root}${path}`, {
+        method: "GET",
+        headers,
+        credentials: "include",
+        cache: "no-store",
+      });
+    } catch {
+      throw new ApiError({
+        status: 0,
+        code: "network_error",
+        message: "Can't reach the server. Check your connection and try again.",
+      });
+    }
+    if (!response.ok) throw await toApiError(response);
+    return response.blob();
+  }
+
   return {
     get: (path) => request("GET", path),
     post: (path, body) => request("POST", path, body ?? {}),
@@ -147,6 +172,7 @@ export function createApiClient({ baseUrl, fetchImpl }: ApiClientOptions): ApiCl
     delete: (path) => request("DELETE", path),
     upload: (path, file, contentType) =>
       request("POST", path, undefined, { blob: file, contentType }),
+    download,
   };
 }
 

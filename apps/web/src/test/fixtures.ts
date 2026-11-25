@@ -4,22 +4,32 @@ import type { Chatbot, ChatbotOptions, Org, Role } from "@/lib/api/types";
 const PERMISSIONS: Record<Role, string[]> = {
   owner: [
     "org:read",
+    "org:update",
     "chatbot:read",
     "chatbot:write",
     "chatbot:delete",
     "domain:manage",
     "chatbot:test",
     "conversation:read",
+    "conversation:write",
+    "conversation:delete",
+    "conversation:export",
+    "analytics:read",
     "member:read",
   ],
   admin: [
     "org:read",
+    "org:update",
     "chatbot:read",
     "chatbot:write",
     "chatbot:delete",
     "domain:manage",
     "chatbot:test",
     "conversation:read",
+    "conversation:write",
+    "conversation:delete",
+    "conversation:export",
+    "analytics:read",
     "member:read",
   ],
   agent: [
@@ -28,9 +38,11 @@ const PERMISSIONS: Record<Role, string[]> = {
     "chatbot:write",
     "chatbot:test",
     "conversation:read",
+    "conversation:write",
+    "analytics:read",
     "member:read",
   ],
-  viewer: ["org:read", "chatbot:read", "conversation:read", "member:read"],
+  viewer: ["org:read", "chatbot:read", "conversation:read", "analytics:read", "member:read"],
 };
 
 export function orgAs(role: Role, overrides: Partial<Org> = {}): Org {
