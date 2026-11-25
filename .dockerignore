@@ -1,0 +1,14 @@
+# Build context for apps/web/Dockerfile (repo root). Keep it small and secret-free.
+.git
+**/node_modules
+**/.next
+**/dist
+**/coverage
+**/*.tsbuildinfo
+services
+docs
+infrastructure
+.github
+.env
+.env.*
+!.env.example

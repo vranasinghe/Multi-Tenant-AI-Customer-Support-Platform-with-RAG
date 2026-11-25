@@ -1,0 +1,2278 @@
+{
+  "concurrency": 100,
+  "requests": 100,
+  "overlap_peak": 100,
+  "provider_peak": 2,
+  "success": 45,
+  "rejected": 55,
+  "failed": 0,
+  "successful_p95_ms": 1866.116853998392,
+  "rejected_p95_ms": 1666.378131001693,
+  "successful_requests_per_second": 23.114690549129435,
+  "pool": {
+    "checked_out": 0,
+    "peak": 9,
+    "checkouts": 280,
+    "checkins": 280,
+    "samples": [
+      1,
+      2,
+      3,
+      4,
+      4,
+      2,
+      3,
+      4,
+      4,
+      5,
+      4,
+      4,
+      5,
+      5,
+      6,
+      6,
+      6,
+      6,
+      5,
+      6,
+      7,
+      7,
+      6,
+      7,
+      6,
+      7,
+      6,
+      7,
+      5,
+      6,
+      4,
+      5,
+      5,
+      5,
+      5,
+      6,
+      4,
+      4,
+      4,
+      5,
+      6,
+      6,
+      7,
+      3,
+      4,
+      4,
+      5,
+      6,
+      7,
+      8,
+      8,
+      9,
+      7,
+      8,
+      5,
+      6,
+      7,
+      6,
+      7,
+      6,
+      7,
+      3,
+      4,
+      5,
+      6,
+      6,
+      2,
+      3,
+      4,
+      5,
+      6,
+      4,
+      4,
+      5,
+      4,
+      5,
+      6,
+      7,
+      8,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      8,
+      9,
+      3,
+      4,
+      5,
+      6,
+      7,
+      6,
+      5,
+      6,
+      7,
+      5,
+      3,
+      4,
+      5,
+      6,
+      6,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      7,
+      4,
+      5,
+      6,
+      5,
+      6,
+      7,
+      8,
+      9,
+      6,
+      7,
+      8,
+      9,
+      7,
+      7,
+      5,
+      6,
+      7,
+      7,
+      4,
+      5,
+      6,
+      5,
+      6,
+      2,
+      3,
+      4,
+      5,
+      5,
+      6,
+      7,
+      5,
+      6,
+      7,
+      4,
+      5,
+      6,
+      7,
+      5,
+      5,
+      6,
+      5,
+      6,
+      3,
+      2,
+      2,
+      2,
+      3,
+      2,
+      3,
+      4,
+      4,
+      2,
+      3,
+      4,
+      3,
+      2,
+      1,
+      2,
+      3,
+      2,
+      3,
+      4,
+      4,
+      3,
+      4,
+      4,
+      3,
+      2,
+      1,
+      2,
+      3,
+      3,
+      2,
+      3,
+      4,
+      4,
+      5,
+      3,
+      3,
+      3,
+      1,
+      2,
+      3,
+      2,
+      3,
+      3,
+      4,
+      3,
+      4,
+      4,
+      2,
+      3,
+      2,
+      3,
+      1,
+      2,
+      2,
+      3,
+      4,
+      3,
+      4,
+      4,
+      2,
+      3,
+      2,
+      3,
+      1,
+      2,
+      2,
+      3,
+      4,
+      2,
+      2,
+      3,
+      2,
+      3,
+      3,
+      3,
+      1,
+      2,
+      2,
+      3,
+      4,
+      1,
+      2,
+      3,
+      2,
+      3,
+      2,
+      3,
+      1,
+      2,
+      2,
+      3,
+      3,
+      2,
+      2,
+      2,
+      3,
+      3,
+      3,
+      2,
+      2,
+      2,
+      2,
+      3,
+      2,
+      3,
+      1,
+      2,
+      3,
+      3,
+      3,
+      2,
+      3,
+      1,
+      2,
+      3,
+      2,
+      3,
+      2,
+      3,
+      2,
+      3,
+      2,
+      1,
+      1,
+      2,
+      1
+    ]
+  },
+  "setup_peak": 3,
+  "raw": [
+    {
+      "status": 429,
+      "duration_ms": 1184.1881560030743,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "2973ba94-c0bb-44bb-bb68-b7e2cd65a85e"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 437.01362800129573,
+      "ttft_ms": 302.18339799830574,
+      "done": {
+        "id": "01a201a8-f3db-7168-ac1f-a6199348251c",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1128.4014289994957,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "8e6dad97-2622-43d9-a804-a05da2f9404d"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1095.3883769980166,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "fc9ca681-8642-41a0-86de-ac0d8a029b44"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1146.4137459988706,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "bf41fccb-8106-44d3-a989-ef5d9db34b25"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 450.13400800235104,
+      "ttft_ms": 313.9742130006198,
+      "done": {
+        "id": "01a201a8-f3f1-724d-b31a-32f87b5347f7",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1135.5666930030566,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "8b1f2137-2d84-4f70-b335-e3c66cf332d3"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1119.30266499985,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "2909978a-47d5-4814-b426-ed6d3fbbe88c"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 562.7947979992314,
+      "ttft_ms": 483.77995299961185,
+      "done": {
+        "id": "01a201a8-f499-741b-9f84-269ec6444c45",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 443.35278699873015,
+      "ttft_ms": 326.3123149990861,
+      "done": {
+        "id": "01a201a8-f3f8-7423-934c-98f2e2d8deb4",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 785.1064429996768,
+      "ttft_ms": 693.2528440011083,
+      "done": {
+        "id": "01a201a8-f566-70a7-9110-68f898c473e2",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1120.8881249986007,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "1ebd4142-633b-4c91-bd5a-1d2936487fd5"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1150.5949140009761,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "23c49b2c-1de0-40e8-b5dc-85dccb0c8e25"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1120.2957800014701,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "356de0e8-c875-4e08-90a9-ba16f603504c"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1160.2458020024642,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "4c604532-4646-45a9-8ee3-606a28dabf99"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1376.3686980018974,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "ee4e2e68-78ee-445f-845e-d7aa56c3db1f"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1205.2023180003744,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "eab65586-2c91-4e49-b346-986a3b6d3a87"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1396.4839979998942,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "f1de33d3-8b99-4a96-8806-689367638302"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1236.007890001929,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "7c76bae1-4a25-4fee-b275-0376f2030cc5"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1581.9323039977462,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "ade02c17-897f-4365-8e65-3bc9e96c448a"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 1359.3511209983262,
+      "ttft_ms": 1301.1424179967435,
+      "done": {
+        "id": "01a201a8-f7db-73fb-a51c-fe7939f17f2d",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1320.987993000017,
+      "ttft_ms": 1277.7146989974426,
+      "done": {
+        "id": "01a201a8-f7c1-7223-9bd3-17ced147c61a",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1412.7135960006854,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "9381a601-81a7-4dbe-b28a-07e1a5410b77"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1374.0108980018704,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "14390f02-f4d7-4bdb-9041-8c1e9b8e8371"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1469.2696669990255,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "27999514-6e2b-46ed-a28f-0d96fa9a9197"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1369.9751059975824,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "3f48b6c5-d653-4769-88a5-ec878d9f267f"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1200.3744680005184,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "94a46d1c-260c-42e8-8226-cfdc018409b3"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1217.405499999586,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "d78c74e4-2585-412b-b077-73e3c3714ab3"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1443.8653580000391,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "90ebedb8-2eb0-4016-8efa-f3d65b0ac664"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 640.6231449982442,
+      "ttft_ms": 507.65784999748576,
+      "done": {
+        "id": "01a201a8-f4b3-74ee-8c5d-feaeae451d88",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1467.9871840016858,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "c82cdb11-5b21-451e-bfc8-e74aa95722fc"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1223.0664469971089,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "27192da2-acca-4f25-8658-25298d985cf9"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1392.5020810020214,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "9f8d8daa-5f55-4717-90c1-8b7fc74a5c6a"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1220.6896019997657,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "19c31021-c265-419d-944a-17af9f7f4d00"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1442.5767159991665,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "c23543db-f6bb-48e8-b1a0-89068c02d8be"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 972.7444350028236,
+      "ttft_ms": 707.0956150018901,
+      "done": {
+        "id": "01a201a8-f575-746d-97e5-94ed7f434fcc",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1239.4987939987914,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "efb54f01-c1a3-46d8-b795-fd30a0a637c0"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 911.0650019974855,
+      "ttft_ms": 725.474998998834,
+      "done": {
+        "id": "01a201a8-f58b-74e0-b759-81305483ebd1",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1247.9512989993964,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "f8423fc0-3bc2-4804-a79d-3225635e6e89"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 671.0398289978912,
+      "ttft_ms": 489.7145919967443,
+      "done": {
+        "id": "01a201a8-f4a2-7571-8344-c6be47fdc6d4",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1333.8942240006872,
+      "ttft_ms": 1284.0910170016286,
+      "done": {
+        "id": "01a201a8-f7cf-77ee-a617-38cb0daa4da3",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1578.7406570016174,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "53d0a484-2c73-4093-a35c-d7fde08fcea7"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 1087.0904870025697,
+      "ttft_ms": 980.9705090010539,
+      "done": {
+        "id": "01a201a8-f687-7720-af99-4fee2be07bbc",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1817.4386610007787,
+      "ttft_ms": 1788.400803001423,
+      "done": {
+        "id": "01a201a8-f9cd-72e6-96cc-af849a5ed643",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1294.929523999599,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "522df48e-fb3a-4196-87d5-9321e9698534"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1611.6954310018627,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "956915ce-8e40-45c7-8512-e7fbda1fb55b"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1298.7382200008142,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "04ce227d-91ff-47f9-b742-cc4001542317"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 1634.0582800003176,
+      "ttft_ms": 1601.4553810018697,
+      "done": {
+        "id": "01a201a8-f910-7426-9965-ede7d6c2281b",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1405.9866089992283,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "fee94451-9d20-4f80-b903-84e3eb2850c8"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 1477.5267050026741,
+      "ttft_ms": 1443.9643600017007,
+      "done": {
+        "id": "01a201a8-f86f-7372-ac95-2f11c3bef236",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1297.7747469994938,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "e5356125-4b31-407d-8d9a-3c8cbaac9b81"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1605.3739369999676,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "c134a369-1b58-46cc-9ce8-2d9cc395c37c"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1438.081003001571,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "e6ac414d-9626-4929-b400-d457dcda1c3b"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1341.3290070020594,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "c5a42142-a315-48b9-b7d4-ae2320b8e8e6"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 1864.4730429987248,
+      "ttft_ms": 1833.8986410017242,
+      "done": {
+        "id": "01a201a8-f9fc-775c-8691-88ea99d79367",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1756.9083239977772,
+      "ttft_ms": 1724.2790929994953,
+      "done": {
+        "id": "01a201a8-f990-72fa-b28e-f1291adeb63d",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1404.1175769998517,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "d2041e0f-d74c-409a-85d1-65b1518dca43"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1578.5933499973908,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "b82ce62b-05f0-4271-b479-c4cbede05395"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1327.1332680014893,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "200a74a2-fbc7-459b-9782-8ea616e1e539"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 1540.2005680007278,
+      "ttft_ms": 1507.7028000014252,
+      "done": {
+        "id": "01a201a8-f8b0-7124-8c53-d1a6d6d68237",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1138.466647000314,
+      "ttft_ms": 998.1592039985117,
+      "done": {
+        "id": "01a201a8-f6a0-740d-9d31-d099361f8527",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1918.4767309998279,
+      "ttft_ms": 1898.0015289998846,
+      "done": {
+        "id": "01a201a8-fa3c-7172-8c09-916594ea26cf",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1343.159588999697,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "a557939f-8351-4ca4-86e3-98b5b54af8bb"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 1742.3426370005473,
+      "ttft_ms": 1713.4173830017971,
+      "done": {
+        "id": "01a201a8-f987-7665-8b26-07e6ae145ead",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1402.1471499982,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "18fe94ec-a861-40c7-9841-287760e0d1e0"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 1578.8324390014168,
+      "ttft_ms": 1536.251961999369,
+      "done": {
+        "id": "01a201a8-f8d1-734e-926f-660c747ac279",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1342.3140429986233,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "d8528f5a-6d04-486b-9213-c55b050fc5ef"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 1834.5992859976832,
+      "ttft_ms": 1806.6096199981985,
+      "done": {
+        "id": "01a201a8-f9e3-71c2-8fa5-74687652d48e",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1357.3503759980667,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "30c8a1d0-f2c8-404a-a7c8-0d396949e891"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 1496.0017260018503,
+      "ttft_ms": 1455.5364350017044,
+      "done": {
+        "id": "01a201a8-f884-76b0-9517-b769896a1298",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1668.1838329968741,
+      "ttft_ms": 1632.0680889984942,
+      "done": {
+        "id": "01a201a8-f933-72bb-af6f-f9c317cf8e7f",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1641.052381000918,
+      "ttft_ms": 1604.0182979995734,
+      "done": {
+        "id": "01a201a8-f917-72b3-84aa-3d12441f0a08",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1537.3301800027548,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "a5f5ce94-279f-4ce7-9e21-050cb34405ea"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 1504.264282000804,
+      "ttft_ms": 1460.588974001439,
+      "done": {
+        "id": "01a201a8-f888-7514-b3fb-c26a359c5bb5",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1536.9661610020557,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "171fb776-7309-461f-a7ae-0d313eb26a94"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 1899.7942130008596,
+      "ttft_ms": 1876.2728279980365,
+      "done": {
+        "id": "01a201a8-fa2c-75fc-b20e-65658e54ea5e",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1666.378131001693,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "1657f22e-5d25-4d03-af6e-b0e6c97c6113"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 1686.8382270004076,
+      "ttft_ms": 1655.9645000015735,
+      "done": {
+        "id": "01a201a8-f94d-7383-9600-b66713a82ad6",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1398.131131001719,
+      "ttft_ms": 1360.6772179991822,
+      "done": {
+        "id": "01a201a8-f820-7347-9a73-b59977bebe4d",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1626.7154880006274,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "220e1114-5ca9-4e20-ab3a-f98ed4d7a050"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1726.5369150009064,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "8d28fbe3-c8f9-4c4f-aac2-ece107533d8c"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 1697.921425999084,
+      "ttft_ms": 1666.8392109968408,
+      "done": {
+        "id": "01a201a8-f95a-71f2-b3d8-fa018a5fb3c5",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1426.981306001835,
+      "ttft_ms": 1378.6053310032003,
+      "done": {
+        "id": "01a201a8-f83a-72ce-80ed-daff3d1bb716",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1675.8980260019598,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "fe30ab5e-abf1-4762-8786-849644f63fdd"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 1255.6233899995277,
+      "ttft_ms": 1192.871756000386,
+      "done": {
+        "id": "01a201a8-f779-7649-b7ce-abd7bb65b66c",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1562.21817000187,
+      "ttft_ms": 1524.5935330021894,
+      "done": {
+        "id": "01a201a8-f8cc-7314-a1e2-6249125c350d",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1230.2498499993817,
+      "ttft_ms": 1168.9154880004935,
+      "done": {
+        "id": "01a201a8-f75e-71cc-a8a8-2574576bfa9d",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1893.0447370003094,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "17f789c3-d484-43ef-a3a1-444b17f6bddd"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1637.2749490001297,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "085d8a80-dec2-4eaf-98c7-8fa3e6e2b94a"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 1770.5501780001214,
+      "ttft_ms": 1738.7159650024842,
+      "done": {
+        "id": "01a201a8-f9a4-776a-bd1d-f13a0f8fc71e",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1866.116853998392,
+      "ttft_ms": 1839.9866740001016,
+      "done": {
+        "id": "01a201a8-fa0a-7753-b747-49906211b727",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1714.6022730012191,
+      "ttft_ms": 1686.8996500015783,
+      "done": {
+        "id": "01a201a8-f971-7213-a200-11adad7f3bc5",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1662.1167119992606,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "a0e48dcd-ef19-48be-beae-0840203f6695"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 1795.5470279994188,
+      "ttft_ms": 1764.922957001545,
+      "done": {
+        "id": "01a201a8-f9c0-7467-9690-d0c95ec6dace",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1598.9215340014198,
+      "ttft_ms": 1567.2448209988943,
+      "done": {
+        "id": "01a201a8-f8f3-75a4-9a65-fe2443198ea6",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1213.4829599999648,
+      "ttft_ms": 1154.7820099985984,
+      "done": {
+        "id": "01a201a8-f752-758b-814b-2e8f2e128fd0",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1142.066419000912,
+      "ttft_ms": 1009.043322999787,
+      "done": {
+        "id": "01a201a8-f6b8-765f-82de-b3a0c5982a9c",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1911.7478359985398,
+      "ttft_ms": 1893.1947620003484,
+      "done": {
+        "id": "01a201a8-fa43-7278-9315-53d0590ca96d",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1415.5137819980155,
+      "ttft_ms": 1367.862808998325,
+      "done": {
+        "id": "01a201a8-f830-722f-9802-456fe3e7c60f",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a201a8-f22f-722b-b15c-80cdbdbec15d",
+            "chunk_id": "01a201a8-f250-7655-a261-87b49807bfe7",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 1132.7711640005873,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "a3de53f6-99a5-4330-99ed-ecdfdbfeb8d5"
+      }
+    }
+  ]
+}

@@ -1,0 +1,230 @@
+# Local development stack:  docker compose up --build
+# Requires a .env file (copy .env.example). Ports bind to 127.0.0.1 only.
+
+name: ai-chatbot-saas
+
+x-api-environment: &api-environment
+  APP_ENV: ${APP_ENV:-local}
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  LOG_FORMAT: ${LOG_FORMAT:-console}
+  DATABASE_URL: postgresql+psycopg://${POSTGRES_APP_USER:-platform_app}:${POSTGRES_APP_PASSWORD:?set POSTGRES_APP_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-chatbot}
+  MIGRATION_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-platform_owner}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-chatbot}
+  REDIS_URL: redis://redis:6379/0
+  CELERY_BROKER_URL: redis://redis:6379/1
+  CELERY_RESULT_BACKEND: redis://redis:6379/2
+  CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+  WEB_BASE_URL: http://localhost:${WEB_HOST_PORT:-3000}
+  # Local mail goes to Mailpit (UI on http://localhost:8025); never to a real inbox.
+  EMAIL_BACKEND: smtp
+  SMTP_HOST: mailpit
+  SMTP_PORT: "1025"
+  # Private object storage for uploaded originals (S3 API; RustFS locally). Local-only credentials.
+  STORAGE_BACKEND: s3
+  S3_ENDPOINT_URL: http://storage:9000
+  S3_BUCKET: ${S3_BUCKET:-acs-documents}
+  S3_ACCESS_KEY: ${S3_ACCESS_KEY:-platform_storage}
+  S3_SECRET_KEY: ${S3_SECRET_KEY:-change-me-local-storage}
+  # Local embeddings baseline; set EMBEDDING_PROVIDER=openai_compatible (+ key) for a real model.
+  EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-hash}
+  EMBEDDING_MODEL: ${EMBEDDING_MODEL:-hash-v1}
+  EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-https://api.openai.com/v1}
+  EMBEDDING_API_KEY: ${EMBEDDING_API_KEY:-}
+  ALLOW_INSECURE_LOCAL_PROVIDERS: ${ALLOW_INSECURE_LOCAL_PROVIDERS:-false}
+  LLM_PROVIDER: ${LLM_PROVIDER:-disabled}
+  LLM_BASE_URL: ${LLM_BASE_URL:-https://api.openai.com/v1}
+  LLM_API_KEY: ${LLM_API_KEY:-}
+  LLM_TIMEOUT_SECONDS: ${LLM_TIMEOUT_SECONDS:-60}
+  LLM_RETRIES: ${LLM_RETRIES:-2}
+  CHAT_CONTEXT_MESSAGES: ${CHAT_CONTEXT_MESSAGES:-12}
+  CHAT_INPUT_TOKEN_BUDGET: ${CHAT_INPUT_TOKEN_BUDGET:-16000}
+  CHAT_MIN_VECTOR_SCORE: ${CHAT_MIN_VECTOR_SCORE:-0.15}
+  CHAT_REQUESTS_PER_MINUTE: ${CHAT_REQUESTS_PER_MINUTE:-60}
+  CHAT_CONCURRENCY_PER_ORG: ${CHAT_CONCURRENCY_PER_ORG:-3}
+  DB_POOL_TIMEOUT_SECONDS: ${DB_POOL_TIMEOUT_SECONDS:-2}
+  CHAT_SETUP_CAPACITY: ${CHAT_SETUP_CAPACITY:-8}
+  CHAT_ADMISSION_WAIT_SECONDS: ${CHAT_ADMISSION_WAIT_SECONDS:-0.9}
+  CHAT_MONTHLY_TOKEN_LIMIT: ${CHAT_MONTHLY_TOKEN_LIMIT:-2000000}
+  CHAT_MONTHLY_COST_LIMIT_USD: ${CHAT_MONTHLY_COST_LIMIT_USD:-25}
+  CHAT_MODEL_PRICES: '${CHAT_MODEL_PRICES:-{"gpt-4.1-mini":[0.40,1.60],"gpt-4.1-nano":[0.10,0.40],"gpt-4.1":[2.0,8.0]}}'
+  WIDGET_SESSION_MINUTES: ${WIDGET_SESSION_MINUTES:-15}
+  WIDGET_MESSAGES_PER_SESSION: ${WIDGET_MESSAGES_PER_SESSION:-30}
+
+x-api-build: &api-build
+  context: ./services/api
+  target: dev
+
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.7-pg18-bookworm
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-chatbot}
+      POSTGRES_USER: ${POSTGRES_USER:-platform_owner}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_APP_USER: ${POSTGRES_APP_USER:-platform_app}
+      POSTGRES_APP_PASSWORD: ${POSTGRES_APP_PASSWORD:?set POSTGRES_APP_PASSWORD in .env}
+    volumes:
+      # Postgres 18 images keep data under /var/lib/postgresql/<major>/docker.
+      - pgdata:/var/lib/postgresql
+      - ./infrastructure/postgres/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-55432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:8.10.3-alpine
+    # Ephemeral in development: no snapshots, no AOF.
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "127.0.0.1:${REDIS_HOST_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit:v1.34.0
+    ports:
+      - "127.0.0.1:${MAILPIT_UI_HOST_PORT:-8025}:8025"
+      - "127.0.0.1:${MAILPIT_SMTP_HOST_PORT:-1025}:1025"
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # S3-compatible object storage for uploaded originals. (MinIO stopped publishing images, so
+  # local dev uses RustFS; production uses real S3 — the app only speaks the S3 API.)
+  storage:
+    image: rustfs/rustfs:1.0.6
+    environment:
+      RUSTFS_ACCESS_KEY: ${S3_ACCESS_KEY:-platform_storage}
+      RUSTFS_SECRET_KEY: ${S3_SECRET_KEY:-change-me-local-storage}
+      RUSTFS_VOLUMES: /data
+    volumes:
+      - storagedata:/data
+    ports:
+      - "127.0.0.1:${STORAGE_HOST_PORT:-9000}:9000"
+
+  # Creates the private bucket (idempotent) and blocks any public access to it.
+  storage-init:
+    build: *api-build
+    command: ["python", "-m", "app.cli", "init-storage"]
+    environment: *api-environment
+    depends_on:
+      - storage
+    restart: "no"
+
+  migrate:
+    build: *api-build
+    command: ["alembic", "upgrade", "head"]
+    environment: *api-environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build: *api-build
+    environment:
+      <<: *api-environment
+      # Bind mounts from Windows/macOS hosts don't deliver inotify events; poll instead.
+      WATCHFILES_FORCE_POLLING: "true"
+    volumes:
+      - ./services/api:/app
+    ports:
+      - "127.0.0.1:${API_HOST_PORT:-8000}:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      mailpit:
+        condition: service_healthy
+      storage-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=2).status == 200 else 1)",
+        ]
+      interval: 10s
+      timeout: 3s
+      start_period: 15s
+      retries: 10
+
+  worker:
+    build: *api-build
+    command:
+      - celery
+      - -A
+      - app.workers.celery_app
+      - worker
+      - --queues=default,ingest,crawl,chat_out,billing
+      - --concurrency=2
+      - --loglevel=INFO
+    environment: *api-environment
+    volumes:
+      - ./services/api:/app
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      storage-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "celery -A app.workers.celery_app inspect ping --destination celery@$$HOSTNAME --timeout 5 >/dev/null",
+        ]
+      interval: 30s
+      timeout: 15s
+      start_period: 20s
+      retries: 5
+
+  # Periodic maintenance: re-queues stuck ingestion jobs and retries pending storage deletions.
+  beat:
+    build: *api-build
+    command:
+      [
+        "celery",
+        "-A",
+        "app.workers.celery_app",
+        "beat",
+        "--loglevel=INFO",
+        "--schedule=/tmp/celerybeat-schedule",
+      ]
+    environment: *api-environment
+    volumes:
+      - ./services/api:/app
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    environment:
+      API_INTERNAL_URL: http://api:8000
+      LOG_LEVEL: info
+    ports:
+      - "127.0.0.1:${WEB_HOST_PORT:-3000}:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  storagedata:

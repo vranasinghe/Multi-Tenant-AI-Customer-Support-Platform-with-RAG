@@ -1,0 +1,12 @@
+packages:
+  - apps/*
+  - packages/*
+
+# ESLint 9 is end-of-life. eslint-config-next@16 accepts ESLint >=9, but three of its plugins
+# have not widened their peer ranges to 10 yet. Their rules were verified to run correctly
+# under ESLint 10 (see docs/DEVELOPMENT.md → "Dependency notes"). Remove once upstream catches up.
+peerDependencyRules:
+  allowedVersions:
+    eslint-plugin-import>eslint: "10"
+    eslint-plugin-jsx-a11y>eslint: "10"
+    eslint-plugin-react>eslint: "10"

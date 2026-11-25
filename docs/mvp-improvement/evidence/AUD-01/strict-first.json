@@ -1,0 +1,7 @@
+{
+  "id": "strict-first",
+  "command": "docker compose exec -T -e AUDIT_OUTPUT_DIR=/tmp/mvp-improvement/AUD-01-strict-first api pytest tests/integration/api/mvp_improvement -q --tb=short --junitxml=/tmp/mvp-improvement/strict-first.xml",
+  "exit_code": 1,
+  "duration_seconds": 20.075,
+  "log": "strict-first.log"
+}

@@ -1,0 +1,7 @@
+{
+  "id": "baseline",
+  "command": "docker compose ps; Get-Content docs/audit/tools/environment.py | docker compose exec -T api python -; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; docker compose exec -T -e AUDIT_CONFIRM_POOL=1 -e AUDIT_OUTPUT_DIR=/tmp/mvp-improvement/AUD-01-before api pytest tests/integration/api/audit/test_implementation_audit.py::test_staged_isolated_performance -q --tb=short --junitxml=/tmp/mvp-improvement/AUD-01-before.xml",
+  "exit_code": 1,
+  "duration_seconds": 35.625,
+  "log": "baseline.log"
+}

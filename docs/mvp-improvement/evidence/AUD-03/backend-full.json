@@ -1,0 +1,7 @@
+{
+  "id": "backend-full",
+  "command": "docker compose exec -T -e LIVE_INGESTION=1 -e AUDIT_OUTPUT_DIR=/tmp/mvp-improvement/AUD-03-full api pytest -q --tb=short --junitxml=/tmp/mvp-improvement/AUD-03-backend-full.xml",
+  "exit_code": 0,
+  "duration_seconds": 142.641,
+  "log": "backend-full.log"
+}

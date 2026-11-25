@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "required_reports": 12,
+  "dataset_cases": 100,
+  "csv_rows": 100,
+  "case_categories": {
+    "factual": 20,
+    "paraphrase": 20,
+    "multi_fact": 20,
+    "follow_up": 20,
+    "unknown_or_adversarial": 20
+  },
+  "junit_files": {
+    "audit-added.xml": {
+      "tests": 3,
+      "failed": 2,
+      "skipped": 0
+    },
+    "audit-pool.xml": {
+      "tests": 1,
+      "failed": 1,
+      "skipped": 0
+    },
+    "audit-security.xml": {
+      "tests": 2,
+      "failed": 2,
+      "skipped": 0
+    },
+    "audit-workflow.xml": {
+      "tests": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    "baseline.xml": {
+      "tests": 582,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "source_preservation": {
+    "files_checked": 242,
+    "changed_files": []
+  },
+  "raw_token_patterns_detected": 0,
+  "scope": "Artifact consistency and bounded token-pattern check; not a comprehensive secrets scanner"
+}

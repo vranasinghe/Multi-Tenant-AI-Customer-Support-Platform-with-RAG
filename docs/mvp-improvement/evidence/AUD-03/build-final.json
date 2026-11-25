@@ -1,0 +1,7 @@
+{
+  "id": "build-final",
+  "command": "docker build --target runtime -t acs-api:mvp-a3-local services/api; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; docker compose exec -T api python -m app.cli check-rls",
+  "exit_code": 0,
+  "duration_seconds": 5.218,
+  "log": "build-final.log"
+}

@@ -1,0 +1,7 @@
+{
+  "id": "original-validation",
+  "command": "docker compose exec -T -e AUDIT_CONFIRM_POOL=1 -e AUDIT_OUTPUT_DIR=/tmp/mvp-improvement/AUD-01-validation api pytest tests/integration/api/audit/test_implementation_audit.py::test_staged_isolated_performance -q --tb=short --junitxml=/tmp/mvp-improvement/original-short.xml; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; docker compose exec -T -e AUDIT_OUTPUT_DIR=/tmp/mvp-improvement/AUD-01-full-collector api pytest tests/integration/api/audit/test_implementation_audit.py::test_staged_isolated_performance -q --tb=short --junitxml=/tmp/mvp-improvement/original-full.xml",
+  "exit_code": 0,
+  "duration_seconds": 12.156,
+  "log": "original-validation.log"
+}

@@ -1,0 +1,111 @@
+[project]
+name = "acs-api"
+version = "0.1.0"
+description = "FastAPI backend and Celery workers for the AI customer support chatbot platform"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "alembic==1.20.1",
+    "argon2-cffi==25.1.0",
+    "email-validator==2.4.0",
+    "uuid-utils==1.2.0",
+    "celery[redis]==5.7.0",
+    "fastapi==0.165.0",
+    "psycopg[binary]==3.3.9",
+    "pydantic==2.14.4",
+    "pydantic-settings==2.16.3",
+    "redis==8.1.0",
+    "sqlalchemy[asyncio]==2.1.9",
+    "structlog==26.1.0",
+    "uvicorn[standard]==0.54.0",
+    "boto3==1.44.9",
+    "pypdf==7.1.1",
+    "defusedxml==0.7.1",
+    "httpx2==2.16.2",
+    "dnspython==2.9.2",
+]
+
+[dependency-groups]
+dev = [
+    "celery-types==0.26.0",
+    "mypy==2.4.1",
+    "pytest==9.2.0",
+    "pytest-asyncio==1.5.0",
+    "ruff==0.17.6",
+]
+
+[tool.uv]
+# This is an application, not a distributable library.
+package = false
+required-version = ">=0.13"
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+extend-exclude = ["migrations/versions/*.py.mako"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F",   # pycodestyle, pyflakes
+    "I",             # isort
+    "N",             # pep8-naming
+    "UP",            # pyupgrade
+    "B",             # bugbear
+    "S",             # bandit (security)
+    "ASYNC",         # async pitfalls
+    "C4", "SIM", "RET", "PT", "PL", "RUF",
+    "T20",           # no print()
+]
+ignore = [
+    "PLR0913",       # many args is fine for factories/settings
+    "PLR2004",       # magic values in comparisons
+    "SIM905",        # str.split() keeps long word lists readable
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "S101", "S105", "S106", "S107", "PLR2004", "PLC0415",
+    "PT018",    # compound asserts keep related checks together in table-like tests
+    "E501",     # long literals/queries in fixtures
+    "PLR0917", "RUF059",
+]
+# These tests deliberately contain bidi/zero-width/ambiguous characters (hostile input).
+"tests/unit/rag/test_extract.py" = ["RUF001", "PLE2515"]
+"tests/unit/rag/test_prompt_safety.py" = ["PLE2502", "RUF001"]
+"tests/unit/rag/test_files.py" = ["RUF001", "PLE2502"]
+"app/cli.py" = ["T201"]
+"app/api/**" = ["PLR0917"]
+"app/services/knowledge/**" = ["PLR0917"]
+"app/rag/crawler.py" = ["PLR0912", "PLR0915"]  # one linear crawl loop reads better unsplit  # FastAPI handlers take many injected dependencies
+"migrations/**" = ["N999"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+# ---------------------------------------------------------------- mypy
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_unreachable = true
+files = ["app", "tests", "migrations"]
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["boto3", "boto3.*", "botocore", "botocore.*", "defusedxml", "defusedxml.*"]
+ignore_missing_imports = true  # no bundled type stubs
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --strict-config"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = [
+    "integration: needs running Postgres (with migrations applied) and Redis; see docs/DEVELOPMENT.md",
+]

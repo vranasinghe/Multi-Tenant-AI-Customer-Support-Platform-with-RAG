@@ -1,0 +1,7 @@
+{
+  "id": "initial",
+  "command": "docker compose exec -T api pytest tests/unit/audit/test_prompt_evidence.py tests/unit/rag/test_embeddings.py tests/unit/test_chat_provider.py tests/unit/test_config.py tests/unit/test_celery.py -q --tb=short --junitxml=/tmp/mvp-improvement/AUD-03-initial.xml",
+  "exit_code": 0,
+  "duration_seconds": 5.041,
+  "log": "initial.log"
+}

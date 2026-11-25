@@ -1,0 +1,14 @@
+{
+  "name": "@acs/shared-types",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TypeScript contracts shared by web and widget. Will be generated from the API OpenAPI schema in a later phase.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  }
+}

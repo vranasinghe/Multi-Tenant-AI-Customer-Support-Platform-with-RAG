@@ -1,0 +1,7 @@
+{
+  "id": "strict-rerun",
+  "command": "docker compose exec -T -e AUDIT_OUTPUT_DIR=/tmp/mvp-improvement/AUD-03-strict-rerun api pytest tests/integration/api/mvp_improvement/test_chat_capacity.py tests/integration/api/mvp_improvement/test_chat_lifecycle.py -q --tb=short --junitxml=/tmp/mvp-improvement/AUD-03-strict-rerun.xml",
+  "exit_code": 0,
+  "duration_seconds": 22.702,
+  "log": "strict-rerun.log"
+}

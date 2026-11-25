@@ -1,0 +1,18 @@
+{
+  "name": "@acs/widget",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Isolated, accessible streaming support widget.",
+  "type": "module",
+  "scripts": {
+    "build": "vite build && node scripts/check-size.mjs",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "vite": "8.3.8",
+    "vitest": "5.1.1"
+  }
+}

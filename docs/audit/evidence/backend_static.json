@@ -1,0 +1,7 @@
+{
+  "id": "backend_static",
+  "command": "docker compose exec -T api ruff check app migrations; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; docker compose exec -T api mypy app migrations",
+  "exit_code": 0,
+  "duration_seconds": 3.389,
+  "log": "evidence/backend_static.log"
+}

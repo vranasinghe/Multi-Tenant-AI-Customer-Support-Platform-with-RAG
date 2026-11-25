@@ -1,0 +1,72 @@
+[
+  {
+    "concurrency": 10,
+    "requests": 10,
+    "statuses": {
+      "200": 1,
+      "500": 9
+    },
+    "p50_ms": 30148.550018002425,
+    "p95_ms": 30236.69152099683,
+    "successful_ttft_p50_ms": 30287.923659001535,
+    "successful_ttft_p95_ms": 30287.923659001535,
+    "successful_requests_per_second": 0.032986263671663255,
+    "http_error_rate": 0.9,
+    "server_5xx_rate": 0.9,
+    "cpu_seconds": 0.15990199999999996,
+    "peak_process_rss_kib": 144412,
+    "scope": "ASGI app + real isolated Postgres/Redis; fixture LLM; default org concurrency cap 3; no proxy/browser/provider network",
+    "raw": [
+      {
+        "status": 500,
+        "duration_ms": 30088.317404999543,
+        "ttft_ms": null
+      },
+      {
+        "status": 500,
+        "duration_ms": 30114.17566000091,
+        "ttft_ms": null
+      },
+      {
+        "status": 500,
+        "duration_ms": 30169.853038998554,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 30301.22172100164,
+        "ttft_ms": 30287.923659001535
+      },
+      {
+        "status": 500,
+        "duration_ms": 30095.71399700144,
+        "ttft_ms": null
+      },
+      {
+        "status": 500,
+        "duration_ms": 30236.69152099683,
+        "ttft_ms": null
+      },
+      {
+        "status": 500,
+        "duration_ms": 30189.11486200159,
+        "ttft_ms": null
+      },
+      {
+        "status": 500,
+        "duration_ms": 30148.550018002425,
+        "ttft_ms": null
+      },
+      {
+        "status": 500,
+        "duration_ms": 30213.895692002552,
+        "ttft_ms": null
+      },
+      {
+        "status": 500,
+        "duration_ms": 30130.48654999875,
+        "ttft_ms": null
+      }
+    ]
+  }
+]

@@ -1,0 +1,142 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_VERSION: "0.13.9"
+
+jobs:
+  # ------------------------------------------------------------------ TypeScript
+  web:
+    name: Web & packages (lint, typecheck, test, build)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      # Build-time placeholders only; not secrets.
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+
+  # ------------------------------------------------------------------ Python
+  api:
+    name: API (ruff, mypy, pytest unit + integration)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: services/api
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.7-pg18-bookworm
+        env:
+          POSTGRES_DB: chatbot_ci
+          POSTGRES_USER: platform_owner
+          POSTGRES_PASSWORD: ci-only-owner-password
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U platform_owner -d chatbot_ci"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+      redis:
+        image: redis:8.10.3-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      # Throwaway credentials for ephemeral CI service containers only.
+      APP_ENV: test
+      LOG_FORMAT: console
+      DATABASE_URL: postgresql+psycopg://platform_app:ci-only-app-password@127.0.0.1:5432/chatbot_ci
+      MIGRATION_DATABASE_URL: postgresql+psycopg://platform_owner:ci-only-owner-password@127.0.0.1:5432/chatbot_ci
+      REDIS_URL: redis://127.0.0.1:6379/0
+      CELERY_BROKER_URL: redis://127.0.0.1:6379/1
+      CELERY_RESULT_BACKEND: redis://127.0.0.1:6379/2
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: services/api/uv.lock
+      - run: uv sync --locked
+      - name: Lint
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+      - name: Type check
+        run: uv run mypy
+      - name: Unit tests
+        run: uv run pytest -m "not integration"
+      - name: Create runtime database role (same SQL as local Docker init)
+        env:
+          PGPASSWORD: ci-only-owner-password
+        run: >-
+          psql -h 127.0.0.1 -U platform_owner -d chatbot_ci -v ON_ERROR_STOP=1
+          -v db_name=chatbot_ci -v owner_user=platform_owner
+          -v app_user=platform_app -v app_password=ci-only-app-password
+          -f ../../infrastructure/postgres/init/sql/create-app-role.sql
+      - name: Migrations are reversible
+        run: |
+          uv run alembic upgrade head
+          uv run alembic downgrade base
+          uv run alembic upgrade head
+      - name: Every tenant table enforces row-level security
+        run: uv run python -m app.cli check-rls
+      - name: Integration tests (incl. tenant isolation suite)
+        run: uv run pytest -m integration
+
+  # ------------------------------------------------------------------ Containers
+  stack:
+    name: Docker images & stack smoke test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    needs: [web, api]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - name: Build production API image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: services/api
+          target: runtime
+          push: false
+          tags: acs-api:ci
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,mode=max,scope=api
+      - name: Start local stack
+        run: |
+          cp .env.example .env
+          docker compose up -d --build --wait --wait-timeout 300
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - name: Smoke test (web → api → postgres/redis, api → worker)
+        run: node scripts/smoke.mjs
+      - name: Dump logs on failure
+        if: failure()
+        run: docker compose logs --no-color --tail 200
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

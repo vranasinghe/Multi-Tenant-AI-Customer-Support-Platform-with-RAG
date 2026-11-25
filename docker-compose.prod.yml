@@ -1,0 +1,257 @@
+# Production stack for a single VPS (Contabo Cloud VPS, 4 vCPU / 8 GB):
+#
+#   docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
+#
+# Only Caddy publishes ports (80/443). Postgres, Redis and object storage stay on the
+# internal Docker network. One public origin (https://$SITE_HOST):
+#   /api/v1/*  /public/*  /widget/*  /healthz  /readyz  -> FastAPI
+#   everything else                                      -> Next.js
+# See docs/DEPLOY_CONTABO.md.
+
+name: acs-prod
+
+x-api-environment: &api-environment
+  APP_ENV: production
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  LOG_FORMAT: json
+  DATABASE_URL: postgresql+psycopg://${POSTGRES_APP_USER:-platform_app}:${POSTGRES_APP_PASSWORD:?set POSTGRES_APP_PASSWORD}@postgres:5432/${POSTGRES_DB:-chatbot}
+  MIGRATION_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-platform_owner}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-chatbot}
+  REDIS_URL: redis://redis:6379/0
+  CELERY_BROKER_URL: redis://redis:6379/1
+  CELERY_RESULT_BACKEND: redis://redis:6379/2
+  CORS_ALLOWED_ORIGINS: https://${SITE_HOST:?set SITE_HOST}
+  WEB_BASE_URL: https://${SITE_HOST}
+  # Email (production refuses the log backend). Use any SMTP provider.
+  EMAIL_BACKEND: smtp
+  EMAIL_FROM: ${EMAIL_FROM:?set EMAIL_FROM}
+  SMTP_HOST: ${SMTP_HOST:?set SMTP_HOST}
+  SMTP_PORT: ${SMTP_PORT:-587}
+  SMTP_USERNAME: ${SMTP_USERNAME:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+  SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
+  # Private object storage (RustFS, S3 API) on the internal network.
+  STORAGE_BACKEND: s3
+  S3_ENDPOINT_URL: http://storage:9000
+  S3_BUCKET: ${S3_BUCKET:-acs-documents}
+  S3_ACCESS_KEY: ${S3_ACCESS_KEY:?set S3_ACCESS_KEY}
+  S3_SECRET_KEY: ${S3_SECRET_KEY:?set S3_SECRET_KEY}
+  # Real embeddings + chat model (the hash/demo providers are refused in production).
+  EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-openai_compatible}
+  EMBEDDING_MODEL: ${EMBEDDING_MODEL:?set EMBEDDING_MODEL}
+  EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:?set EMBEDDING_BASE_URL}
+  EMBEDDING_API_KEY: ${EMBEDDING_API_KEY:?set EMBEDDING_API_KEY}
+  ALLOW_INSECURE_LOCAL_PROVIDERS: "false"
+  LLM_PROVIDER: ${LLM_PROVIDER:-openai_compatible}
+  LLM_BASE_URL: ${LLM_BASE_URL:?set LLM_BASE_URL}
+  LLM_API_KEY: ${LLM_API_KEY:?set LLM_API_KEY}
+  LLM_TIMEOUT_SECONDS: ${LLM_TIMEOUT_SECONDS:-60}
+  LLM_RETRIES: ${LLM_RETRIES:-2}
+  CHAT_CONTEXT_MESSAGES: ${CHAT_CONTEXT_MESSAGES:-12}
+  CHAT_INPUT_TOKEN_BUDGET: ${CHAT_INPUT_TOKEN_BUDGET:-16000}
+  CHAT_MIN_VECTOR_SCORE: ${CHAT_MIN_VECTOR_SCORE:-0.15}
+  CHAT_REQUESTS_PER_MINUTE: ${CHAT_REQUESTS_PER_MINUTE:-60}
+  CHAT_CONCURRENCY_PER_ORG: ${CHAT_CONCURRENCY_PER_ORG:-3}
+  DB_POOL_TIMEOUT_SECONDS: ${DB_POOL_TIMEOUT_SECONDS:-2}
+  CHAT_SETUP_CAPACITY: ${CHAT_SETUP_CAPACITY:-8}
+  CHAT_ADMISSION_WAIT_SECONDS: ${CHAT_ADMISSION_WAIT_SECONDS:-0.9}
+  CHAT_MONTHLY_TOKEN_LIMIT: ${CHAT_MONTHLY_TOKEN_LIMIT:-2000000}
+  CHAT_MONTHLY_COST_LIMIT_USD: ${CHAT_MONTHLY_COST_LIMIT_USD:-25}
+  CHAT_MODEL_PRICES: '${CHAT_MODEL_PRICES:-{"gpt-4.1-mini":[0.40,1.60],"gpt-4.1-nano":[0.10,0.40],"gpt-4.1":[2.0,8.0]}}'
+  WIDGET_SESSION_MINUTES: ${WIDGET_SESSION_MINUTES:-15}
+  WIDGET_MESSAGES_PER_SESSION: ${WIDGET_MESSAGES_PER_SESSION:-30}
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.7-pg18-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-chatbot}
+      POSTGRES_USER: ${POSTGRES_USER:-platform_owner}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_APP_USER: ${POSTGRES_APP_USER:-platform_app}
+      POSTGRES_APP_PASSWORD: ${POSTGRES_APP_PASSWORD:?set POSTGRES_APP_PASSWORD}
+    # Modest tuning for an 8 GB host shared with the worker.
+    command:
+      - postgres
+      - -c
+      - shared_buffers=1GB
+      - -c
+      - effective_cache_size=3GB
+      - -c
+      - work_mem=16MB
+      - -c
+      - maintenance_work_mem=256MB
+      - -c
+      - max_connections=100
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./infrastructure/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 10s
+      timeout: 3s
+      retries: 20
+    mem_limit: 2500m
+    logging: *default-logging
+
+  redis:
+    image: redis:8.10.3-alpine
+    restart: unless-stopped
+    # AOF on: Celery jobs survive a restart.
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 20
+    mem_limit: 400m
+    logging: *default-logging
+
+  storage:
+    image: rustfs/rustfs:1.0.6
+    restart: unless-stopped
+    environment:
+      RUSTFS_ACCESS_KEY: ${S3_ACCESS_KEY:?set S3_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${S3_SECRET_KEY:?set S3_SECRET_KEY}
+      RUSTFS_VOLUMES: /data
+    volumes:
+      - storagedata:/data
+    mem_limit: 512m
+    logging: *default-logging
+
+  # One image (target "runtime", non-root, source baked in) for init, migrate, api, worker, beat.
+  storage-init:
+    build:
+      context: ./services/api
+      target: runtime
+    image: acs-api:prod
+    command: ["python", "-m", "app.cli", "init-storage"]
+    environment: *api-environment
+    depends_on:
+      - storage
+    restart: "no"
+
+  migrate:
+    image: acs-api:prod
+    command: ["alembic", "upgrade", "head"]
+    environment: *api-environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+      storage-init:
+        condition: service_completed_successfully
+    restart: "no"
+
+  api:
+    image: acs-api:prod
+    restart: unless-stopped
+    environment: *api-environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    mem_limit: 1g
+    logging: *default-logging
+
+  worker:
+    image: acs-api:prod
+    restart: unless-stopped
+    command:
+      - celery
+      - -A
+      - app.workers.celery_app
+      - worker
+      - --queues=default,ingest,crawl,chat_out,billing
+      - --concurrency=${WORKER_CONCURRENCY:-2}
+      - --loglevel=INFO
+    environment: *api-environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "celery -A app.workers.celery_app inspect ping --destination celery@$$HOSTNAME --timeout 5 >/dev/null",
+        ]
+      interval: 30s
+      timeout: 15s
+      start_period: 30s
+      retries: 5
+    mem_limit: 1500m
+    logging: *default-logging
+
+  beat:
+    image: acs-api:prod
+    restart: unless-stopped
+    command:
+      [
+        "celery",
+        "-A",
+        "app.workers.celery_app",
+        "beat",
+        "--loglevel=INFO",
+        "--schedule=/tmp/celerybeat-schedule",
+      ]
+    environment: *api-environment
+    depends_on:
+      redis:
+        condition: service_healthy
+    mem_limit: 300m
+    logging: *default-logging
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        # Inlined into the browser bundle at build time: the single public origin.
+        NEXT_PUBLIC_API_URL: https://${SITE_HOST:?set SITE_HOST}
+    image: acs-web:prod
+    restart: unless-stopped
+    environment:
+      API_INTERNAL_URL: http://api:8000
+      LOG_LEVEL: info
+    depends_on:
+      api:
+        condition: service_started
+    mem_limit: 600m
+    logging: *default-logging
+
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    environment:
+      SITE_HOST: ${SITE_HOST:?set SITE_HOST}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - api
+    mem_limit: 200m
+    logging: *default-logging
+
+volumes:
+  pgdata:
+  redisdata:
+  storagedata:
+  caddy_data:
+  caddy_config:

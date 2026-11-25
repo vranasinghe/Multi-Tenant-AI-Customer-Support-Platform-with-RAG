@@ -1,0 +1,7 @@
+{
+  "id": "audit_workflow",
+  "command": "docker compose exec -T -e AUDIT_OUTPUT_DIR=/tmp/implementation_audit api pytest tests/integration/api/audit/test_implementation_audit.py::test_business_workflow_and_100_case_evaluation -q --tb=short --junitxml=/tmp/audit-workflow.xml",
+  "exit_code": 0,
+  "duration_seconds": 15.717,
+  "log": "evidence/audit_workflow.log"
+}

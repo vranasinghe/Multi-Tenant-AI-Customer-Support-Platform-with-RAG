@@ -1,0 +1,40 @@
+{
+  "name": "ai-chatbot-saas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Multi-tenant AI customer support chatbot platform (monorepo root)",
+  "packageManager": "pnpm@11.28.12",
+  "engines": {
+    "node": ">=24.11.0 <25",
+    "pnpm": ">=11.28.0"
+  },
+  "scripts": {
+    "dev": "docker compose up --build",
+    "dev:web": "pnpm --filter @acs/web dev",
+    "build": "pnpm -r --if-present build",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "api:dev": "uv run --directory services/api uvicorn app.main:create_app --factory --reload --port 8000 --no-access-log",
+    "worker:dev": "uv run --directory services/api celery -A app.workers.celery_app worker --pool=solo --queues=default,ingest,crawl,chat_out,billing --loglevel=INFO",
+    "api:lint": "uv run --directory services/api ruff check . && uv run --directory services/api ruff format --check .",
+    "api:format": "uv run --directory services/api ruff format . && uv run --directory services/api ruff check --fix .",
+    "api:typecheck": "uv run --directory services/api mypy",
+    "api:test": "uv run --directory services/api pytest -m \"not integration\"",
+    "api:test:integration": "uv run --directory services/api pytest -m integration",
+    "db:migrate": "docker compose run --rm migrate",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm api:lint && pnpm api:typecheck && pnpm api:test",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.15.0",
+    "globals": "17.14.0",
+    "prettier": "3.10.1",
+    "prettier-plugin-tailwindcss": "0.8.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.73.0"
+  }
+}

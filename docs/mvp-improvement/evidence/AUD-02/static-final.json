@@ -1,0 +1,7 @@
+{
+  "id": "static-final",
+  "command": "docker compose exec -T api ruff check .; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; docker compose exec -T api ruff format --check .; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; docker compose exec -T api mypy",
+  "exit_code": 1,
+  "duration_seconds": 5.496,
+  "log": "static-final.log"
+}

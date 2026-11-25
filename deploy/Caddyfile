@@ -1,0 +1,32 @@
+{
+	email {$ACME_EMAIL}
+}
+
+# Single public origin: https://{$SITE_HOST}
+{$SITE_HOST} {
+	encode zstd gzip
+
+	# FastAPI: dashboard API, public widget API, widget loader/frame, probes.
+	# (Next.js owns /api/health and /api/ready, so only /api/v1/* goes to FastAPI.)
+	@api path /api/v1/* /public/* /widget/* /healthz /readyz
+	handle @api {
+		reverse_proxy api:8000 {
+			# No buffering: chat answers stream over SSE.
+			flush_interval -1
+			transport http {
+				response_header_timeout 120s
+				read_timeout 120s
+			}
+		}
+	}
+
+	# Everything else: Next.js dashboard.
+	handle {
+		reverse_proxy web:3000
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+}

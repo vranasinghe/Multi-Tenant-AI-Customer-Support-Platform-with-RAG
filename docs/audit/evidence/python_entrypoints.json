@@ -1,0 +1,2959 @@
+[
+  {
+    "path": "services/api/app/__init__.py",
+    "definitions": []
+  },
+  {
+    "path": "services/api/app/api/__init__.py",
+    "definitions": []
+  },
+  {
+    "path": "services/api/app/api/auth.py",
+    "definitions": [
+      {
+        "name": "signup",
+        "line": 29,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "login",
+        "line": 61,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "logout",
+        "line": 87,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "verify_email",
+        "line": 94,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "resend_verification",
+        "line": 100,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "forgot_password",
+        "line": 108,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "reset_password",
+        "line": 117,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/api/chatbots.py",
+    "definitions": [
+      {
+        "name": "chatbot_out",
+        "line": 46,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "chatbot_options",
+        "line": 74,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "list_chatbots",
+        "line": 100,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "create_chatbot",
+        "line": 116,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "get_chatbot",
+        "line": 132,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "update_chatbot",
+        "line": 140,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "delete_chatbot",
+        "line": 155,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "rotate_public_key",
+        "line": 163,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/api/conversations.py",
+    "definitions": [
+      {
+        "name": "no_cache",
+        "line": 23,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "ChatStreamingResponse",
+        "line": 35,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "sse_response",
+        "line": 72,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "create_conversation",
+        "line": 77,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "list_conversations",
+        "line": 85,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "get_conversation",
+        "line": 104,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "send_message",
+        "line": 111,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "feedback",
+        "line": 128,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "create_widget_session",
+        "line": 141,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/api/cookies.py",
+    "definitions": [
+      {
+        "name": "set_session_cookie",
+        "line": 20,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "clear_session_cookie",
+        "line": 32,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/api/deps.py",
+    "definitions": [
+      {
+        "name": "get_app_settings",
+        "line": 45,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "get_readiness_service",
+        "line": 49,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "get_services",
+        "line": 53,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "get_db",
+        "line": 62,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "get_meta",
+        "line": 72,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "get_mail",
+        "line": 79,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "AuthContext",
+        "line": 87,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "get_auth",
+        "line": 93,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "get_verified_auth",
+        "line": 113,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "get_tenant_context",
+        "line": 122,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "require",
+        "line": 145,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/api/health.py",
+    "definitions": [
+      {
+        "name": "liveness",
+        "line": 14,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "readiness",
+        "line": 24,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/api/invitations.py",
+    "definitions": [
+      {
+        "name": "lookup_invitation",
+        "line": 18,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "accept_invitation",
+        "line": 39,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/api/knowledge.py",
+    "definitions": [
+      {
+        "name": "job_out",
+        "line": 45,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "document_out",
+        "line": 62,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "source_out",
+        "line": 85,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "knowledge_limits",
+        "line": 101,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "upload_document",
+        "line": 117,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "list_documents",
+        "line": 157,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "get_document",
+        "line": 180,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "list_chunks",
+        "line": 194,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "delete_document",
+        "line": 224,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "reprocess_document",
+        "line": 237,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "reindex",
+        "line": 254,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "list_sources",
+        "line": 274,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "create_source",
+        "line": 283,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "sync_source",
+        "line": 300,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "delete_source",
+        "line": 318,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "search",
+        "line": 334,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/api/me.py",
+    "definitions": [
+      {
+        "name": "get_me",
+        "line": 29,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "update_me",
+        "line": 37,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "change_password",
+        "line": 47,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "list_my_sessions",
+        "line": 70,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "revoke_other_sessions",
+        "line": 88,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "revoke_session",
+        "line": 95,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/api/orgs.py",
+    "definitions": [
+      {
+        "name": "list_orgs",
+        "line": 62,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "create_org",
+        "line": 68,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "get_org",
+        "line": 79,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "update_org",
+        "line": 84,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "transfer_ownership",
+        "line": 100,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "list_members",
+        "line": 121,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "change_member_role",
+        "line": 127,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "remove_member",
+        "line": 146,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "_invitation_out",
+        "line": 158,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "list_invitations",
+        "line": 170,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "create_invitation",
+        "line": 176,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "resend_invitation",
+        "line": 192,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "revoke_invitation",
+        "line": 208,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "_encode_cursor",
+        "line": 218,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_decode_cursor",
+        "line": 222,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "list_audit_logs",
+        "line": 231,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/api/serializers.py",
+    "definitions": [
+      {
+        "name": "user_out",
+        "line": 16,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "org_role_out",
+        "line": 26,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "org_out",
+        "line": 30,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "member_out",
+        "line": 43,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/api/v1.py",
+    "definitions": []
+  },
+  {
+    "path": "services/api/app/api/widget_chat.py",
+    "definitions": [
+      {
+        "name": "message",
+        "line": 20,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "history",
+        "line": 32,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "feedback",
+        "line": 39,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/api/widget_install.py",
+    "definitions": [
+      {
+        "name": "Domain",
+        "line": 29,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "Retention",
+        "line": 33,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "Session",
+        "line": 37,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "config",
+        "line": 44,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "add",
+        "line": 51,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "verify",
+        "line": 59,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "remove",
+        "line": 72,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "retention",
+        "line": 83,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "script",
+        "line": 106,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "frame",
+        "line": 122,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "session",
+        "line": 154,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/cli.py",
+    "definitions": [
+      {
+        "name": "check_worker",
+        "line": 23,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "check_rls",
+        "line": 39,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "init_storage",
+        "line": 55,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "main",
+        "line": 77,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/core/__init__.py",
+    "definitions": []
+  },
+  {
+    "path": "services/api/app/core/chat_body_limit.py",
+    "definitions": [
+      {
+        "name": "ChatBodyLimit",
+        "line": 13,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/core/config.py",
+    "definitions": [
+      {
+        "name": "_require_psycopg_driver",
+        "line": 26,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "Settings",
+        "line": 33,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "MigrationSettings",
+        "line": 293,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "get_settings",
+        "line": 321,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/core/csrf.py",
+    "definitions": [
+      {
+        "name": "CsrfMiddleware",
+        "line": 30,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/core/db.py",
+    "definitions": [
+      {
+        "name": "create_engine",
+        "line": 15,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "create_session_factory",
+        "line": 27,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/core/errors.py",
+    "definitions": [
+      {
+        "name": "ApiError",
+        "line": 33,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "unauthenticated",
+        "line": 55,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "not_found",
+        "line": 59,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "forbidden",
+        "line": 63,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "invalid_token",
+        "line": 67,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "validation_error",
+        "line": 71,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "problem_response",
+        "line": 80,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_request_id",
+        "line": 107,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_http_exception_handler",
+        "line": 111,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "_validation_exception_handler",
+        "line": 126,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "_api_error_handler",
+        "line": 145,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "register_exception_handlers",
+        "line": 158,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/core/ids.py",
+    "definitions": [
+      {
+        "name": "new_id",
+        "line": 10,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/core/logging.py",
+    "definitions": [
+      {
+        "name": "configure_logging",
+        "line": 23,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "get_logger",
+        "line": 65,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/core/rate_limit.py",
+    "definitions": [
+      {
+        "name": "_digest",
+        "line": 26,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "rate_limited",
+        "line": 30,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_unavailable",
+        "line": 45,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "Limit",
+        "line": 50,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "RateLimiter",
+        "line": 56,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "LoginGuard",
+        "line": 80,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/core/redis.py",
+    "definitions": [
+      {
+        "name": "create_redis",
+        "line": 13,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/core/request_context.py",
+    "definitions": [
+      {
+        "name": "resolve_request_id",
+        "line": 33,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "RequestContextMiddleware",
+        "line": 39,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/core/request_meta.py",
+    "definitions": [
+      {
+        "name": "ip_prefix",
+        "line": 13,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "RequestMeta",
+        "line": 26,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/core/rls.py",
+    "definitions": [
+      {
+        "name": "enable_tenant_rls_statements",
+        "line": 21,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "enable_force_rls_statements",
+        "line": 32,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "find_unprotected_tables",
+        "line": 63,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/core/security.py",
+    "definitions": [
+      {
+        "name": "new_token",
+        "line": 48,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "hash_token",
+        "line": 53,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "PasswordPolicyError",
+        "line": 58,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "validate_password_policy",
+        "line": 62,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "PasswordService",
+        "line": 79,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/integrations/__init__.py",
+    "definitions": []
+  },
+  {
+    "path": "services/api/app/integrations/email.py",
+    "definitions": [
+      {
+        "name": "EmailMessage",
+        "line": 25,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "EmailSender",
+        "line": 31,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "LogEmailSender",
+        "line": 35,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "SmtpEmailSender",
+        "line": 42,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "build_email_sender",
+        "line": 70,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/integrations/llm.py",
+    "definitions": [
+      {
+        "name": "ProviderError",
+        "line": 16,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "CompletionEvent",
+        "line": 21,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ChatProvider",
+        "line": 28,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "CompatibleProvider",
+        "line": 34,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "DemoProvider",
+        "line": 121,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "DisabledProvider",
+        "line": 133,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "build_chat_provider",
+        "line": 141,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/main.py",
+    "definitions": [
+      {
+        "name": "create_app",
+        "line": 39,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/models/__init__.py",
+    "definitions": [
+      {
+        "name": "Base",
+        "line": 18,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/models/chatbots.py",
+    "definitions": [
+      {
+        "name": "Chatbot",
+        "line": 19,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/models/conversations.py",
+    "definitions": [
+      {
+        "name": "Conversation",
+        "line": 19,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "Message",
+        "line": 29,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "WidgetSession",
+        "line": 47,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ChatUsage",
+        "line": 62,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/models/identity.py",
+    "definitions": [
+      {
+        "name": "utcnow",
+        "line": 16,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "User",
+        "line": 20,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "UserSession",
+        "line": 35,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "EmailToken",
+        "line": 49,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/models/knowledge.py",
+    "definitions": [
+      {
+        "name": "Vector",
+        "line": 32,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "vector_literal",
+        "line": 60,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "KnowledgeSource",
+        "line": 64,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "Document",
+        "line": 86,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "DocumentChunk",
+        "line": 122,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "IngestionJob",
+        "line": 149,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "StorageDeletion",
+        "line": 181,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/models/tenancy.py",
+    "definitions": [
+      {
+        "name": "Organization",
+        "line": 18,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "Membership",
+        "line": 35,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "Invitation",
+        "line": 46,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "AuditLog",
+        "line": 63,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/rag/__init__.py",
+    "definitions": []
+  },
+  {
+    "path": "services/api/app/rag/chunking.py",
+    "definitions": [
+      {
+        "name": "estimate_tokens",
+        "line": 28,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "ChunkingConfig",
+        "line": 33,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "Chunk",
+        "line": 47,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "_Unit",
+        "line": 58,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "_split_long",
+        "line": 63,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_overlap_tail",
+        "line": 97,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_context_header",
+        "line": 105,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "chunk_blocks",
+        "line": 110,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/rag/crawl_job.py",
+    "definitions": [
+      {
+        "name": "_config_from_source",
+        "line": 40,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "run_crawl_job",
+        "line": 53,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_run",
+        "line": 79,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_dumps",
+        "line": 166,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_upsert_page",
+        "line": 172,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_mark_page_failed",
+        "line": 209,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/rag/crawler.py",
+    "definitions": [
+      {
+        "name": "CrawlConfig",
+        "line": 37,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "CrawlStats",
+        "line": 47,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "CrawledPage",
+        "line": 67,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "_site_key",
+        "line": 77,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "content_hash",
+        "line": 82,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_matches",
+        "line": 86,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "load_robots",
+        "line": 90,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "crawl",
+        "line": 109,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_identity",
+        "line": 213,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_charset",
+        "line": 222,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_note",
+        "line": 234,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/rag/embeddings.py",
+    "definitions": [
+      {
+        "name": "Embedder",
+        "line": 42,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "_stem",
+        "line": 50,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "tokenize",
+        "line": 57,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "HashingEmbedder",
+        "line": 62,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "OpenAICompatibleEmbedder",
+        "line": 97,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "build_embedder",
+        "line": 156,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/rag/errors.py",
+    "definitions": [
+      {
+        "name": "IngestionError",
+        "line": 31,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "TransientIngestionError",
+        "line": 46,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/rag/extract.py",
+    "definitions": [
+      {
+        "name": "Limits",
+        "line": 41,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "Block",
+        "line": 50,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ExtractedDocument",
+        "line": 60,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "normalize_text",
+        "line": 70,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_paragraphs",
+        "line": 81,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_extract_pdf",
+        "line": 90,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_check_zip",
+        "line": 124,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_read_member",
+        "line": 142,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_run_text",
+        "line": 150,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_heading_level",
+        "line": 162,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_extract_docx",
+        "line": 171,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "decode_text",
+        "line": 235,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_extract_txt",
+        "line": 253,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "extract_document",
+        "line": 294,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/rag/files.py",
+    "definitions": [
+      {
+        "name": "ValidatedFile",
+        "line": 47,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "sanitize_filename",
+        "line": 53,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_looks_like_text",
+        "line": 66,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "validate_upload",
+        "line": 73,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/rag/html_extract.py",
+    "definitions": [
+      {
+        "name": "HtmlPage",
+        "line": 44,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "_Frame",
+        "line": 58,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "canonicalize_url",
+        "line": 65,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_Extractor",
+        "line": 83,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "extract_html",
+        "line": 210,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/rag/maintenance.py",
+    "definitions": [
+      {
+        "name": "sweep_jobs",
+        "line": 25,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "purge_storage",
+        "line": 75,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/rag/pipeline.py",
+    "definitions": [
+      {
+        "name": "JobClaim",
+        "line": 80,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "backoff_seconds",
+        "line": 91,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "claim_job",
+        "line": 100,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "heartbeat",
+        "line": 121,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_json",
+        "line": 132,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "fail_job",
+        "line": 138,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "requeue_job",
+        "line": 159,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "extract_stored",
+        "line": 179,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "IndexResult",
+        "line": 193,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "index_document",
+        "line": 199,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "run_document_job",
+        "line": 313,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_process_document",
+        "line": 343,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/rag/queue.py",
+    "definitions": [
+      {
+        "name": "JobQueue",
+        "line": 25,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "CeleryJobQueue",
+        "line": 29,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "RecordingJobQueue",
+        "line": 43,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "build_job_queue",
+        "line": 53,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/rag/retrieval.py",
+    "definitions": [
+      {
+        "name": "RetrievedChunk",
+        "line": 44,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "keyword_query",
+        "line": 86,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_row_to_chunk",
+        "line": 97,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "search",
+        "line": 115,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "_clean",
+        "line": 182,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "render_context",
+        "line": 187,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "build_messages",
+        "line": 205,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "query_terms",
+        "line": 220,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/rag/runtime.py",
+    "definitions": [
+      {
+        "name": "Runtime",
+        "line": 34,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "build_fetcher",
+        "line": 65,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "build_runtime",
+        "line": 76,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "get_runtime",
+        "line": 98,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "set_runtime",
+        "line": 109,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/rag/safe_fetch.py",
+    "definitions": [
+      {
+        "name": "BlockedDestinationError",
+        "line": 43,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "FetchStatusError",
+        "line": 48,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "is_public_ip",
+        "line": 57,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "system_resolver",
+        "line": 81,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "Destination",
+        "line": 92,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "FetchResult",
+        "line": 102,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "parse_url",
+        "line": 112,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_is_ip",
+        "line": 144,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "resolve_destination",
+        "line": 152,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_PinnedHTTPConnection",
+        "line": 174,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "_PinnedHTTPSConnection",
+        "line": 183,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "SafeFetcher",
+        "line": 195,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/rag/storage.py",
+    "definitions": [
+      {
+        "name": "StorageError",
+        "line": 28,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ObjectNotFoundError",
+        "line": 32,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ObjectStore",
+        "line": 36,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "document_key",
+        "line": 43,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "key_belongs_to_org",
+        "line": 49,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "S3ObjectStore",
+        "line": 53,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "MemoryObjectStore",
+        "line": 132,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "build_object_store",
+        "line": 176,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/schemas/__init__.py",
+    "definitions": []
+  },
+  {
+    "path": "services/api/app/schemas/auth.py",
+    "definitions": [
+      {
+        "name": "StrictModel",
+        "line": 21,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "OutModel",
+        "line": 25,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "SignupRequest",
+        "line": 29,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "LoginRequest",
+        "line": 36,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "TokenRequest",
+        "line": 41,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ForgotPasswordRequest",
+        "line": 45,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ResetPasswordRequest",
+        "line": 49,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ChangePasswordRequest",
+        "line": 54,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "UpdateMeRequest",
+        "line": 59,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "UserOut",
+        "line": 64,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "OrgRoleOut",
+        "line": 72,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "SignupResponse",
+        "line": 78,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "LoginResponse",
+        "line": 83,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "StatusResponse",
+        "line": 88,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "SessionOut",
+        "line": 92,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "SessionList",
+        "line": 101,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/schemas/chatbots.py",
+    "definitions": [
+      {
+        "name": "_no_control_chars",
+        "line": 26,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_hex_color",
+        "line": 33,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_https_url",
+        "line": 40,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "WidgetSettings",
+        "line": 82,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "WidgetSettingsPatch",
+        "line": 91,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "CreateChatbotRequest",
+        "line": 110,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "UpdateChatbotRequest",
+        "line": 132,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ChatbotCreator",
+        "line": 179,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ChatbotOut",
+        "line": 184,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ChatbotList",
+        "line": 209,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ModelOut",
+        "line": 214,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "LanguageOut",
+        "line": 224,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ChatbotOptions",
+        "line": 229,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/schemas/conversations.py",
+    "definitions": [
+      {
+        "name": "_valid_unicode",
+        "line": 11,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "SendMessage",
+        "line": 27,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "Feedback",
+        "line": 32,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/schemas/health.py",
+    "definitions": [
+      {
+        "name": "LivenessResponse",
+        "line": 13,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "DependencyCheck",
+        "line": 19,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ReadinessResponse",
+        "line": 25,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/schemas/knowledge.py",
+    "definitions": [
+      {
+        "name": "_pattern",
+        "line": 17,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "CreateWebsiteSourceRequest",
+        "line": 29,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "SearchRequest",
+        "line": 40,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "JobOut",
+        "line": 47,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "DocumentOut",
+        "line": 60,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "DocumentList",
+        "line": 81,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "SourceOut",
+        "line": 86,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "SourceList",
+        "line": 98,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ChunkOut",
+        "line": 102,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ChunkList",
+        "line": 112,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "SearchResultOut",
+        "line": 117,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "SearchResponse",
+        "line": 134,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "ReindexResponse",
+        "line": 141,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "UploadLimits",
+        "line": 147,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/schemas/orgs.py",
+    "definitions": [
+      {
+        "name": "OrgSettings",
+        "line": 16,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "CreateOrgRequest",
+        "line": 21,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "UpdateOrgRequest",
+        "line": 25,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "OrgOut",
+        "line": 30,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "OrgList",
+        "line": 41,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "TransferOwnershipRequest",
+        "line": 45,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "MemberUser",
+        "line": 50,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "MemberOut",
+        "line": 57,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "MemberList",
+        "line": 64,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "UpdateMemberRequest",
+        "line": 68,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "InviteRequest",
+        "line": 72,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "InvitationOut",
+        "line": 77,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "InvitationList",
+        "line": 86,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "InvitationPreviewOut",
+        "line": 90,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "AcceptInvitationRequest",
+        "line": 97,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "AuditActor",
+        "line": 101,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "AuditLogOut",
+        "line": 106,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "AuditLogList",
+        "line": 118,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/__init__.py",
+    "definitions": []
+  },
+  {
+    "path": "services/api/app/services/chat_controls.py",
+    "definitions": [
+      {
+        "name": "Lease",
+        "line": 41,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "acquire",
+        "line": 50,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "cost",
+        "line": 83,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "reserve",
+        "line": 90,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/chat_prompt.py",
+    "definitions": [
+      {
+        "name": "token_bound",
+        "line": 20,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "assemble",
+        "line": 25,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "citations_for",
+        "line": 51,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "strip_unknown_citations",
+        "line": 67,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/chatbots/__init__.py",
+    "definitions": []
+  },
+  {
+    "path": "services/api/app/services/chatbots/registry.py",
+    "definitions": [
+      {
+        "name": "ModelInfo",
+        "line": 14,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/chatbots/service.py",
+    "definitions": [
+      {
+        "name": "generate_public_key",
+        "line": 61,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_name_taken",
+        "line": 65,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_validate_catalog",
+        "line": 75,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_is_name_conflict",
+        "line": 95,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_name_in_use",
+        "line": 99,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "_escape_like",
+        "line": 112,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "list_chatbots",
+        "line": 116,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "get_chatbot",
+        "line": 138,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "creator_of",
+        "line": 151,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "create_chatbot",
+        "line": 155,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "_current_value",
+        "line": 232,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_validate_merged",
+        "line": 237,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_apply_patch",
+        "line": 252,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_apply_widget_patch",
+        "line": 269,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "update_chatbot",
+        "line": 280,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "delete_chatbot",
+        "line": 338,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "rotate_public_key",
+        "line": 358,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/container.py",
+    "definitions": [
+      {
+        "name": "AppServices",
+        "line": 29,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "MailQueue",
+        "line": 44,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/conversations.py",
+    "definitions": [
+      {
+        "name": "find_conversation",
+        "line": 38,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "bot_for",
+        "line": 53,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "save_feedback",
+        "line": 71,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "create",
+        "line": 97,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "transcript",
+        "line": 117,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "message_out",
+        "line": 141,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "Turn",
+        "line": 158,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "prepare",
+        "line": 172,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "_prepare",
+        "line": 184,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "event",
+        "line": 337,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "close_pending_turn",
+        "line": 341,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "stream",
+        "line": 369,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/identity/__init__.py",
+    "definitions": []
+  },
+  {
+    "path": "services/api/app/services/identity/auth.py",
+    "definitions": [
+      {
+        "name": "invalid_credentials",
+        "line": 37,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_check_policy",
+        "line": 43,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_find_user",
+        "line": 50,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "SignupResult",
+        "line": 55,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "signup",
+        "line": 63,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "LoginResult",
+        "line": 132,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "login",
+        "line": 137,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "verify_email",
+        "line": 191,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "resend_verification",
+        "line": 204,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "forgot_password",
+        "line": 227,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "reset_password",
+        "line": 255,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "change_password",
+        "line": 276,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/identity/sessions.py",
+    "definitions": [
+      {
+        "name": "create_session",
+        "line": 26,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "find_active_session",
+        "line": 47,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "touch_session",
+        "line": 66,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "revoke_session_by_token",
+        "line": 79,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "revoke_user_sessions",
+        "line": 87,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "revoke_one",
+        "line": 101,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "list_sessions",
+        "line": 114,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/identity/tokens.py",
+    "definitions": [
+      {
+        "name": "issue_email_token",
+        "line": 20,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "consume_email_token",
+        "line": 48,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/knowledge/service.py",
+    "definitions": [
+      {
+        "name": "_ingestion_to_api",
+        "line": 50,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_already_processing",
+        "line": 58,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_lock_org",
+        "line": 67,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "_file_source",
+        "line": 72,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "_new_job",
+        "line": 93,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "latest_jobs",
+        "line": 113,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "create_upload",
+        "line": 145,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "get_document",
+        "line": 259,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "list_documents",
+        "line": 274,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "list_chunks",
+        "line": 301,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "list_sources",
+        "line": 329,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "get_source",
+        "line": 341,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "delete_document",
+        "line": 359,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "reprocess_document",
+        "line": 390,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "reindex_chatbot",
+        "line": 431,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "create_website_source",
+        "line": 490,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "sync_source",
+        "line": 559,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "delete_source",
+        "line": 592,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "search_chatbot",
+        "line": 627,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/notifications.py",
+    "definitions": [
+      {
+        "name": "verify_email",
+        "line": 10,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "account_exists",
+        "line": 22,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "reset_password",
+        "line": 34,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "password_changed",
+        "line": 47,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "account_locked",
+        "line": 58,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "invitation",
+        "line": 69,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/readiness.py",
+    "definitions": [
+      {
+        "name": "DependencyNotReadyError",
+        "line": 32,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "expected_migration_heads",
+        "line": 37,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "ReadinessService",
+        "line": 43,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "database_check",
+        "line": 79,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "migrations_check",
+        "line": 93,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "redis_check",
+        "line": 112,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "build_readiness_service",
+        "line": 120,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/tenancy/__init__.py",
+    "definitions": []
+  },
+  {
+    "path": "services/api/app/services/tenancy/audit.py",
+    "definitions": [
+      {
+        "name": "record_audit",
+        "line": 24,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "list_audit_logs",
+        "line": 52,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/tenancy/context.py",
+    "definitions": [
+      {
+        "name": "set_user_context",
+        "line": 27,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "set_org_context",
+        "line": 31,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "TenantContext",
+        "line": 36,
+        "kind": "ClassDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/tenancy/invitations.py",
+    "definitions": [
+      {
+        "name": "mask_email",
+        "line": 29,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "invitation_status",
+        "line": 34,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "_send_invite_mail",
+        "line": 44,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "create_invitation",
+        "line": 66,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "list_invitations",
+        "line": 133,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "_load_invitation",
+        "line": 146,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "resend_invitation",
+        "line": 159,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "revoke_invitation",
+        "line": 197,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "ResolvedInvitation",
+        "line": 219,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "resolve_invitation",
+        "line": 233,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "InvitationPreview",
+        "line": 256,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "lookup_invitation",
+        "line": 263,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "accept_invitation",
+        "line": 279,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/tenancy/members.py",
+    "definitions": [
+      {
+        "name": "policy_to_api",
+        "line": 31,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "list_members",
+        "line": 37,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "_load_member",
+        "line": 47,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "_owner_count",
+        "line": 62,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "change_role",
+        "line": 71,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "remove_member",
+        "line": 107,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "transfer_ownership",
+        "line": 136,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/tenancy/orgs.py",
+    "definitions": [
+      {
+        "name": "make_slug",
+        "line": 25,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "create_organization",
+        "line": 30,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "list_user_orgs",
+        "line": 57,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "update_organization",
+        "line": 70,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/tenancy/policy.py",
+    "definitions": [
+      {
+        "name": "Role",
+        "line": 12,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "PolicyError",
+        "line": 19,
+        "kind": "ClassDef"
+      },
+      {
+        "name": "has_permission",
+        "line": 70,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "can_invite_role",
+        "line": 74,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "check_role_change",
+        "line": 81,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "check_member_removal",
+        "line": 94,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "check_leave",
+        "line": 101,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/widget_chat.py",
+    "definitions": [
+      {
+        "name": "issue_session",
+        "line": 24,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "authenticate",
+        "line": 48,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "bootstrap",
+        "line": 97,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/services/widget_domains.py",
+    "definitions": [
+      {
+        "name": "origin",
+        "line": 24,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "resolve",
+        "line": 59,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "configured_bot",
+        "line": 72,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "config",
+        "line": 83,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "dns_proof",
+        "line": 103,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "add",
+        "line": 110,
+        "kind": "AsyncFunctionDef"
+      },
+      {
+        "name": "verify",
+        "line": 145,
+        "kind": "AsyncFunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/workers/__init__.py",
+    "definitions": []
+  },
+  {
+    "path": "services/api/app/workers/celery_app.py",
+    "definitions": [
+      {
+        "name": "create_celery_app",
+        "line": 20,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/workers/signals.py",
+    "definitions": [
+      {
+        "name": "configure_worker_logging",
+        "line": 18,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "propagate_request_id",
+        "line": 25,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "bind_task_context",
+        "line": 33,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "clear_task_context",
+        "line": 46,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/workers/tasks/__init__.py",
+    "definitions": []
+  },
+  {
+    "path": "services/api/app/workers/tasks/ingest.py",
+    "definitions": [
+      {
+        "name": "_retry_delay",
+        "line": 23,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "process_document",
+        "line": 32,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "crawl_source",
+        "line": 41,
+        "kind": "FunctionDef"
+      },
+      {
+        "name": "sweep",
+        "line": 50,
+        "kind": "FunctionDef"
+      }
+    ]
+  },
+  {
+    "path": "services/api/app/workers/tasks/system.py",
+    "definitions": [
+      {
+        "name": "ping",
+        "line": 14,
+        "kind": "FunctionDef"
+      }
+    ]
+  }
+]

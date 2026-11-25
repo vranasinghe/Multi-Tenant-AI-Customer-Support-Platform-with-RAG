@@ -1,0 +1,7 @@
+{
+  "id": "pool_regression",
+  "command": "docker compose exec -T -e AUDIT_OUTPUT_DIR=/tmp/implementation_audit -e AUDIT_CONFIRM_POOL=1 api pytest tests/integration/api/audit/test_implementation_audit.py::test_staged_isolated_performance -q --tb=short --junitxml=/tmp/audit-pool.xml",
+  "exit_code": 1,
+  "duration_seconds": 34.881,
+  "log": "evidence/pool_regression.log"
+}
