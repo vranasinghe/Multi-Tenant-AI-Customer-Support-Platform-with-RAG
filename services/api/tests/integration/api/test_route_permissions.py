@@ -4,12 +4,15 @@ dependency")."""
 
 from __future__ import annotations
 
+import pytest
 from fastapi import FastAPI
 from fastapi.dependencies.models import Dependant
 
 from app.api.deps import PERMISSION_ATTR, get_auth, get_tenant_context
 from app.services.tenancy.policy import ALL_PERMISSIONS
 from tests.support.routes import iter_api_routes
+
+pytestmark = pytest.mark.integration
 
 # Deliberately unauthenticated routes. Adding a route here is a reviewed security decision.
 PUBLIC_ROUTES = {

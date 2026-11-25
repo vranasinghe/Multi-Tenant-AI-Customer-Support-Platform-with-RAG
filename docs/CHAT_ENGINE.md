@@ -64,7 +64,9 @@ Dashboard routes use the existing session cookie, membership lookup and CSRF hea
 
 - `POST /api/v1/orgs/{org}/chatbots/{bot}/conversations` — create a playground conversation (`chatbot:test`, verified email).
 - `GET /api/v1/orgs/{org}/chatbots/{bot}/conversations` — latest 50 conversation summaries (`conversation:read`).
-- `GET /api/v1/orgs/{org}/conversations/{conversation}` — latest 200 persisted messages (`conversation:read`).
+- `GET /api/v1/orgs/{org}/conversations` — org inbox with search, filters and cursor pagination (`conversation:read`).
+- `GET /api/v1/orgs/{org}/conversations/{conversation}` — transcript, status, CSAT, handoff and events (`conversation:read`).
+- `GET /api/v1/orgs/{org}/analytics/summary` — live product metrics from stored events (`analytics:read`). See [analytics-metrics.md](analytics-metrics.md).
 - `POST /api/v1/orgs/{org}/conversations/{conversation}/messages` — SSE (`chatbot:test`). Body: `{"content":"Returns policy?","context_messages":12}`. Clients cannot supply roles, history, tenant IDs or model overrides.
 - `PUT /api/v1/orgs/{org}/conversations/{conversation}/messages/{message}/feedback` — `{"rating":1}`, `-1`, or `0` to clear (`chatbot:test`). Only finished assistant replies accept feedback.
 - `POST /api/v1/orgs/{org}/chatbots/{bot}/widget-sessions` — issue a restricted session (`channel:manage`, verified email). Requires an active bot. Returns `token`, `conversation_id`, `expires_at` once. Send `Cache-Control: no-store` when forwarding this credential from your own trusted backend; do not embed it in static source or URLs.
@@ -161,4 +163,4 @@ pnpm check
 pnpm --filter @acs/web exec playwright test
 ```
 
-Downgrading to `0004` drops the new chat/usage/session tables and their contents. Prefer a forward fix once conversations exist. Billing, channel integrations, the installable widget UI/domain verification, automated retention/purge, real-model quality/latency evaluation, circuit breakers and cross-provider fallback remain separate work. See PHASE5_TEST_REPORT.md for executed checks and limitations.
+Downgrading to `0004` drops the new chat/usage/session tables and their contents. Prefer a forward fix once conversations exist. Billing, channel integrations, real-model quality/latency evaluation, circuit breakers and cross-provider fallback remain separate work. Conversation inbox, first-class outcome events, analytics, authorized CSV export and configurable retention (default 365 days) ship in Phase 7 — see [analytics-metrics.md](analytics-metrics.md). See PHASE5_TEST_REPORT.md for executed Phase 5 checks and limitations.

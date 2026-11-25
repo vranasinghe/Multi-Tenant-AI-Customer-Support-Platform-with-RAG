@@ -21,6 +21,7 @@ export interface ChatMessage {
   usage_estimated: boolean;
   error_code: string | null;
   feedback: number | null;
+  latency_ms?: number | null;
 }
 
 export type ChatEvent =

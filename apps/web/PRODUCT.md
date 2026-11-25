@@ -16,7 +16,7 @@ A multi-tenant SaaS for building AI support chatbots that answer only from the c
 Every answer is grounded and cited, refuses when evidence is missing, and shows its token cost. A generic chat tool cannot truthfully promise that.
 
 ## Capabilities and Constraints
-Chatbots, knowledge (documents, websites), test chat with citations and cost, conversations, team and roles, widget install. Analytics and billing are not built yet and must be labelled as such, never faked.
+Chatbots, knowledge (documents, websites), test chat with citations and cost, conversation inbox, analytics from stored events, team and roles, widget install. Billing is not built yet and must be labelled as such, never faked. Analytics never uses mock numbers.
 
 ## Brand Commitments
 Name: Support Platform. Tone requested by the user: calm, trustworthy, light.

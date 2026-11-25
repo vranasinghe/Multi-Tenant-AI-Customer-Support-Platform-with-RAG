@@ -250,6 +250,8 @@ flowchart LR
 
 **Scope:** conversation list with filters, transcript view with citations/feedback/debug drawer (role-gated), unanswered-questions grouping (normalized text + embedding similarity clustering, nightly + on-demand), conversation delete, CSV export (P1), analytics rollup jobs (`analytics_daily`), summary + timeseries endpoints, analytics dashboard (charts: conversations, messages, grounded rate, 👍/👎 ratio, latency p95, channel split), audit-log viewer (P1).
 
+**Implemented (this checkout):** org-scoped inbox (search, chatbot/channel/date/status/feedback filters, cursor pagination), transcript + staff outcome (resolved/unresolved is never inferred from an AI reply), CSAT, handoff workflow, unanswered events, knowledge-gap clustering (token Jaccard ≥ 0.6; embedding paraphrase clustering still outstanding), live analytics + chatbot comparison + daily/monthly charts + token/cost estimates, authorized CSV download (not a public URL), per-org retention 1–730 days (default 365) with tenant-scoped purge. Metric definitions: [analytics-metrics.md](analytics-metrics.md). Remaining vs original P7: retrieval debug drawer, embedding clustering, 10k-row p95 filter bench, public presigned export URLs (intentionally not used), dedicated audit-log viewer UI.
+
 **API contracts:** API_SPEC §2.6, §2.7 analytics, audit logs list.
 
 **Acceptance criteria**

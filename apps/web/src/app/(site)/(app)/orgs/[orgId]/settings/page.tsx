@@ -4,7 +4,12 @@ import { useRouter } from "next/navigation";
 
 import { PageHeader } from "@/components/kit/states";
 import { useOrg } from "@/components/orgs/org-provider";
-import { AuditLog, RenameOrgForm, TransferOwnership } from "@/components/orgs/org-settings";
+import {
+  AuditLog,
+  RenameOrgForm,
+  RetentionSettingsForm,
+  TransferOwnership,
+} from "@/components/orgs/org-settings";
 import { useAuth } from "@/lib/auth/auth-context";
 import { can } from "@/lib/orgs";
 
@@ -26,6 +31,20 @@ export default function OrgSettingsPage() {
         </h2>
         <RenameOrgForm
           key={org.name}
+          org={org}
+          onSaved={(updated) => {
+            setOrg(updated);
+            void refresh();
+          }}
+        />
+      </section>
+
+      <section aria-labelledby="retention-heading" className="grid gap-4">
+        <h2 id="retention-heading" className="text-lg font-semibold">
+          Conversation retention
+        </h2>
+        <RetentionSettingsForm
+          key={String(org.settings.conversation_retention_days ?? 365)}
           org={org}
           onSaved={(updated) => {
             setOrg(updated);

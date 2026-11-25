@@ -195,21 +195,28 @@ Each endpoint lists the required permission (see [SECURITY.md §4](SECURITY.md#4
 
 | Method | Path | Perm | Description |
 |---|---|---|---|
-| GET | `/orgs/{org_id}/conversations` | `conversation:read` | Filters: `chatbot_id`, `channel`, `from`, `to`, `feedback=negative\|positive`, `grounded=false`, `q` (P1) |
-| GET | `/orgs/{org_id}/conversations/{conversation_id}` | `conversation:read` | Metadata |
-| GET | `/orgs/{org_id}/conversations/{conversation_id}/messages` | `conversation:read` | Messages with citations & feedback; `retrieval` field only with `conversation:debug` |
-| DELETE | `/orgs/{org_id}/conversations/{conversation_id}` | `conversation:delete` | Hard delete |
-| POST | `/orgs/{org_id}/end-users/erase` | `conversation:delete` | DSR erase `{ chatbot_id, channel, external_id }` → async job id |
-| GET | `/orgs/{org_id}/chatbots/{chatbot_id}/unanswered` | `conversation:read` | Grouped ungrounded questions `{ representative, count, last_asked_at, sample_conversation_ids }` |
-| POST | `/orgs/{org_id}/conversations/exports` | `conversation:export` | CSV export job (P1) |
-| GET | `/orgs/{org_id}/exports/{export_id}` | `conversation:export` | Status + presigned URL |
+| GET | `/orgs/{org_id}/conversations` | `conversation:read` | Inbox: `chatbot_id`, `channel`, `status`, `from`, `to`, `feedback`, `satisfaction`, `unanswered`, `grounded=false`, `q`, cursor pagination |
+| GET | `/orgs/{org_id}/conversations/{conversation_id}` | `conversation:read` | Transcript, status, CSAT, handoff, events (messages included; retrieval still gated) |
+| PATCH | `/orgs/{org_id}/conversations/{conversation_id}` | `conversation:write` | Staff outcome `{ status: open\|resolved\|unresolved }`. An AI reply does not change status. |
+| DELETE | `/orgs/{org_id}/conversations/{conversation_id}` | `conversation:delete` | Hard delete transcript; usage and daily aggregates remain |
+| PUT | `/orgs/{org_id}/conversations/{conversation_id}/satisfaction` | `conversation:write` | Conversation CSAT `{ score: 1–5, comment? }` |
+| POST | `/orgs/{org_id}/conversations/{conversation_id}/handoff` | `conversation:write` | Human handoff request; sets status `handed_off` |
+| PATCH | `/orgs/{org_id}/conversations/{conversation_id}/handoff` | `conversation:write` | `{ status: acknowledged\|completed\|cancelled }` |
+| POST | `/orgs/{org_id}/conversations/{conversation_id}/unanswered` | `conversation:write` | Mark the latest customer question unanswered |
+| GET | `/orgs/{org_id}/unanswered` | `conversation:read` | Grouped unanswered questions (playground excluded) |
+| GET | `/orgs/{org_id}/chatbots/{chatbot_id}/unanswered` | `conversation:read` | Same grouping, one chatbot |
+| GET | `/orgs/{org_id}/knowledge-gaps` | `conversation:read` | Clustered unanswered questions (Jaccard ≥ 0.6) |
+| GET | `/orgs/{org_id}/conversation-retention` | `conversation:read` | Effective retention days (default 365, range 1–730) |
+| POST | `/orgs/{org_id}/conversations/exports` | `conversation:export` | Build CSV; stored under the org prefix |
+| GET | `/orgs/{org_id}/exports/{export_id}` | `conversation:export` | Status + authorized download path (not a public URL) |
+| GET | `/orgs/{org_id}/exports/{export_id}/download` | `conversation:export` | Stream CSV; cross-tenant IDs 404 |
 
 ### 2.7 Analytics & usage (Phases 6, 7)
 
 | Method | Path | Perm | Description |
 |---|---|---|---|
-| GET | `/orgs/{org_id}/analytics/summary` | `analytics:read` | `?from&to&chatbot_id&channel` → totals + deltas vs previous period |
-| GET | `/orgs/{org_id}/analytics/timeseries` | `analytics:read` | `?metric=conversations\|messages\|grounded_rate\|feedback_ratio\|latency_p95&interval=day` |
+| GET | `/orgs/{org_id}/analytics/summary` | `analytics:read` | Live totals from source events. Playground excluded from product rates. See [analytics-metrics.md](analytics-metrics.md). |
+| GET | `/orgs/{org_id}/analytics/timeseries` | `analytics:read` | `?metric=conversations\|resolved\|tokens\|cost&interval=day\|month` |
 | GET | `/orgs/{org_id}/usage` | `usage:read` | Current period counters vs limits for all metrics |
 
 ### 2.8 Channels (Phases 8, post-MVP)
@@ -386,6 +393,8 @@ Other widget endpoints:
 | GET | `/public/v1/widget/conversations/{id}/messages` | History for this visitor only (`sub` must match `end_user`) |
 | POST | `/public/v1/widget/conversations/{id}/messages` | Send message → SSE |
 | POST | `/public/v1/widget/messages/{message_id}/feedback` | `{ rating: 1 \| -1, reason?, comment? }` |
+| PUT | `/public/v1/chat/satisfaction` | Bearer session; conversation CSAT `{ score: 1–5, comment? }` |
+| POST | `/public/v1/chat/handoff` | Bearer session; `{ reason, contact? }` sets status `handed_off` |
 
 ### 3.10 `POST …/channels/telegram`
 

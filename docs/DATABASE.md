@@ -1,6 +1,6 @@
 # Database Design
 
-> Phase 5 implemented schema: migration `0005` adds FORCE-RLS-protected `conversations`, `messages` (citation snapshots and feedback), `widget_sessions` (hashed bearer credentials), and `chat_usage` (monthly durable reservations). Composite tenant foreign keys prevent cross-tenant relationships. See [CHAT_ENGINE.md](CHAT_ENGINE.md) for the shipped schema and lifecycle; the more extensive tables below remain the target design.
+> Phase 5 implemented schema: migration `0005` adds FORCE-RLS-protected `conversations`, `messages` (citation snapshots and feedback), `widget_sessions` (hashed bearer credentials), and `chat_usage` (monthly durable reservations). Phase 7 migration `0007` adds conversation status, CSAT, handoff, `conversation_events`, `unanswered_questions`, `analytics_daily`, and `conversation_exports` (FORCE RLS, `org_id` on every row). Metric definitions: [analytics-metrics.md](analytics-metrics.md). Composite tenant foreign keys prevent cross-tenant relationships. See [CHAT_ENGINE.md](CHAT_ENGINE.md) for the shipped schema and lifecycle; the more extensive tables below remain the target design.
 
 | Field | Value |
 |---|---|

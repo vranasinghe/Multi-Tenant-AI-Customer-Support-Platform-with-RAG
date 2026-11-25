@@ -1,6 +1,8 @@
 /** Hand-written mirrors of the API contracts (services/api/app/schemas). Replaced by generated
  * OpenAPI types once the client generation lands (ADR-021). */
 
+import type { ChatMessage } from "../chat";
+
 export type Role = "owner" | "admin" | "agent" | "viewer";
 export type AssignableRole = Exclude<Role, "owner">;
 
@@ -277,4 +279,169 @@ export interface WebsiteSourceBody {
   include: string[];
   exclude: string[];
   confirm_authorized: true;
+}
+
+// --------------------------------------------------------------------------- conversations / analytics
+
+export type ConversationStatus = "open" | "resolved" | "unresolved" | "handed_off";
+export type ConversationChannel = "playground" | "widget";
+export type HandoffStatus = "requested" | "acknowledged" | "completed" | "cancelled";
+
+export interface ConversationSummary {
+  id: string;
+  chatbot_id: string;
+  chatbot_name: string;
+  channel: ConversationChannel;
+  status: ConversationStatus;
+  preview: string;
+  satisfaction_score: number | null;
+  handoff_status: HandoffStatus | null;
+  unanswered_count: number;
+  last_message_at: string;
+  created_at: string;
+}
+
+export interface ConversationList {
+  data: ConversationSummary[];
+  next_cursor: string | null;
+  has_more: boolean;
+  total: number;
+}
+
+export interface ConversationEvent {
+  id: string;
+  kind: string;
+  payload: Record<string, unknown>;
+  actor_type: string;
+  created_at: string;
+}
+
+export interface ConversationDetail {
+  id: string;
+  chatbot_id: string;
+  chatbot_name: string;
+  channel: ConversationChannel;
+  status: ConversationStatus;
+  preview: string;
+  satisfaction_score: number | null;
+  satisfaction_comment: string | null;
+  handoff_status: HandoffStatus | null;
+  handoff_reason: string | null;
+  handoff_contact: string | null;
+  created_at: string;
+  last_message_at: string;
+  messages: ChatMessage[];
+  events: ConversationEvent[];
+  conversation?: { id: string; chatbot_id: string; channel: string };
+}
+
+export interface InboxFilters {
+  chatbot_id?: string;
+  channel?: ConversationChannel | "";
+  status?: ConversationStatus | "";
+  from?: string;
+  to?: string;
+  feedback?: "positive" | "negative" | "";
+  satisfaction?: "positive" | "negative" | "";
+  unanswered?: boolean;
+  grounded?: boolean;
+  q?: string;
+  cursor?: string | null;
+  limit?: number;
+}
+
+export interface UnansweredGroup {
+  representative: string;
+  cluster_key: string;
+  count: number;
+  chatbot_id: string;
+  chatbot_name: string;
+  last_asked_at: string;
+  sample_conversation_ids: string[];
+  reason: string;
+}
+
+export interface KnowledgeGap {
+  cluster_key: string;
+  representative: string;
+  count: number;
+  chatbot_id: string;
+  chatbot_name: string;
+  last_asked_at: string;
+  reasons: Record<string, number>;
+}
+
+export interface ConversationExport {
+  id: string;
+  status: string;
+  row_count: number;
+  created_at: string;
+  expires_at: string;
+  download_path: string;
+}
+
+export interface ChatbotComparison {
+  chatbot_id: string;
+  chatbot_name: string;
+  conversations: number;
+  resolution_rate: number | null;
+  satisfaction_rate: number | null;
+  grounded_rate: number | null;
+  unanswered: number;
+  charged_tokens: number;
+  estimated_cost_usd: string;
+}
+
+export interface AnalyticsSummary {
+  from: string;
+  to: string;
+  chatbot_id: string | null;
+  channel: string | null;
+  conversations: number;
+  messages_user: number;
+  messages_assistant: number;
+  resolved: number;
+  unresolved: number;
+  handed_off: number;
+  open: number;
+  resolution_rate: number | null;
+  csat_submitted: number;
+  csat_positive: number;
+  satisfaction_rate: number | null;
+  grounded_answers: number;
+  ungrounded_answers: number;
+  grounded_rate: number | null;
+  feedback_up: number;
+  feedback_down: number;
+  thumbs_up_ratio: number | null;
+  unanswered: number;
+  unanswered_rate: number | null;
+  prompt_tokens: number;
+  completion_tokens: number;
+  charged_tokens: number;
+  estimated_cost_usd: string;
+  cost_is_estimate: boolean;
+  latency_p95_ms: number | null;
+  chatbots: ChatbotComparison[];
+  definitions: Record<string, string>;
+}
+
+export interface TimeseriesPoint {
+  t: string;
+  value: number;
+}
+
+export interface Timeseries {
+  metric: string;
+  interval: string;
+  from: string;
+  to: string;
+  points: TimeseriesPoint[];
+}
+
+export interface RetentionSettings {
+  conversation_retention_days: number;
+  default_days: number;
+  min_days: number;
+  max_days: number;
 }

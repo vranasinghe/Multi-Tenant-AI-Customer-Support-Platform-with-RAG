@@ -23,7 +23,11 @@ def create_celery_app(settings: Settings) -> Celery:
         settings.app_name,
         broker=settings.broker_url,
         backend=settings.result_backend_url,
-        include=["app.workers.tasks.system", "app.workers.tasks.ingest"],
+        include=[
+            "app.workers.tasks.system",
+            "app.workers.tasks.ingest",
+            "app.workers.tasks.analytics",
+        ],
     )
     app.conf.update(
         task_serializer="json",
@@ -38,9 +42,13 @@ def create_celery_app(settings: Settings) -> Celery:
             "ingest.process_document": {"queue": "ingest"},
             "ingest.crawl_source": {"queue": "crawl"},
             "ingest.sweep": {"queue": "default"},
+            "analytics.retention": {"queue": "default"},
+            "analytics.rollup": {"queue": "default"},
         },
         beat_schedule={
             "ingest-sweep": {"task": "ingest.sweep", "schedule": 120.0},
+            "analytics-rollup": {"task": "analytics.rollup", "schedule": 3600.0},
+            "conversation-retention": {"task": "analytics.retention", "schedule": 86400.0},
         },
         # Reliability: re-deliver tasks whose worker died; tasks must be idempotent.
         task_acks_late=True,
