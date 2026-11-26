@@ -1,4 +1,4 @@
-# Phase 6 — Website widget v1.0.0
+# Phase 6 — Website widget v1.1.0
 
 ## Install
 
@@ -27,6 +27,58 @@ Use the API origin as the script host: the loader derives iframe/API URLs from i
 
 The **Live widget preview** runs the same public bundle, session issuance and iframe as a customer site. Verify the dashboard origin as well to use it. Saved branding, name, welcome message, avatar, position and colors are applied; reload the preview after saving changes. Draft, paused, archived or deleted bots do not serve public chat. Copying a public key never grants dashboard access.
 
+## Lifecycle (1.1.0)
+
+One widget exists per API origin, bot key and instance key. Including the snippet twice, or
+mounting again, keeps the existing one. Different bot keys are independent. To show the **same**
+chatbot twice on purpose, give the second tag `data-instance-key="footer"` (1–32 of
+`A–Z a–z 0–9 _ -`); each instance key keeps its own conversation.
+
+```js
+window.AcsChat.mount({ botKey: "pk_live_…" });                 // returns {botKey, instanceKey, destroy}
+window.AcsChat.get({ botKey: "pk_live_…" });
+window.AcsChat.destroy({ botKey: "pk_live_…" });               // safe to repeat
+window.AcsChat.destroy({ botKey: "pk_live_…", forget: true }); // also forget the visitor here
+```
+
+`mount`, `get` and `destroy` accept `instanceKey` and `apiOrigin` (default: the origin the first
+loader came from). The API exposes no credential or transcript to the host page.
+
+`destroy` removes the frame and its one `message` listener; removing the frame ends its bootstrap,
+history and streaming requests, and the server stores a cut-off answer as `interrupted` with its
+reserved usage kept (the model provider may still bill it). The visitor's resume entry stays, so
+a later mount continues the conversation. `forget: true` asks the frame to delete that entry
+first; nothing is deleted on the server. **New chat** inside the widget does the same and starts
+over. In a single-page app, call `destroy` in the unmount/cleanup of the component that mounted
+it. A frame that never loads is replaced by the next `mount` after 15 seconds.
+
+**What `forget` does not guarantee.** The page only asks. If the frame confirms, the entry was
+deleted (a browser that refuses storage access has none to delete, and the frame still confirms).
+If no confirmation arrives within 5 seconds, because the frame never loaded, is blocked or is
+busy, the widget is removed anyway and **the resume entry may remain**, so a later mount can
+continue the earlier conversation. `destroy` returns `true` as soon as removal is under way and
+does not report which happened. Do not rely on `forget` to protect a shared computer; **New
+chat** inside a loaded widget deletes the entry directly.
+
+Resume uses the frame origin's `localStorage`. Browsers that block or partition third-party
+storage keep a conversation only while the page is open; this was tested in Chrome with
+`localhost` origins, not across browsers.
+
+## What the visitor receives
+
+`GET /public/v1/chat` and the streamed events carry, per message: `id`, `role`, `content`,
+`status`, `feedback` and `citations` of `{id, title, uri}`, where `uri` is set only for a plain
+`https` link. `meta` is `{message_id}` and a failed answer is
+`{code: "answer_failed", message}`. Token counts, cost, latency, internal error codes and
+document or chunk ids are not sent. The dashboard transcript keeps all of them.
+
+## Upgrading from 1.0.0
+
+Deploy the API image (it serves the loader and the frame): both change together. A loader cached
+for up to an hour still works with the new API, which sends every field 1.0.0 reads; it simply
+lacks the lifecycle API. A new loader against an old API ignores instance keys in the frame, so
+roll the API first. Custom integrations that read removed fields must change.
+
 ## Distribution and rollout
 
 ```powershell
@@ -34,11 +86,11 @@ corepack pnpm --filter @acs/widget build
 docker compose up -d --build --wait
 ```
 
-The build writes `apps/widget/dist/loader.js` and copies its deployable distribution to `services/api/widget_assets/v1/loader.js`, with `manifest.json` identifying semantic version **1.0.0** and its measured gzip size. The bundle is dependency-free, approximately **4 KB gzipped** (under the enforced 10KB budget), and includes both the host loader and isolated iframe UI. The API exposes `/widget/v1/loader.js` with JavaScript MIME type, nosniff and a one-hour cache. The `v1` path permits compatible updates; keep previous artifacts/images for rollback rather than marking this URL immutable.
+The build writes `apps/widget/dist/loader.js` and copies its deployable distribution to `services/api/widget_assets/v1/loader.js`, with `manifest.json` identifying semantic version **1.1.0** and its measured gzip size. The bundle is dependency-free, approximately **5.2 KB gzipped** (under the enforced 10KB budget), and includes both the host loader and isolated iframe UI. The API exposes `/widget/v1/loader.js` with JavaScript MIME type, nosniff and a one-hour cache. The `v1` path permits compatible updates; keep previous artifacts/images for rollback rather than marking this URL immutable.
 
 Build the widget **before** building the production API image. Its runtime Docker stage includes `widget_assets`. Apply migration **0006** before deploying the new API. It adds a FORCE-RLS-protected `chatbot_domains` table, retention settings and hashed resume credentials. Existing Phase 5 sessions remain compatible. Downgrading drops origin/resumption settings and must be treated as destructive; prefer a forward fix.
 
-Serve everything through HTTPS. Preserve the frame route's per-origin `frame-ancestors` CSP; do not replace it with a wildcard or global DENY header. Do not cache frame or session responses. Disable proxy buffering for SSE and permit the configured chat timeout. Configure trusted proxy addresses correctly before relying on IP limits; the pre-existing production Docker wildcard forwarded-IP setting remains an operational deployment risk (see PHASE2_SECURITY_REVIEW.md). Tenant quotas and session limits also apply independently of IP controls.
+Serve everything through HTTPS. Preserve the frame route's per-origin `frame-ancestors` CSP; do not replace it with a wildcard or global DENY header. Do not cache frame or session responses. Disable proxy buffering for SSE and permit the configured chat timeout. Set `FORWARDED_ALLOW_IPS` to the proxy's exact address before relying on IP limits: no peer is trusted by default, so until then all visitors share the proxy's address (DEVELOPMENT.md section 10, DEPLOY_CONTABO.md "Trusted ingress"). The proxy must replace client-supplied `X-Forwarded-*` headers and be the only path to the API. Tenant quotas and session limits also apply independently of IP controls.
 
 No wildcard credentialed CORS was added. Browsers fetch chat from inside the API-hosted iframe using bearer capabilities and `credentials: omit`; customer websites do not need dashboard API CORS access. The sandbox allows scripts and same-origin API access, but no top navigation, popups or forms. Use a dedicated API/widget origin separate from the customer website.
 

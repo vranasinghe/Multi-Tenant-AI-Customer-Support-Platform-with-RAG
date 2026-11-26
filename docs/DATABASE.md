@@ -237,7 +237,7 @@ Indexes: `ix_chatbots_org (org_id) WHERE deleted_at IS NULL`.
 
 ### 3.4 Knowledge
 
-> **As implemented (migration `0004`)** — differences from the tables below: `knowledge_sources`, `documents` and `ingestion_jobs` have **no `deleted_at`**: deleting a document/source hard-deletes it, its chunks (vectors) and jobs in one transaction, and queues the stored original for removal in the new outbox table `storage_deletions` (so a crash cannot orphan a file). `documents` also has `file_hash` (SHA-256 of the upload; unique per chatbot → duplicate uploads are rejected by the database), `embedding_model`, and no `language`; `document_chunks` has `embedding_model` and a `vector(1536)` + HNSW index, `fts` uses the `simple` config; `ingestion_jobs.kind` is `process_document | crawl`. Cross-tenant job/outbox discovery for the sweeper uses `app.list_stuck_jobs()` and `app.list_pending_storage_deletions()` (SECURITY DEFINER). See [INGESTION.md](INGESTION.md).
+> **As implemented (migration `0004`)** — differences from the tables below: `knowledge_sources`, `documents` and `ingestion_jobs` have **no `deleted_at`**: deleting a document/source hard-deletes it, its chunks (vectors) and jobs in one transaction, and queues the stored original for removal in the new outbox table `storage_deletions` (so a crash cannot orphan a file). Since A5.1 the same table also records an upload before it is made; for such a row `created_at` is the earliest time it may be reclaimed, and `attempts > 0` marks a row the purge has claimed (INGESTION.md §9). `documents` also has `file_hash` (SHA-256 of the upload; unique per chatbot → duplicate uploads are rejected by the database), `embedding_model`, and no `language`; `document_chunks` has `embedding_model` and a `vector(1536)` + HNSW index, `fts` uses the `simple` config; `ingestion_jobs.kind` is `process_document | crawl`. Cross-tenant job/outbox discovery for the sweeper uses `app.list_stuck_jobs()` and `app.list_pending_storage_deletions()` (SECURITY DEFINER). See [INGESTION.md](INGESTION.md).
 
 **knowledge_sources**
 | Column | Type | Notes |
@@ -261,7 +261,7 @@ Indexes: `ix_chatbots_org (org_id) WHERE deleted_at IS NULL`.
 | source_id | uuid | FK ⓒ→knowledge_sources CASCADE |
 | title | text | |
 | uri | text | filename or canonical URL |
-| storage_key | text | `orgs/{org}/chatbots/{bot}/documents/{doc}/v{n}/original` |
+| storage_key | text | uploads `orgs/{org}/chatbots/{bot}/documents/{doc}/v0/original`; web pages `…/{doc}/g-{id}/original`, a new key per publication (see INGESTION.md §9) |
 | mime_type | text | sniffed |
 | size_bytes | bigint | |
 | content_hash | bytea | SHA-256 of normalized text (dedupe & change detection) |

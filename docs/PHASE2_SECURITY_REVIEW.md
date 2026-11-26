@@ -143,3 +143,7 @@ corepack pnpm -r --if-present test
 ```
 
 Integration tests create (and drop) their own throwaway database from `MIGRATION_DATABASE_URL`, so development data is never touched; they use Redis DB 15, which they flush.
+
+## Status update: AUD-04 (additive; the sections above describe the earlier build)
+
+Residual risk 1 in section 5 and migration step 3 in section 6 are superseded for the application image. The runtime image no longer passes `--forwarded-allow-ips "*"`; no peer is trusted unless listed in `FORWARDED_ALLOW_IPS`, which is validated at startup (DEVELOPMENT.md section 10). Verified locally against the runtime image: [AUD-04 report](mvp-improvement/AUD-04_IMPLEMENTATION_REPORT.md). Still open: the operator must configure the real proxy address and block direct access to the API, and neither has been verified on a live deployment.

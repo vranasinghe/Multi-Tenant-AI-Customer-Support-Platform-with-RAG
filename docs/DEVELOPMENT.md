@@ -61,8 +61,9 @@ Then open:
 | `api` | `services/api` (dev target) | FastAPI with hot reload (source bind-mounted) |
 | `storage` | `rustfs/rustfs:1.0.6` | S3-compatible private object storage for uploaded originals (MinIO no longer publishes images; production uses real S3) |
 | `storage-init` | `services/api` (dev target) | Creates the private bucket (`python -m app.cli init-storage`), then exits |
-| `worker` | `services/api` (dev target) | Celery worker on all queues (document processing runs on `ingest`, crawls on `crawl`) |
-| `beat` | `services/api` (dev target) | Celery beat: `ingest.sweep` every 2 minutes (stuck jobs, lost messages, storage cleanup) |
+| `worker` | `services/api` (dev target) | Celery worker for every queue except `maintenance` (document processing runs on `ingest`, crawls on `crawl`) |
+| `maintenance` | `services/api` (dev target) | One-slot Celery worker for `maintenance`: the recovery sweep, independent of busy ingestion |
+| `beat` | `services/api` (dev target) | Celery beat: `ingest.sweep` at start and every 2 minutes (stuck jobs, lost messages, storage cleanup). Run exactly one |
 | `web` | `apps/web/Dockerfile` | Production build of the Next.js app |
 
 Host ports bind to `127.0.0.1` only. Postgres is published on **55432** so it never collides with a natively installed PostgreSQL on 5432. Change any port in `.env` (`*_HOST_PORT`).
@@ -102,8 +103,10 @@ pnpm api:dev
 pnpm worker:dev
 ```
 
-- `api:dev` uses `uvicorn --reload`. On Windows that also selects the Selector event loop that async psycopg requires.
+- `api:dev` runs `python -m app.server --reload` (Uvicorn). On Windows that also selects the Selector event loop that async psycopg requires.
 - `worker:dev` uses `--pool=solo` because Celery's prefork pool does not support Windows.
+- A native Windows worker has **no parser CPU/memory limits, parent-death signal or Celery time limits** (only the parser's wall-clock deadline). Use the Docker worker to exercise containment; staging and production refuse to run without it ([INGESTION.md §7](INGESTION.md)).
+- The containment, recovery and real-worker tests (`tests/unit/mvp_improvement/test_parser_runner.py`, `tests/integration/api/mvp_improvement/test_ingestion_*.py`) need Linux; run them in the API container. The real-worker file starts its own Celery worker on Redis databases 12/13 and takes about two minutes.
 
 ### Database migrations
 ```powershell
@@ -127,7 +130,7 @@ This deletes the Postgres volume. The next `up` re-runs the role bootstrap and m
 
 ## 4. Quality checks
 
-Run everything CI runs, except the Docker job:
+Run the host-side checks (the Docker-based CI jobs are described below):
 
 ```powershell
 pnpm check
@@ -163,6 +166,43 @@ Integration tests can also run inside the API container:
 
 ```powershell
 docker compose exec api pytest -m integration
+```
+
+### Continuous integration
+
+`.github/workflows/ci.yml` runs on every pull request. Providers are offline (`demo`, `hash`),
+credentials are generated per run, no provider key is needed, and each job has its own runner.
+
+| Job | Proves |
+|---|---|
+| Web & widget | `format:check`, ESLint, types, Vitest, production builds, widget gzip budget, committed widget bundle matches its sources |
+| API static | Ruff, format, strict mypy, unit tests with no skips |
+| Integration | Migration head and reversibility, FORCE RLS, the whole backend suite in a Linux container (live ingestion, real prefork ingestion, crawl and maintenance workers, real object storage), runtime image and its 17 proxy tests, backup and restore rehearsal |
+| Browser | Smoke test and every Playwright journey against the built stack, in Chromium |
+
+pytest exits successfully when tests skip, so `scripts/ci/check_junit.py` fails a job on any
+skip it does not name. The only named one: the proxy tests inside the container, which the same
+job then runs from the host with no skips allowed.
+
+**Latency certification is separate** (`performance.yml`: pushes to `main` and manual runs). The
+capacity gate (1/10/50/100 concurrent chats, success P95 ≤ 2000 ms, rejection P95 ≤ 3000 ms) is
+excluded from the pull-request suite because its result depends on the machine. It runs once and is
+never retried. A pass on a shared hosted runner is a trend, not a certification: certify on a
+dedicated runner sized like the target server.
+
+The same scripts run locally against a **disposable** stack. They refuse the developer
+(`ai-chatbot-saas`) and production (`acs-prod`) project names:
+
+```bash
+bash scripts/ci/make-env.sh /tmp/ci.env 40        # synthetic credentials, ports offset by 40
+export COMPOSE_PROJECT_NAME=acs-ci COMPOSE_ENV_FILES=/tmp/ci.env
+bash scripts/ci/up.sh web                          # api, worker, maintenance, beat, web
+bash scripts/ci/migrations.sh
+bash scripts/ci/backend-suite.sh                   # add --with-capacity to include the gate
+bash scripts/ci/runtime-proxy.sh                   # HOST_PYTHON=<venv python> on Windows
+bash scripts/ci/restore-rehearsal.sh
+bash scripts/ci/browser.sh
+docker compose down -v
 ```
 
 ## 5. Configuration and environment variables
@@ -279,3 +319,15 @@ docker compose exec -T api pytest tests/unit/mvp_improvement/test_provider_trans
 The test CA is injected only into test transports. Untrusted, expired and hostname-mismatched
 chains fail before request credentials/text are sent; the system trust store is unchanged.
 The public test leaf key under tests/support/provider_tls is never a runtime credential.
+
+## 10. Trusted proxy policy (AUD-04)
+
+`X-Forwarded-For` and `X-Forwarded-Proto` change the client address and scheme the API sees only when the request comes from a peer listed in `FORWARDED_ALLOW_IPS`. The default is empty: **no peer is trusted**, including loopback and private addresses, and the proxy-header middleware is not installed.
+
+- Start the API with `python -m app.server` (`--host`, `--port`, `--reload` only). Both image stages and `pnpm api:dev` do. Running `uvicorn` directly bypasses this launcher: Uvicorn then applies its own defaults and flags.
+- Values are comma-separated literal IPv4/IPv6 addresses or CIDR networks (host bits zero). Refused at startup in every environment: `*`, `/0` and other networks broader than IPv4 `/8` or IPv6 `/16`, `0.0.0.0` / `::`, host names, ports, brackets, zone IDs, netmask notation, IPv4-mapped IPv6 and empty entries.
+- `UVICORN_FORWARDED_ALLOW_IPS` and `UVICORN_PROXY_HEADERS` are refused: use `FORWARDED_ALLOW_IPS`.
+- Header handling is Uvicorn's. From a trusted peer the client is the rightmost `X-Forwarded-For` entry that is not itself trusted (repeated header lines form one chain); `X-Forwarded-Proto` applies only as exactly `http`, `https`, `ws` or `wss`. Uvicorn does not check that an entry is an IP address, so the proxy must append or replace what the client sent.
+- The runtime image binds IPv4 (`0.0.0.0`), so the peer itself is an IPv4 proxy unless the bind address is changed; IPv6 client addresses inside the chain work.
+
+Regression tests: `tests/unit/mvp_improvement/test_proxy_trust.py`, and `tests/integration/test_runtime_proxy_trust.py` against a built runtime image (opt-in; see its docstring).

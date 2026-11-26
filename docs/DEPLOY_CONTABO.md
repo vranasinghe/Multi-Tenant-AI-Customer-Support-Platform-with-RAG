@@ -49,6 +49,51 @@ Fill in: `SITE_HOST`, `ACME_EMAIL`, all passwords/keys (generate each with
 Production refuses placeholder passwords, the `hash` embedding provider, the `demo` LLM and the
 `log` email backend, so every one of those must be real.
 
+## Trusted ingress (client IPs behind Caddy)
+
+The API trusts forwarding headers only from the addresses in `FORWARDED_ALLOW_IPS` (DEVELOPMENT.md
+section 10). **While it is empty, every visitor appears to the API as Caddy**: the per-IP limits
+(for example 10 logins a minute and 10 sign-ups an hour) are then shared by all visitors, and audit
+records hold Caddy's network instead of the client's. Configure it before real users arrive.
+
+Give Caddy a fixed address on a network that only it uses to reach the API. Choose a private subnet
+that is unused on your server; there is no default. Create `docker-compose.ingress.yml` next to
+`docker-compose.prod.yml` (`deploy/deploy.sh` picks it up):
+
+```yaml
+networks:
+  ingress:
+    ipam:
+      config:
+        - subnet: ${INGRESS_SUBNET:?choose an unused private subnet}
+          ip_range: ${INGRESS_DYNAMIC_RANGE:?part of the subnet used for other containers}
+services:
+  caddy:
+    networks:
+      ingress:
+        ipv4_address: ${CADDY_INGRESS_IP:?an address in the subnet but outside the dynamic range}
+  api:
+    networks: [default, ingress]
+  web:
+    networks: [default, ingress]
+```
+
+Add those three variables to `.env.production`, plus `FORWARDED_ALLOW_IPS` set to exactly the same
+value as `CADDY_INGRESS_IP`. Caddy joins only `ingress`, so it reaches `api` from that address;
+trusting a whole network would also trust every container on it. Other `docker compose` commands in
+this guide need `-f docker-compose.ingress.yml` as well once the file exists.
+
+Requirements this relies on:
+
+- Only Caddy publishes ports. Do not publish the API, PostgreSQL, Redis or object storage.
+- Caddy replaces client-supplied `X-Forwarded-*` headers. This is its default; do not add
+  `trusted_proxies` to the Caddyfile unless another proxy sits in front of it.
+- If a CDN or load balancer is added in front, review both Caddy's and the API's trusted lists.
+
+After deploying, verify on the server: send a request with a made-up `X-Forwarded-For` from outside
+and confirm the API still records your real network (for example in the session list after signing
+in). None of this has been verified on a live deployment.
+
 ## 4. Build the widget, then deploy
 
 The API image bakes in `services/api/widget_assets`, which is committed to the repo. Only rebuild
@@ -77,11 +122,13 @@ crontab -e     # add:  0 3 * * * cd ~/app && bash deploy/backup.sh >> ~/backup.l
 Contabo's auto-backup is a paid add-on and is off for this VPS. Copy `~/backups` off the server
 (`rclone` to Backblaze B2, Cloudflare R2 or Google Drive); a backup on the same disk is not enough.
 
-Restore a database dump:
+`deploy/deploy.sh` also takes a quiesced backup before upgrading a running install.
+
+Restore into empty volumes only, then verify. Procedure and migration policy:
+[RECOVERY.md](RECOVERY.md).
 
 ```bash
-gunzip -c ~/backups/db-<stamp>.sql.gz | docker compose --env-file .env.production \
-  -f docker-compose.prod.yml exec -T postgres psql -U platform_owner -d chatbot
+COMPOSE_PROJECT_NAME=acs-restore bash deploy/restore.sh ~/backups <stamp>
 ```
 
 ## 6. Operations
@@ -102,9 +149,12 @@ Each customer site origin must be added and verified in the dashboard.
 
 ## Notes and limits
 
-- **Memory budget** (container limits sum to about 7 GB; swap is a 2 GB safety net): Postgres 2.5 GB,
-  worker 1.5 GB, api 1 GB, web 0.6 GB, storage 0.5 GB, redis 0.4 GB, beat 0.3 GB, caddy 0.2 GB.
-  Lower `WORKER_CONCURRENCY` if crawls cause memory pressure.
+- **Memory budget** (container limits sum to about 8 GB; swap is a 2 GB safety net): Postgres 2.5 GB,
+  worker 2 GB, api 1 GB, web 0.6 GB, storage 0.5 GB, redis 0.4 GB, beat 0.3 GB, maintenance 0.5 GB, caddy 0.2 GB.
+  Limits are ceilings, not reservations, but they now reach the host's 8 GB: watch memory.
+  The worker also has 2 CPUs, 128 PIDs and no extra swap, sized for `WORKER_CONCURRENCY=2`
+  ([INGESTION.md §8](INGESTION.md)). Raising the concurrency needs `WORKER_MEMORY_LIMIT`,
+  `WORKER_CPUS` and `WORKER_PIDS_LIMIT` raised with it, and this host has little room left.
 - **Single server = single point of failure.** Reboots restart containers automatically
   (`restart: unless-stopped`), but there is no failover.
 - **Moving to a real domain later:** change `SITE_HOST`, point DNS at the VPS, rebuild `web`.

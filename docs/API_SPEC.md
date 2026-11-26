@@ -197,6 +197,7 @@ Each endpoint lists the required permission (see [SECURITY.md §4](SECURITY.md#4
 |---|---|---|---|
 | GET | `/orgs/{org_id}/conversations` | `conversation:read` | Inbox: `chatbot_id`, `channel`, `status`, `from`, `to`, `feedback`, `satisfaction`, `unanswered`, `grounded=false`, `q`, cursor pagination |
 | GET | `/orgs/{org_id}/conversations/{conversation_id}` | `conversation:read` | Transcript, status, CSAT, handoff, events (messages included; retrieval still gated) |
+| GET | `/orgs/{org_id}/conversations/{conversation_id}/messages` | `conversation:read` | Earlier transcript pages; `?cursor&limit` (≤100) |
 | PATCH | `/orgs/{org_id}/conversations/{conversation_id}` | `conversation:write` | Staff outcome `{ status: open\|resolved\|unresolved }`. An AI reply does not change status. |
 | DELETE | `/orgs/{org_id}/conversations/{conversation_id}` | `conversation:delete` | Hard delete transcript; usage and daily aggregates remain |
 | PUT | `/orgs/{org_id}/conversations/{conversation_id}/satisfaction` | `conversation:write` | Conversation CSAT `{ score: 1–5, comment? }` |

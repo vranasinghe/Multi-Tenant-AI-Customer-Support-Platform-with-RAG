@@ -1,0 +1,7 @@
+# Design system direction
+
+Mode: operate. A calm, precise support workspace for small-business owners; evidence and next actions take priority over decoration. Use the existing shared primitives, semantic variables and current Tailwind architecture. The desired palette is navy `#0B1220`, blue `#2563EB`, violet `#7C3AED`, canvas `#F8FAFC`, white surface, success `#059669`, warning `#D97706`, and error `#DC2626`. Status colors require readable foreground pairings and must not be the sole signal.
+
+Use a restrained typography hierarchy: page title, section title, card title, body, supporting text, label and caption; monospace only for code and measured data. Inter and Plus Jakarta Sans are aspirational only if locally available and compatible with the existing font strategy; do not add a runtime network dependency. Use clear borders, moderate radii and minimal elevation. Support `.dark` tokens and visible keyboard focus. Respect reduced motion. Check rendered contrast, including disabled and placeholder text, before asserting WCAG conformance.
+
+Existing reusable components: `packages/ui/src/components` and `apps/web/src/components/kit`. Extend these rather than introducing another library. Shared patterns should cover page headers, empty/loading/error states, form labels, dialogs, toast and copyable code. Tables and code blocks should scroll locally on small screens. Semantic tokens are the contract; individual screens should not hardcode palette colors.

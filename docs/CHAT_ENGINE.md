@@ -67,6 +67,7 @@ Dashboard routes use the existing session cookie, membership lookup and CSRF hea
 - `GET /api/v1/orgs/{org}/conversations` — org inbox with search, filters and cursor pagination (`conversation:read`).
 - `GET /api/v1/orgs/{org}/conversations/{conversation}` — transcript, status, CSAT, handoff and events (`conversation:read`).
 - `GET /api/v1/orgs/{org}/analytics/summary` — live product metrics from stored events (`analytics:read`). See [analytics-metrics.md](analytics-metrics.md).
+- `GET /api/v1/orgs/{org}/conversations/{conversation}/messages?cursor&limit` — earlier transcript pages (`conversation:read`, `limit` ≤ 100, default 50): `data` oldest first, `next_cursor` leads further back. The transcript response returns the newest 200 messages and sets `older_cursor` when there are more. Cursors name their organization, list and filters; anything else is `400 invalid_cursor`. They grant nothing. Lists are not snapshots: new activity moves a conversation to the top.
 - `POST /api/v1/orgs/{org}/conversations/{conversation}/messages` — SSE (`chatbot:test`). Body: `{"content":"Returns policy?","context_messages":12}`. Clients cannot supply roles, history, tenant IDs or model overrides.
 - `PUT /api/v1/orgs/{org}/conversations/{conversation}/messages/{message}/feedback` — `{"rating":1}`, `-1`, or `0` to clear (`chatbot:test`). Only finished assistant replies accept feedback.
 - `POST /api/v1/orgs/{org}/chatbots/{bot}/widget-sessions` — issue a restricted session (`channel:manage`, verified email). Requires an active bot. Returns `token`, `conversation_id`, `expires_at` once. Send `Cache-Control: no-store` when forwarding this credential from your own trusted backend; do not embed it in static source or URLs.
@@ -74,7 +75,7 @@ Dashboard routes use the existing session cookie, membership lookup and CSRF hea
 Restricted public transport uses **only** `Authorization: Bearer <token>`:
 
 - `POST /public/v1/chat/messages` — same bounded message body and SSE protocol; conversation is taken from the credential.
-- `GET /public/v1/chat` — only this session's transcript.
+- `GET /public/v1/chat` — only this session's transcript, in the public shape (WIDGET_DEPLOYMENT.md).
 - `PUT /public/v1/chat/messages/{message}/feedback` — only this session's completed assistant messages.
 
 Tokens cannot authorize dashboard APIs. Dashboard cookies cannot authorize public transport. Tokens are random 256-bit secrets, stored only as SHA-256 hashes, expire after 15 minutes by default, and are bound to one org/bot/conversation and the bot's current public key. Key rotation, pausing/deleting a bot, or restricting/deleting an organization prevents further public use. Public keys alone cannot mint sessions. There is deliberately no anonymous session issuance endpoint until Phase 6 implements domain controls and widget onboarding. Current CORS allowlists still apply to browsers; Origin is not authentication. Add only your trusted widget frontend origin to `CORS_ALLOWED_ORIGINS` when integrating that frontend.
@@ -127,7 +128,10 @@ concurrent lookups, scaled down with a smaller pool), released before streaming.
 transaction semantics remain unchanged. Every new tenant transaction restores its RLS context.
 
 Organization/conversation Redis admission precedes preparation. Admission waits at most
-`CHAT_ADMISSION_WAIT_SECONDS` (default 0.9 seconds) before `429 chat_busy`. Preparation has a
+`CHAT_ADMISSION_WAIT_SECONDS` (default 0.9 seconds) before `429 chat_busy`. While it waits, a
+release in the same API process wakes the oldest waiter at once. Polling is the fallback, for slots
+freed by another process or by expiry: after 10, 20, 40, 80, 160 and then every 200 ms, with a last
+attempt as the window closes (see the A6.1 stabilization report). Preparation has a
 separate process-local ceiling, `CHAT_SETUP_CAPACITY` (default eight, scaled to pool capacity).
 These ceilings are not a physical reservation of database connections. Actual checkout counts
 and second-tenant availability must be measured; see the A1 implementation report.

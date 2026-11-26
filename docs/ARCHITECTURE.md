@@ -619,6 +619,7 @@ stateDiagram-v2
 | `crawl` | `plan_crawl`, `fetch_page` | I/O bound; per-host rate limit |
 | `chat_out` | `process_inbound` (Telegram/WhatsApp), `send_message` | Latency sensitive; dedicated workers |
 | `default` | emails, domain verification, exports, DSR deletes | — |
+| `maintenance` | `ingest.sweep` | Its own one-slot consumer, so recovery never waits behind the work it recovers |
 | `billing` | Stripe webhook processing, entitlement sync | Low volume; serial per org |
 
 **Scheduled (beat):** stuck-job sweeper (1 min), usage rollup (1 min), analytics daily rollup (hourly incremental + nightly finalize), domain re-verification (weekly), session cleanup (daily), retention purge (daily), org deletion purge (daily), Stripe reconciliation (daily), S3 orphan sweep (weekly).
