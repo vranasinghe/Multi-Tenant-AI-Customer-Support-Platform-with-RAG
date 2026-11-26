@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.548" timestamp="2026-11-22T09:02:18.457309+00:00" hostname="4a2fe728620d"><testcase classname="tests.unit.audit.test_prompt_evidence" name="test_citations_must_only_reference_sources_actually_rendered" time="0.010"><failure message="AssertionError: Citation accepted for selected passage omitted by escaped context budget&#10;assert {'eefcccb0-8a...34b8c60563ff'} &lt;= {'185832ea-e2...e33cc7f84192'}&#10;  &#10;  Extra items in the left set:&#10;  'eefcccb0-8a13-48e9-8701-34b8c60563ff'">tests/unit/audit/test_prompt_evidence.py:35: in test_citations_must_only_reference_sources_actually_rendered
-    assert cited &lt;= actual_ids, (
-E   AssertionError: Citation accepted for selected passage omitted by escaped context budget
-E   assert {'eefcccb0-8a...34b8c60563ff'} &lt;= {'185832ea-e2...e33cc7f84192'}
-E     
-E     Extra items in the left set:
-E     'eefcccb0-8a13-48e9-8701-34b8c60563ff'</failure></testcase></testsuite></testsuites>

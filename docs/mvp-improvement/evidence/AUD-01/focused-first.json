@@ -1,7 +1,0 @@
-{
-  "id": "focused-first",
-  "command": "docker compose exec -T api pytest tests/integration/api/test_conversations.py tests/integration/api/test_widget.py tests/integration/api/test_auth.py tests/integration/api/test_route_permissions.py -q --tb=short --junitxml=/tmp/mvp-improvement/focused-first.xml; $result=$LASTEXITCODE; docker compose exec -T api mypy app migrations; if ($result -ne 0) { exit $result }; exit $LASTEXITCODE",
-  "exit_code": 0,
-  "duration_seconds": 21.164,
-  "log": "focused-first.log"
-}

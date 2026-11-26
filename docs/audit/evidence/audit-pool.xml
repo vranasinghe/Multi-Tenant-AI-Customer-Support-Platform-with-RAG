@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="31.561" timestamp="2026-11-22T03:55:41.691374+00:00" hostname="4a2fe728620d"><testcase classname="tests.integration.api.audit.test_implementation_audit" name="test_staged_isolated_performance" time="30.903"><failure message="AssertionError: Concurrent chat must be admitted or rate-limited, not fail with server errors&#10;assert False&#10; +  where False = all(&lt;generator object test_staged_isolated_performance.&lt;locals&gt;.&lt;genexpr&gt; at 0x7b978c71f370&gt;)">tests/integration/api/audit/test_implementation_audit.py:156: in test_staged_isolated_performance
-    assert all(row['server_5xx_rate']==0 for row in measurements), 'Concurrent chat must be admitted or rate-limited, not fail with server errors'
-E   AssertionError: Concurrent chat must be admitted or rate-limited, not fail with server errors
-E   assert False
-E    +  where False = all(&lt;generator object test_staged_isolated_performance.&lt;locals&gt;.&lt;genexpr&gt; at 0x7b978c71f370&gt;)</failure></testcase></testsuite></testsuites>

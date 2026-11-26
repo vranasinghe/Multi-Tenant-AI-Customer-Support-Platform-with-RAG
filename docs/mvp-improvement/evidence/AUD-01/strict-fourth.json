@@ -1,7 +1,0 @@
-{
-  "id": "strict-fourth",
-  "command": "docker compose exec -T -e AUDIT_OUTPUT_DIR=/tmp/mvp-improvement/AUD-01-strict-fourth api pytest tests/integration/api/mvp_improvement -q --tb=short --junitxml=/tmp/mvp-improvement/strict-fourth.xml; $result=$LASTEXITCODE; docker compose exec -T api ruff check .; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; docker compose exec -T api mypy; if ($result -ne 0) { exit $result }; exit $LASTEXITCODE",
-  "exit_code": 0,
-  "duration_seconds": 24.14,
-  "log": "strict-fourth.log"
-}
