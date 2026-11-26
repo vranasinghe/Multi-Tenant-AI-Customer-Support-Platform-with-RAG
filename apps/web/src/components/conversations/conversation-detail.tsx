@@ -15,19 +15,18 @@ import { ConfirmDialog } from "@/components/kit/confirm-dialog";
 import { ErrorState, ListSkeleton, PageHeader } from "@/components/kit/states";
 import { api } from "@/lib/api";
 import { describeApiError } from "@/lib/api/messages";
-import type { Org } from "@/lib/api/types";
+import type { InboxMessage, MessagePage, Org } from "@/lib/api/types";
 import { can } from "@/lib/orgs";
 import { useAsyncData } from "@/lib/use-async-data";
 
 import { ConversationStatusBadge, formatWhen, handoffLabel } from "./conversation-status";
 
-export function ConversationDetailScreen({
-  org,
-  conversationId,
-}: {
-  org: Org;
-  conversationId: string;
-}) {
+export function ConversationDetailScreen(props: { org: Org; conversationId: string }) {
+  // Keyed by scope: nothing of the previous conversation or organization stays on screen.
+  return <Detail key={`${props.org.id}/${props.conversationId}`} {...props} />;
+}
+
+function Detail({ org, conversationId }: { org: Org; conversationId: string }) {
   const router = useRouter();
   const base = `/orgs/${encodeURIComponent(org.id)}`;
   const { data, error, reload, update } = useAsyncData(
@@ -70,7 +69,7 @@ export function ConversationDetailScreen({
             <ArrowLeftIcon /> All conversations
           </Link>
         }
-        title={data.preview || "Conversation"}
+        title={<span className="wrap-anywhere">{data.preview || "Conversation"}</span>}
         description={`${data.chatbot_name} · ${data.channel} · last message ${formatWhen(data.last_message_at)}`}
         actions={<ConversationStatusBadge status={data.status} />}
       />
@@ -260,34 +259,12 @@ export function ConversationDetailScreen({
         <h2 id="history-heading" className="font-semibold">
           Messages
         </h2>
-        <ol className="grid gap-3" aria-label="Message history">
-          {data.messages.map((item) => (
-            <li key={item.id} className="rounded-xl border bg-card p-4">
-              <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                {item.role === "user" ? "Customer" : "Assistant"} · {item.status}
-              </p>
-              {item.role === "assistant" ? (
-                <AnswerText text={item.content} />
-              ) : (
-                <p className="mt-2 text-sm text-pretty whitespace-pre-wrap">{item.content}</p>
-              )}
-              {item.citations.length > 0 && (
-                <ul className="mt-2 grid gap-1 text-xs text-muted-foreground">
-                  {item.citations.map((citation) => (
-                    <li key={`${item.id}-${citation.id}`}>
-                      [{citation.id}] {citation.title}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {item.feedback != null && (
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Answer feedback: {item.feedback === 1 ? "helpful" : "not helpful"}
-                </p>
-              )}
-            </li>
-          ))}
-        </ol>
+        <History
+          orgId={org.id}
+          conversationId={conversationId}
+          latest={data.messages}
+          olderCursor={data.older_cursor}
+        />
       </section>
 
       {deletable && (
@@ -315,5 +292,110 @@ export function ConversationDetailScreen({
         </>
       )}
     </div>
+  );
+}
+
+/** The newest messages come with the conversation; earlier ones are fetched page by page. */
+function History({
+  orgId,
+  conversationId,
+  latest,
+  olderCursor,
+}: {
+  orgId: string;
+  conversationId: string;
+  latest: InboxMessage[];
+  olderCursor: string | null;
+}) {
+  const [pages, setPages] = useState<MessagePage[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const oldest = pages[pages.length - 1];
+  const cursor = oldest ? oldest.next_cursor : olderCursor;
+
+  // Oldest first. Ids are kept once, whatever the pages overlap.
+  const messages = new Map<string, InboxMessage>();
+  for (const page of [...pages].reverse()) {
+    for (const item of page.data) messages.set(item.id, item);
+  }
+  for (const item of latest) messages.set(item.id, item);
+
+  async function loadEarlier(from: string) {
+    setLoading(true);
+    setError(null);
+    try {
+      const page = await api.listMessages(orgId, conversationId, from);
+      setPages((current) => [...current, page]);
+    } catch (failure) {
+      setError(describeApiError(failure));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="grid gap-3">
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
+      {cursor && (
+        <Button
+          type="button"
+          variant="outline"
+          className="justify-self-start"
+          disabled={loading}
+          onClick={() => void loadEarlier(cursor)}
+        >
+          Load earlier messages
+        </Button>
+      )}
+      {messages.size === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          No messages are stored for this conversation.
+        </p>
+      ) : (
+        <ol className="grid gap-3" aria-label="Message history">
+          {[...messages.values()].map((item) => (
+            <MessageItem key={item.id} item={item} />
+          ))}
+        </ol>
+      )}
+    </div>
+  );
+}
+
+function MessageItem({ item }: { item: InboxMessage }) {
+  return (
+    <li className="min-w-0 rounded-xl border bg-card p-4 wrap-anywhere">
+      <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+        {item.role === "user" ? "Customer" : "Assistant"} · {item.status} ·{" "}
+        <time dateTime={item.created_at}>{formatWhen(item.created_at)}</time>
+      </p>
+      <div data-testid="message-content">
+        {item.role === "assistant" ? (
+          <AnswerText text={item.content} />
+        ) : (
+          <p className="mt-2 text-sm text-pretty whitespace-pre-wrap">{item.content}</p>
+        )}
+      </div>
+      {item.citations.length > 0 && (
+        // Stored snapshots of what the answer cited. Text only: no link to the document.
+        <ul aria-label="Sources" className="mt-2 grid gap-1 text-xs text-muted-foreground">
+          {item.citations.map((citation) => (
+            <li key={`${item.id}-${citation.id}`}>
+              [{citation.id}] {citation.title}
+              {citation.page ? ` · page ${citation.page}` : ""}
+            </li>
+          ))}
+        </ul>
+      )}
+      {item.feedback != null && item.feedback !== 0 && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          Answer feedback: {item.feedback === 1 ? "helpful" : "not helpful"}
+        </p>
+      )}
+    </li>
   );
 }

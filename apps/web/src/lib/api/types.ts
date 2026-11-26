@@ -316,6 +316,15 @@ export interface ConversationEvent {
   created_at: string;
 }
 
+export type InboxMessage = ChatMessage & { created_at: string };
+
+export interface MessagePage {
+  /** Oldest first within the page; `next_cursor` leads to still earlier messages. */
+  data: InboxMessage[];
+  next_cursor: string | null;
+  has_more: boolean;
+}
+
 export interface ConversationDetail {
   id: string;
   chatbot_id: string;
@@ -330,7 +339,9 @@ export interface ConversationDetail {
   handoff_contact: string | null;
   created_at: string;
   last_message_at: string;
-  messages: ChatMessage[];
+  messages: InboxMessage[];
+  /** Set when earlier messages exist beyond the newest ones returned here. */
+  older_cursor: string | null;
   events: ConversationEvent[];
   conversation?: { id: string; chatbot_id: string; channel: string };
 }
