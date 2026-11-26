@@ -34,6 +34,7 @@ import type {
   ConversationList,
   InboxFilters,
   KnowledgeGap,
+  MessagePage,
   RetentionSettings,
   Timeseries,
   UnansweredGroup,
@@ -82,6 +83,12 @@ export function createEndpoints(client: ApiClient) {
     },
     getConversationDetail: (orgId: string, id: string) =>
       client.get<ConversationDetail>(`${org(orgId)}/conversations/${encodeURIComponent(id)}`),
+    listMessages: (orgId: string, id: string, cursor: string) => {
+      const query = new URLSearchParams({ limit: "50", cursor });
+      return client.get<MessagePage>(
+        `${org(orgId)}/conversations/${encodeURIComponent(id)}/messages?${query.toString()}`,
+      );
+    },
     updateConversationStatus: (
       orgId: string,
       id: string,
