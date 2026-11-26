@@ -6,6 +6,7 @@ import asyncio
 import contextlib
 import time
 import uuid
+from collections import deque
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import TYPE_CHECKING
@@ -33,6 +34,15 @@ redis.call('EXPIRE', KEYS[1], ARGV[5])
 redis.call('SET', KEYS[2], ARGV[3], 'EX', ARGV[5])
 return 1
 """
+# Waiters share one event loop with the requests already admitted, so every refused attempt costs
+# them time (PERF-01). A release in this process wakes one waiter at once. Polling is only the
+# fallback, for slots freed by another process or by expiry: prompt at first, then backing off.
+ADMISSION_POLL_MIN_SECONDS = 0.01
+ADMISSION_POLL_MAX_SECONDS = 0.2
+
+#: Requests of this process waiting for a slot, oldest first, per organization key.
+_waiting: dict[str, deque[asyncio.Event]] = {}
+
 _RELEASE = """
 redis.call('ZREM', KEYS[1], ARGV[1])
 if redis.call('GET', KEYS[2]) == ARGV[1] then redis.call('DEL', KEYS[2]) end
@@ -48,13 +58,26 @@ class Lease:
 
     async def release(self, redis: Redis) -> None:
         await redis.eval(_RELEASE, 2, self.org_key, self.conversation_key, self.token)
+        wake(self.org_key)
+
+
+def org_key(org_id: uuid.UUID) -> str:
+    return f"chat:{{{org_id}}}:active"
+
+
+def wake(key: str) -> None:
+    """Tell the oldest waiter not yet told that a slot may be free. Only a hint: it still asks."""
+    for signal in _waiting.get(key, ()):
+        if not signal.is_set():
+            signal.set()
+            return
 
 
 async def acquire(
     redis: Redis, org_id: uuid.UUID, conversation_id: uuid.UUID, settings: Settings
 ) -> Lease:
     lease = Lease(
-        f"chat:{{{org_id}}}:active",
+        org_key(org_id),
         f"chat:{{{org_id}}}:conversation:{conversation_id}",
         uuid.uuid4().hex,
     )
@@ -88,6 +111,45 @@ async def acquire(
             headers={"Retry-After": "2"},
         )
     return lease
+
+
+async def admit(
+    redis: Redis, org_id: uuid.UUID, conversation_id: uuid.UUID, settings: Settings
+) -> Lease:
+    """`acquire`, waiting up to the admission window while the conversation or workspace is busy."""
+    loop = asyncio.get_running_loop()
+    deadline = loop.time() + settings.chat_admission_wait_seconds
+    delay = ADMISSION_POLL_MIN_SECONDS
+    key = org_key(org_id)
+    signal = asyncio.Event()
+    queued = admitted = False
+    try:
+        while True:
+            signal.clear()
+            try:
+                lease = await acquire(redis, org_id, conversation_id, settings)
+                admitted = True
+                return lease
+            except ApiError as exc:
+                remaining = deadline - loop.time()
+                if exc.code != "chat_busy" or remaining <= 0:
+                    raise
+            if not queued:
+                _waiting.setdefault(key, deque()).append(signal)
+                queued = True
+            # Never sleep past the window: the last attempt happens as it closes.
+            with contextlib.suppress(TimeoutError):
+                async with asyncio.timeout(min(delay, remaining)):
+                    await signal.wait()
+            delay = min(delay * 2, ADMISSION_POLL_MAX_SECONDS)
+    finally:
+        if queued:
+            queue = _waiting[key]
+            queue.remove(signal)
+            if not queue:
+                del _waiting[key]
+            elif signal.is_set() and not admitted:
+                wake(key)  # the hint was not used: pass it on
 
 
 def cost(input_tokens: int, output_tokens: int, prices: tuple[float, float]) -> Decimal:

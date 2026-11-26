@@ -1,16 +1,26 @@
-"""Organization-scoped conversation inbox: search, filters, pagination, delete."""
+"""Organization-scoped conversation inbox: search, filters, pagination, delete.
+
+Both lists page by keyset: conversations by latest activity, ``(last_message_at, id)`` descending,
+and a transcript backwards from its newest message, ``(created_at, id)`` descending. A cursor is
+only a position. It names the list it came from (organization, filters, direction) and is refused
+anywhere else, but it grants nothing: every page applies the same tenant predicates and RLS.
+Pages are not a snapshot: a conversation that receives a message moves to the top.
+"""
 
 from __future__ import annotations
 
 import base64
+import hashlib
+import json
 import uuid
+from collections.abc import Callable
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import and_, delete, exists, func, or_, select
+from sqlalchemy import and_, delete, exists, func, or_, select, tuple_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.errors import not_found
+from app.core.errors import ApiError, not_found
 from app.core.request_meta import RequestMeta
 from app.models.chatbots import Chatbot
 from app.models.conversations import Conversation, ConversationEvent, Message, UnansweredQuestion
@@ -19,23 +29,43 @@ from app.services.analytics import rebuild_analytics_daily
 from app.services.conversation_events import chatbot_name, load_conversation
 from app.services.tenancy.audit import record_audit
 
+MessageOut = Callable[[Message], dict[str, Any]]
+
 PAGE_DEFAULT = 25
 PAGE_MAX = 100
+MESSAGE_PAGE_DEFAULT = 50
+#: Newest messages returned with a conversation, as before cursors existed.
+DETAIL_MESSAGES = 200
+CURSOR_MAX_LENGTH = 256
 
 
-def _decode_cursor(cursor: str | None) -> tuple[datetime, uuid.UUID] | None:
-    if not cursor:
-        return None
+def cursor_scope(*parts: object) -> str:
+    """Fingerprint of the list a cursor belongs to (not a signature: it protects no data)."""
+    canonical = json.dumps(parts, default=str, sort_keys=True)
+    return hashlib.sha256(canonical.encode()).hexdigest()[:16]
+
+
+def encode_cursor(stamp: datetime, ident: uuid.UUID, scope: str) -> str:
+    return base64.urlsafe_b64encode(f"{stamp.isoformat()}|{ident}|{scope}".encode()).decode()
+
+
+def decode_cursor(cursor: str, scope: str) -> tuple[datetime, uuid.UUID]:
+    """The position named by ``cursor``, or ``400 invalid_cursor``."""
+    invalid = ApiError(400, "invalid_cursor", "Invalid cursor")
+    if len(cursor) > CURSOR_MAX_LENGTH:
+        raise invalid
     try:
-        raw = base64.urlsafe_b64decode(cursor.encode()).decode()
-        stamp, ident = raw.split("|", 1)
-        return datetime.fromisoformat(stamp), uuid.UUID(ident)
-    except (ValueError, OSError):
-        return None
-
-
-def encode_cursor(stamp: datetime, ident: uuid.UUID) -> str:
-    return base64.urlsafe_b64encode(f"{stamp.isoformat()}|{ident}".encode()).decode()
+        stamp, ident, issued_for = (
+            base64.b64decode(cursor.encode("ascii"), altchars=b"-_", validate=True)
+            .decode()
+            .split("|")
+        )
+        position = datetime.fromisoformat(stamp), uuid.UUID(ident)
+    except ValueError as exc:  # covers base64 and Unicode errors
+        raise invalid from exc
+    if position[0].tzinfo is None or issued_for != scope:
+        raise invalid
+    return position
 
 
 def _search_pattern(q: str) -> str:
@@ -159,13 +189,12 @@ async def list_conversations(
         "grounded": grounded,
         "q": q,
     }
+    scope = cursor_scope("conversations:last_message_at.desc", org_id, kwargs)
     stmt = _base_query(org_id, **kwargs)
-    decoded = _decode_cursor(cursor)
-    if decoded is not None:
-        stamp, ident = decoded
+    if cursor:
         stmt = stmt.where(
-            (Conversation.last_message_at < stamp)
-            | and_(Conversation.last_message_at == stamp, Conversation.id < ident)
+            tuple_(Conversation.last_message_at, Conversation.id)
+            < tuple_(*decode_cursor(cursor, scope))
         )
     total = await db.scalar(
         select(func.count()).select_from(_base_query(org_id, **kwargs).subquery())
@@ -204,7 +233,7 @@ async def list_conversations(
     next_cursor = None
     if has_more and page:
         last = page[-1][0]
-        next_cursor = encode_cursor(last.last_message_at, last.id)
+        next_cursor = encode_cursor(last.last_message_at, last.id, scope)
     return {
         "data": data,
         "next_cursor": next_cursor,
@@ -213,19 +242,67 @@ async def list_conversations(
     }
 
 
+def _stored_message(row: Message, message_out: MessageOut) -> dict[str, Any]:
+    return {**message_out(row), "created_at": row.created_at}
+
+
+async def _messages_before(
+    db: AsyncSession,
+    org_id: uuid.UUID,
+    conversation_id: uuid.UUID,
+    *,
+    cursor: str | None,
+    limit: int,
+) -> tuple[list[Message], str | None]:
+    """The ``limit`` messages before ``cursor`` (or the newest), oldest first, plus the cursor
+    that leads further back."""
+    scope = cursor_scope("messages:created_at.desc", org_id, conversation_id)
+    stmt = (
+        select(Message)
+        .where(Message.org_id == org_id, Message.conversation_id == conversation_id)
+        .order_by(Message.created_at.desc(), Message.id.desc())
+        .limit(limit + 1)
+    )
+    if cursor:
+        stmt = stmt.where(
+            tuple_(Message.created_at, Message.id) < tuple_(*decode_cursor(cursor, scope))
+        )
+    rows = list((await db.scalars(stmt)).all())
+    older = None
+    if len(rows) > limit:
+        rows = rows[:limit]
+        older = encode_cursor(rows[-1].created_at, rows[-1].id, scope)
+    return rows[::-1], older
+
+
+async def list_messages(
+    db: AsyncSession,
+    org_id: uuid.UUID,
+    conversation_id: uuid.UUID,
+    message_out: MessageOut,
+    *,
+    cursor: str | None = None,
+    limit: int = MESSAGE_PAGE_DEFAULT,
+) -> dict[str, Any]:
+    await load_conversation(db, org_id, conversation_id)  # 404 before any cursor is looked at
+    rows, older = await _messages_before(
+        db, org_id, conversation_id, cursor=cursor, limit=min(max(limit, 1), PAGE_MAX)
+    )
+    return {
+        "data": [_stored_message(row, message_out) for row in rows],
+        "next_cursor": older,
+        "has_more": older is not None,
+    }
+
+
 async def get_detail(
-    db: AsyncSession, org_id: uuid.UUID, conversation_id: uuid.UUID, message_out: Any
+    db: AsyncSession, org_id: uuid.UUID, conversation_id: uuid.UUID, message_out: MessageOut
 ) -> dict[str, Any]:
     conversation = await load_conversation(db, org_id, conversation_id)
     name = await chatbot_name(db, org_id, conversation.chatbot_id)
-    messages = (
-        await db.scalars(
-            select(Message)
-            .where(Message.org_id == org_id, Message.conversation_id == conversation_id)
-            .order_by(Message.created_at.desc(), Message.id.desc())
-            .limit(200)
-        )
-    ).all()
+    messages, older = await _messages_before(
+        db, org_id, conversation_id, cursor=None, limit=DETAIL_MESSAGES
+    )
     events = (
         await db.scalars(
             select(ConversationEvent)
@@ -251,7 +328,8 @@ async def get_detail(
         "handoff_contact": conversation.handoff_contact,
         "created_at": conversation.created_at,
         "last_message_at": conversation.last_message_at,
-        "messages": [message_out(row) for row in reversed(messages)],
+        "messages": [_stored_message(row, message_out) for row in messages],
+        "older_cursor": older,
         "events": [
             {
                 "id": event.id,

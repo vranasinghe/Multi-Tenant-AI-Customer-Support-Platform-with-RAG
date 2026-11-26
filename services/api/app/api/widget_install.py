@@ -127,6 +127,7 @@ async def frame(
     meta: MetaDep,
     parent_origin: Annotated[str, Query(max_length=300)],
     instance: Annotated[str, Query(max_length=100)],
+    instance_key: Annotated[str | None, Query(pattern=r"^[A-Za-z0-9_-]{1,32}$")] = None,
 ) -> HTMLResponse:
     await services.limiter.check(meta.ip or "unknown", Limit("widget-frame", 60, 60))
     try:
@@ -139,7 +140,13 @@ async def frame(
     nonce = secrets.token_urlsafe(24)
     attrs = " ".join(
         f'data-{name}="{html.escape(value, quote=True)}"'
-        for name, value in [("frame-key", key), ("parent-origin", parent), ("instance", instance)]
+        for name, value in [
+            ("frame-key", key),
+            ("parent-origin", parent),
+            ("instance", instance),
+            ("instance-key", instance_key),
+        ]
+        if value is not None
     )
     return HTMLResponse(
         f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><script nonce="{nonce}" src="/widget/v1/loader.js" {attrs}></script></body></html>',  # noqa: E501

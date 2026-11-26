@@ -28,7 +28,7 @@ from app.models.tenancy import Organization
 from app.rag.retrieval import RenderedEvidence, authorize_chunks, search
 from app.schemas.conversations import SendMessage
 from app.services.chat_access import ChatAccess
-from app.services.chat_controls import Lease, acquire, cost, reserve
+from app.services.chat_controls import Lease, admit, cost, reserve
 from app.services.chat_prompt import (
     CitationStream,
     assemble,
@@ -38,6 +38,7 @@ from app.services.chat_prompt import (
 )
 from app.services.chatbots.registry import MODELS_BY_ID
 from app.services.container import AppServices
+from app.services.public_view import public_event
 from app.services.tenancy.context import set_org_context
 
 log = get_logger(__name__)
@@ -176,6 +177,11 @@ class Turn:
     reserved_cost: Decimal
     prices: tuple[float, float]
     fallback: bool
+    # Set by the stream as each step succeeds; whatever is still unset is cleaned up afterwards.
+    finalized: bool = False
+    released: bool = False
+    #: Streamed to a website visitor: events carry the public fields only.
+    public: bool = False
 
 
 async def prepare(
@@ -209,15 +215,7 @@ async def _prepare(  # noqa: PLR0912, PLR0915
 ) -> Turn:
     s = services.settings
     await services.limiter.check(str(org_id), Limit("chat-org", s.chat_requests_per_minute, 60))
-    deadline = asyncio.get_running_loop().time() + s.chat_admission_wait_seconds
-    while True:
-        try:
-            lease = await acquire(services.redis, org_id, conversation_id, s)
-            break
-        except ApiError as exc:
-            if exc.code != "chat_busy" or asyncio.get_running_loop().time() >= deadline:
-                raise
-            await asyncio.sleep(0.01)
+    lease = await admit(services.redis, org_id, conversation_id, s)
     pending_turn: tuple[uuid.UUID, Decimal] | None = None
     try:
         async with services.chat_work.setup():
@@ -404,6 +402,7 @@ async def _prepare(  # noqa: PLR0912, PLR0915
                     amount,
                     prices,
                     fallback,
+                    public=authorization is not None,
                 )
     except BaseException:
         with anyio.CancelScope(shield=True):
@@ -416,19 +415,27 @@ async def _prepare(  # noqa: PLR0912, PLR0915
         raise
 
 
+def turn_event(turn: Turn, name: str, payload: dict[str, Any]) -> str:
+    return event(name, public_event(name, payload) if turn.public else payload)
+
+
 def event(name: str, payload: Any) -> str:
     return f"event: {name}\ndata: {json.dumps(jsonable_encoder(payload), ensure_ascii=False)}\n\n"
 
 
 async def close_pending_turn(services: AppServices, turn: Turn) -> None:
-    """Covers a socket disappearing before the streaming generator ever starts."""
+    """Covers a socket disappearing before the streaming generator ever starts, and a stream
+    whose finalization or release failed. A turn the stream completed needs nothing more."""
     try:
-        await interrupt_pending(services, turn.org_id, turn.message_id, turn.reserved_cost)
+        if not turn.finalized:
+            await interrupt_pending(services, turn.org_id, turn.message_id, turn.reserved_cost)
     finally:
-        try:
-            await turn.lease.release(services.redis)
-        except RedisError:
-            log.error("chat.lease_release_failed", message_id=str(turn.message_id))
+        if not turn.released:
+            try:
+                await turn.lease.release(services.redis)
+                turn.released = True
+            except RedisError:
+                log.error("chat.lease_release_failed", message_id=str(turn.message_id))
 
 
 async def interrupt_pending(
@@ -479,8 +486,8 @@ async def stream(services: AppServices, turn: Turn) -> AsyncGenerator[str]:  # n
     estimated = True
     citations: list[dict[str, Any]] = []
     try:
-        yield event(
-            "meta", {"conversation_id": turn.conversation_id, "message_id": turn.message_id}
+        yield turn_event(
+            turn, "meta", {"conversation_id": turn.conversation_id, "message_id": turn.message_id}
         )
         if turn.fallback:
             content = (
@@ -490,7 +497,7 @@ async def stream(services: AppServices, turn: Turn) -> AsyncGenerator[str]:  # n
             content = strip_unknown_citations(content, turn.chunks)
             status = "fallback"
             first_token_at = asyncio.get_running_loop().time()
-            yield event("delta", {"text": content})
+            yield turn_event(turn, "delta", {"text": content})
         else:
             async with asyncio.timeout(services.settings.llm_timeout_seconds):
                 provider_stream = services.chat_provider.stream(
@@ -509,7 +516,7 @@ async def stream(services: AppServices, turn: Turn) -> AsyncGenerator[str]:  # n
                             if first_token_at is None:
                                 first_token_at = asyncio.get_running_loop().time()
                             content += piece
-                            yield event("delta", {"text": piece})
+                            yield turn_event(turn, "delta", {"text": piece})
                         if part.input_tokens is not None and part.output_tokens is not None:
                             input_tokens, output_tokens = part.input_tokens, part.output_tokens
                             if (
@@ -622,19 +629,24 @@ async def stream(services: AppServices, turn: Turn) -> AsyncGenerator[str]:  # n
                         )
                     )
                     await db.commit()
+                    turn.finalized = True
             except Exception:
                 # Reservation remains charged if finalization fails. No silent overspend.
                 log.error("chat.finalization_failed", message_id=str(turn.message_id))
             finally:
                 try:
                     await turn.lease.release(services.redis)
+                    turn.released = True
                 except RedisError:
                     log.error("chat.lease_release_failed", message_id=str(turn.message_id))
     if error:
-        yield event(
-            "error", {"code": error, "message": "The answer could not finish. Please try again."}
+        yield turn_event(
+            turn,
+            "error",
+            {"code": error, "message": "The answer could not finish. Please try again."},
         )
-    yield event(
+    yield turn_event(
+        turn,
         "done",
         {
             "id": str(turn.message_id),

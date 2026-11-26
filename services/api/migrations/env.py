@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import os
+from collections.abc import Collection, Mapping
 from logging.config import fileConfig
+from typing import Any
 
 from alembic import context
+from alembic.runtime.migration import MigrationContext, MigrationInfo
 from sqlalchemy import create_engine, pool
 
 from app.core.config import MigrationSettings
@@ -30,6 +34,27 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
+def refuse_deployed_downgrade(
+    ctx: MigrationContext,
+    step: MigrationInfo,
+    heads: Collection[Any],
+    run_args: Mapping[str, Any],
+) -> None:
+    """A downgrade drops columns and tables with their data (MIG-02, docs/RECOVERY.md).
+
+    Runs after each step but inside the migration transaction, so refusing undoes all of it.
+    """
+    if (
+        not step.is_upgrade
+        and os.environ.get("APP_ENV") in {"staging", "production"}
+        and os.environ.get("ALLOW_DESTRUCTIVE_DOWNGRADE") != "yes"
+    ):
+        raise RuntimeError(
+            "Downgrade refused: it destroys data. Fix forward or restore a backup "
+            "(docs/RECOVERY.md). To do it anyway, set ALLOW_DESTRUCTIVE_DOWNGRADE=yes."
+        )
+
+
 def run_migrations_online() -> None:
     engine = create_engine(MigrationSettings().url, poolclass=pool.NullPool)
     with engine.connect() as connection:
@@ -37,6 +62,7 @@ def run_migrations_online() -> None:
             connection=connection,
             target_metadata=target_metadata,
             compare_type=True,
+            on_version_apply=refuse_deployed_downgrade,
         )
         with context.begin_transaction():
             context.run_migrations()
