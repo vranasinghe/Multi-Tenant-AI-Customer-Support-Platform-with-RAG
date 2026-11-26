@@ -24,6 +24,12 @@ USER_MESSAGES: dict[str, str] = {
     "fetch_failed": "The page couldn't be fetched.",
     "robots_disallowed": "The site's robots.txt doesn't allow crawling this page.",
     "low_content": "The page has too little text to be useful.",
+    "parse_timeout": "The file took too long to read. Split or simplify it, then retry.",
+    "parse_resource_limit": (
+        "The file needs more resources to read than are allowed. Split or simplify it, then retry."
+    ),
+    "parse_invalid_output": "The file couldn't be read. Retry, or contact support.",
+    "task_timeout": "Processing took too long. Retry later, or split the document.",
     "internal_error": "Something went wrong while processing. Retry, or contact support.",
 }
 

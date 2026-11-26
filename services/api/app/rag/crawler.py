@@ -22,15 +22,23 @@ from dataclasses import dataclass, field
 from urllib import robotparser
 from urllib.parse import urlsplit
 
+from app.core.config import MAX_CRAWL_DELAY_SECONDS
 from app.rag.errors import IngestionError, TransientIngestionError
 from app.rag.extract import Block
-from app.rag.html_extract import HtmlPage, canonicalize_url, extract_html
+from app.rag.html_extract import HtmlPage, canonicalize_url
+from app.rag.parser_runner import ParserLimits, ParserRunner
 from app.rag.safe_fetch import BlockedDestinationError, FetchStatusError, SafeFetcher
 
 HTML_TYPES = frozenset({"text/html", "application/xhtml+xml"})
 MIN_PAGE_CHARS = 200
-MAX_CRAWL_DELAY = 10.0
 ROBOTS_MAX_BYTES = 512 * 1024
+
+#: ``(body, charset, url) -> page``. Implementations must parse outside this process.
+PageParser = Callable[[bytes, str, str], HtmlPage]
+
+
+def _parse_isolated(body: bytes, charset: str, url: str) -> HtmlPage:
+    return ParserRunner(ParserLimits()).html(body, url, charset)
 
 
 @dataclass(frozen=True)
@@ -114,6 +122,7 @@ def crawl(
     known_hashes: set[bytes] | None = None,
     should_continue: Callable[[], bool] | None = None,
     sleep: Callable[[float], None] = time.sleep,
+    parse: PageParser = _parse_isolated,
 ) -> Iterator[CrawledPage]:
     """Yield each distinct, indexable page. ``stats`` is updated as the crawl proceeds."""
     start = canonicalize_url(config.start_url)
@@ -127,7 +136,7 @@ def crawl(
     delay = config.delay_seconds
     declared = robots.crawl_delay(agent)
     if declared is not None:
-        delay = max(delay, min(float(declared), MAX_CRAWL_DELAY))
+        delay = max(delay, min(float(declared), MAX_CRAWL_DELAY_SECONDS))
 
     queue: deque[tuple[str, int]] = deque([(start, 0)])
     seen_urls = {start}
@@ -174,7 +183,14 @@ def crawl(
             stats.unsupported_type += 1
             continue
         final = canonicalize_url(result.url)
-        page = extract_html(result.body.decode(_charset(result.headers), errors="replace"), final)
+        try:
+            page = parse(result.body, _charset(result.headers), final)
+        except IngestionError as exc:
+            stats.errors += 1
+            _note(stats, exc)
+            if url == start:
+                raise  # nothing can be crawled; the job decides whether to retry
+            continue
         if page.noindex:
             stats.noindex += 1
         if depth < config.max_depth and not page.nofollow:

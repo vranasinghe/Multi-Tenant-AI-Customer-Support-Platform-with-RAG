@@ -19,6 +19,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.rag.chunking import ChunkingConfig
 from app.rag.embeddings import Embedder, build_embedder
 from app.rag.extract import Limits
+from app.rag.parser_runner import ParserLimits, ParserRunner
 from app.rag.safe_fetch import SafeFetcher
 from app.rag.storage import ObjectStore, build_object_store
 
@@ -37,6 +38,7 @@ class Runtime:
     store: ObjectStore
     embedder: Embedder
     fetcher: SafeFetcher
+    parser: ParserRunner
     engine: Engine | None = None
 
     @property
@@ -73,6 +75,20 @@ def build_fetcher(settings: Settings) -> SafeFetcher:
     )
 
 
+def build_parser(settings: Settings) -> ParserRunner:
+    return ParserRunner(
+        ParserLimits(
+            wall_seconds=settings.parser_wall_seconds,
+            cpu_seconds=settings.parser_cpu_seconds,
+            memory_bytes=settings.parser_memory_bytes,
+            # The approved upload and fetch limits; storage reads allow the same headroom.
+            max_input_bytes=max(settings.upload_max_bytes + 1024, settings.fetch_max_bytes),
+            max_result_bytes=settings.parser_max_result_bytes,
+            require_containment=settings.app_env in {"staging", "production"},
+        )
+    )
+
+
 def build_runtime(settings: Settings) -> Runtime:
     engine = create_engine(
         str(settings.database_url),
@@ -87,6 +103,7 @@ def build_runtime(settings: Settings) -> Runtime:
         store=build_object_store(settings),
         embedder=build_embedder(settings),
         fetcher=build_fetcher(settings),
+        parser=build_parser(settings),
         engine=engine,
     )
 

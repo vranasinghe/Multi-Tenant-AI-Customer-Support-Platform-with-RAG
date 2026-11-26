@@ -68,18 +68,22 @@ def upgrade() -> None:
         """
     )
     op.execute(
-        "CREATE INDEX ix_conversations_inbox ON conversations (org_id, last_message_at DESC, id DESC)"
+        "CREATE INDEX ix_conversations_inbox "
+        "ON conversations (org_id, last_message_at DESC, id DESC)"
     )
     op.execute(
-        "CREATE INDEX ix_conversations_status ON conversations (org_id, status, last_message_at DESC)"
+        "CREATE INDEX ix_conversations_status "
+        "ON conversations (org_id, status, last_message_at DESC)"
     )
     op.execute(
-        "CREATE INDEX ix_conversations_channel ON conversations (org_id, channel, last_message_at DESC)"
+        "CREATE INDEX ix_conversations_channel "
+        "ON conversations (org_id, channel, last_message_at DESC)"
     )
 
     op.execute("ALTER TABLE messages ADD COLUMN latency_ms integer")
     op.execute(
-        "ALTER TABLE messages ADD CONSTRAINT ck_messages_latency_ms CHECK (latency_ms IS NULL OR latency_ms >= 0)"
+        "ALTER TABLE messages ADD CONSTRAINT ck_messages_latency_ms "
+        "CHECK (latency_ms IS NULL OR latency_ms >= 0)"
     )
     op.execute("CREATE INDEX ix_messages_content_trgm ON messages USING gin (content gin_trgm_ops)")
 
@@ -225,11 +229,11 @@ def upgrade() -> None:
     )
     op.execute("REVOKE ALL ON FUNCTION app.list_orgs_for_conversation_jobs() FROM PUBLIC")
     op.execute(
-        f"""
+        """
         DO $$
         BEGIN
-          IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '{APP_ROLE}') THEN
-            GRANT EXECUTE ON FUNCTION app.list_orgs_for_conversation_jobs() TO {APP_ROLE};
+          IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'platform_app') THEN
+            GRANT EXECUTE ON FUNCTION app.list_orgs_for_conversation_jobs() TO platform_app;
           END IF;
         END
         $$
