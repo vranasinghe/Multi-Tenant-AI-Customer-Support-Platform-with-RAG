@@ -1,0 +1,1038 @@
+1
+00:00:00,350 --> 00:00:04,912
+What does it take to engineer an AI
+customer support platform that serves
+
+2
+00:00:04,932 --> 00:00:06,283
+multiple businesses,
+
+3
+00:00:06,523 --> 00:00:08,002
+while keeping their knowledge,
+
+4
+00:00:08,242 --> 00:00:09,324
+conversations,
+
+5
+00:00:11,475 --> 00:00:13,299
+and customer data isolated?
+
+6
+00:00:14,705 --> 00:00:18,586
+This case study shows the product, the
+architecture, what broke,
+
+7
+00:00:18,606 --> 00:00:19,745
+and what is unproven.
+
+8
+00:00:20,683 --> 00:00:24,288
+Customers ask the same questions again and
+again.
+
+9
+00:00:24,308 --> 00:00:29,301
+The answers usually exist, spread across
+policy documents and web pages,
+
+10
+00:00:29,321 --> 00:00:31,302
+but someone has to find them each time.
+
+11
+00:00:31,542 --> 00:00:35,604
+A support assistant grounded in a
+business's own material can help.
+
+12
+00:00:36,947 --> 00:00:40,695
+And if one shared platform serves many
+separate businesses,
+
+13
+00:00:40,715 --> 00:00:44,256
+every answer has to come from the right
+one, and only that one.
+
+14
+00:00:46,583 --> 00:00:50,687
+Here is the real application, running
+locally with fictional data.
+
+15
+00:00:50,707 --> 00:00:52,075
+An owner signs in,
+
+16
+00:00:52,315 --> 00:00:54,691
+and lands on the organization dashboard.
+
+17
+00:00:54,931 --> 00:00:58,859
+A short wizard creates a chatbot, with its
+behaviour and appearance.
+
+18
+00:01:00,833 --> 00:01:05,427
+Documents are uploaded, and a background
+worker takes each one from queued,
+
+19
+00:01:05,447 --> 00:01:07,015
+to processing, to ready.
+
+20
+00:01:07,255 --> 00:01:09,483
+You can inspect the passages it produced,
+
+21
+00:01:09,722 --> 00:01:12,153
+and test which ones a question retrieves.
+
+22
+00:01:12,833 --> 00:01:14,823
+Websites can be added too.
+
+23
+00:01:14,843 --> 00:01:18,150
+Here, the crawler refuses a private
+network address.
+
+24
+00:01:19,083 --> 00:01:23,078
+In the playground, a question streams back
+with a numbered source.
+
+25
+00:01:23,098 --> 00:01:24,616
+One important note:
+
+26
+00:01:24,636 --> 00:01:27,516
+this is a deterministic demonstration.
+
+27
+00:01:27,536 --> 00:01:31,441
+The reply is a fixed sentence, not an AI
+answer.
+
+28
+00:01:31,461 --> 00:01:35,238
+What is real is the retrieval, the
+streaming and the citation.
+
+29
+00:01:35,478 --> 00:01:38,465
+An unrelated question gets a fallback
+instead.
+
+30
+00:01:39,617 --> 00:01:43,277
+Once the bot is active, the website's
+origin is verified.
+
+31
+00:01:43,517 --> 00:01:47,721
+A visitor asks through the embedded
+widget, and the conversation is stored.
+
+32
+00:01:49,818 --> 00:01:52,870
+The team sees it in the inbox and marks it
+resolved.
+
+33
+00:01:54,614 --> 00:01:57,175
+Analytics update from stored events.
+
+34
+00:01:57,195 --> 00:02:00,061
+These figures are synthetic demonstration
+data.
+
+35
+00:02:02,383 --> 00:02:04,747
+The system is a modular monolith:
+
+36
+00:02:04,767 --> 00:02:09,784
+one Python codebase and one database, run
+as several processes.
+
+37
+00:02:09,804 --> 00:02:11,479
+Think of it in four layers.
+
+38
+00:02:11,719 --> 00:02:13,670
+First, experience.
+
+39
+00:02:13,690 --> 00:02:18,208
+A dashboard built with Next.js, React and
+TypeScript,
+
+40
+00:02:18,228 --> 00:02:22,102
+and a small widget that opens an isolated
+frame on a customer's site.
+
+41
+00:02:23,050 --> 00:02:25,093
+Second, the application.
+
+42
+00:02:25,113 --> 00:02:28,468
+FastAPI handles ordinary requests.
+
+43
+00:02:28,488 --> 00:02:32,806
+Dashboard requests are authenticated and
+checked against the member's role,
+
+44
+00:02:32,826 --> 00:02:35,870
+and chat answers stream back as server-
+sent events.
+
+45
+00:02:36,817 --> 00:02:39,247
+Third, data and processing.
+
+46
+00:02:39,267 --> 00:02:44,497
+PostgreSQL holds relational data, and
+vectors with pgvector.
+
+47
+00:02:44,517 --> 00:02:48,059
+Private object storage keeps the original
+files.
+
+48
+00:02:48,079 --> 00:02:50,772
+Redis carries the queue to Celery workers,
+
+49
+00:02:50,792 --> 00:02:54,997
+and Celery Beat schedules a recovery sweep
+for a separate maintenance worker.
+
+50
+00:02:55,950 --> 00:02:57,692
+Fourth, intelligence:
+
+51
+00:02:57,712 --> 00:03:01,379
+document processing, retrieval and prompt
+construction,
+
+52
+00:03:01,399 --> 00:03:04,654
+with adapters for language and embedding
+models.
+
+53
+00:03:04,674 --> 00:03:09,065
+This is code inside those same processes,
+not separate services.
+
+54
+00:03:10,017 --> 00:03:10,756
+Together:
+
+55
+00:03:10,776 --> 00:03:15,843
+synchronous requests, streamed answers,
+and background jobs, in Docker containers.
+
+56
+00:03:16,083 --> 00:03:19,575
+Several containers do not make this
+microservices.
+
+57
+00:03:19,595 --> 00:03:22,439
+This detailed diagram shows each
+connection.
+
+58
+00:03:24,783 --> 00:03:29,851
+Retrieval augmented generation, or RAG,
+means finding evidence first,
+
+59
+00:03:29,871 --> 00:03:31,451
+then writing from it.
+
+60
+00:03:31,471 --> 00:03:35,015
+A file or web page is extracted into text
+and cleaned.
+
+61
+00:03:35,255 --> 00:03:39,153
+It is split into overlapping chunks that
+never cross a heading.
+
+62
+00:03:39,173 --> 00:03:43,641
+Each chunk gets an embedding, a list of
+numbers, stored beside the text.
+
+63
+00:03:44,583 --> 00:03:46,926
+A question is searched two ways.
+
+64
+00:03:46,946 --> 00:03:51,026
+Vector search compares embeddings, keyword
+search matches words,
+
+65
+00:03:51,046 --> 00:03:53,238
+and the two rankings are merged.
+
+66
+00:03:53,258 --> 00:03:57,537
+Retrieval is always scoped to one
+organization and one chatbot.
+
+67
+00:03:58,375 --> 00:04:01,251
+The prompt is assembled, the model
+streams,
+
+68
+00:04:01,271 --> 00:04:04,289
+and citations are validated on the way
+out.
+
+69
+00:04:04,309 --> 00:04:07,611
+Only sources that actually entered the
+prompt can be cited.
+
+70
+00:04:08,550 --> 00:04:13,049
+Citation provenance establishes which
+sources were shown to the model.
+
+71
+00:04:13,069 --> 00:04:15,960
+It does not show that a source supports
+the sentence.
+
+72
+00:04:16,200 --> 00:04:20,344
+Offline answer-bearing recall at five is
+eighty-five percent,
+
+73
+00:04:20,364 --> 00:04:23,969
+measured with stand-in embeddings that
+only match words.
+
+74
+00:04:23,989 --> 00:04:26,219
+The target is ninety percent.
+
+75
+00:04:26,239 --> 00:04:28,691
+Real model accuracy is untested.
+
+76
+00:04:31,017 --> 00:04:34,666
+Take two fictional businesses, each with
+its own chatbot,
+
+77
+00:04:34,686 --> 00:04:36,465
+documents and conversations.
+
+78
+00:04:36,705 --> 00:04:39,865
+Here the second owner opens the first
+one's address,
+
+79
+00:04:39,885 --> 00:04:41,925
+and gets organization not found.
+
+80
+00:04:42,850 --> 00:04:45,048
+Several layers enforce this.
+
+81
+00:04:45,068 --> 00:04:47,411
+Sessions are managed on the server.
+
+82
+00:04:47,431 --> 00:04:53,548
+The browser holds only an opaque session
+identifier, in an HttpOnly cookie.
+
+83
+00:04:53,568 --> 00:04:56,248
+Roles decide what each member may do.
+
+84
+00:04:56,268 --> 00:04:58,698
+Queries are scoped to the organization,
+
+85
+00:04:58,718 --> 00:05:03,361
+and PostgreSQL enforces forced row-level
+security underneath,
+
+86
+00:05:03,381 --> 00:05:05,985
+so a missed filter is not enough to leak a
+row.
+
+87
+00:05:06,917 --> 00:05:11,503
+Public widgets receive short-lived tokens
+limited to one conversation,
+
+88
+00:05:11,523 --> 00:05:14,478
+and visitors get only the fields they
+need.
+
+89
+00:05:14,498 --> 00:05:17,816
+Forwarding headers are trusted only from
+listed proxies,
+
+90
+00:05:17,836 --> 00:05:21,176
+and AI providers must use HTTPS.
+
+91
+00:05:21,416 --> 00:05:25,248
+This is tested design, not a security
+certification,
+
+92
+00:05:25,268 --> 00:05:27,348
+and not every attack has been tried.
+
+93
+00:05:29,683 --> 00:05:34,320
+An audit then found problems that the
+existing, passing tests had missed.
+
+94
+00:05:34,340 --> 00:05:38,333
+Here are eleven, some from the audit and
+some found while fixing it.
+
+95
+00:05:39,533 --> 00:05:40,119
+First.
+
+96
+00:05:40,139 --> 00:05:42,335
+Ten simultaneous chats all failed.
+
+97
+00:05:42,575 --> 00:05:46,689
+Each request held one database connection
+while asking for another.
+
+98
+00:05:46,929 --> 00:05:50,589
+The fix releases it early, keeps
+transactions short,
+
+99
+00:05:50,609 --> 00:05:54,127
+admits only bounded work, and makes
+cleanup safe to repeat.
+
+100
+00:05:54,367 --> 00:05:58,296
+At one hundred concurrent requests, sixty-
+seven succeeded,
+
+101
+00:05:58,316 --> 00:06:01,059
+thirty-three received a controlled
+rejection,
+
+102
+00:06:01,079 --> 00:06:03,528
+and there were zero unexpected failures.
+
+103
+00:06:03,768 --> 00:06:06,591
+That used an offline provider on one
+laptop.
+
+104
+00:06:07,567 --> 00:06:08,196
+Second.
+
+105
+00:06:08,216 --> 00:06:10,651
+A source cut from the prompt could still
+be cited.
+
+106
+00:06:10,891 --> 00:06:14,754
+Citations were checked against what was
+selected, not what was shown.
+
+107
+00:06:14,994 --> 00:06:18,971
+Now one renderer records exactly which
+sources the model saw,
+
+108
+00:06:18,991 --> 00:06:20,158
+even while streaming.
+
+109
+00:06:20,398 --> 00:06:24,121
+The original failing test passes, with
+thirty-two new tests.
+
+110
+00:06:24,361 --> 00:06:27,732
+Whether a source supports a sentence is
+still unverified.
+
+111
+00:06:28,683 --> 00:06:29,251
+Third.
+
+112
+00:06:29,271 --> 00:06:33,640
+Production settings accepted a plain HTTP
+embedding endpoint.
+
+113
+00:06:33,880 --> 00:06:37,163
+No transport rule covered provider
+addresses,
+
+114
+00:06:37,183 --> 00:06:40,112
+so keys and documents could travel
+unencrypted.
+
+115
+00:06:40,352 --> 00:06:45,297
+Providers now require HTTPS with
+certificate verification,
+
+116
+00:06:45,317 --> 00:06:48,609
+refuse redirects, and ignore environment
+proxies.
+
+117
+00:06:48,849 --> 00:06:52,180
+One hundred and fifty-nine new transport
+tests pass.
+
+118
+00:06:52,420 --> 00:06:55,531
+No real external provider has been
+exercised.
+
+119
+00:06:56,483 --> 00:06:57,100
+Fourth.
+
+120
+00:06:57,120 --> 00:07:00,682
+A client could rewrite its own address and
+avoid rate limits.
+
+121
+00:07:00,922 --> 00:07:04,070
+The server trusted forwarding headers from
+every peer.
+
+122
+00:07:04,310 --> 00:07:08,163
+Now no proxy is trusted unless it is
+explicitly listed.
+
+123
+00:07:08,402 --> 00:07:13,360
+One hundred and ninety-seven unit cases
+and seventeen runtime checks pass.
+
+124
+00:07:13,600 --> 00:07:16,585
+The real production ingress remains
+unverified.
+
+125
+00:07:17,567 --> 00:07:18,172
+Fifth.
+
+126
+00:07:18,192 --> 00:07:20,372
+A hostile document could tie up a worker.
+
+127
+00:07:20,612 --> 00:07:24,167
+Parsing ran inside the long-lived worker,
+with no limits.
+
+128
+00:07:24,407 --> 00:07:28,936
+Each parse now runs in a fresh process
+with limits on time, processor,
+
+129
+00:07:28,956 --> 00:07:30,275
+memory and output.
+
+130
+00:07:30,515 --> 00:07:34,818
+One hundred new tests pass, including
+killed and restarted workers.
+
+131
+00:07:35,058 --> 00:07:38,391
+This is containment, not a complete
+security sandbox.
+
+132
+00:07:39,367 --> 00:07:40,034
+Sixth.
+
+133
+00:07:40,054 --> 00:07:43,546
+A superseded job could resume and publish
+over newer work.
+
+134
+00:07:43,786 --> 00:07:46,354
+A claim did not say which attempt owned
+the job.
+
+135
+00:07:46,594 --> 00:07:50,955
+Every claim now carries an attempt number,
+and stale attempts change nothing.
+
+136
+00:07:51,195 --> 00:07:55,907
+Killed workers recovered in about thirty
+seconds, using shortened test intervals.
+
+137
+00:07:56,147 --> 00:07:59,907
+With default settings, recovery can take
+about seventeen minutes.
+
+138
+00:08:00,900 --> 00:08:03,371
+Seventh, found while fixing that one.
+
+139
+00:08:03,391 --> 00:08:06,282
+A stale crawl could overwrite newer stored
+pages.
+
+140
+00:08:06,522 --> 00:08:08,582
+Each page had one fixed storage key.
+
+141
+00:08:08,822 --> 00:08:10,814
+Every write now gets a new key,
+
+142
+00:08:10,834 --> 00:08:14,277
+published only by the attempt that still
+owns the job.
+
+143
+00:08:14,297 --> 00:08:16,346
+Unused uploads are reclaimed.
+
+144
+00:08:16,586 --> 00:08:19,794
+Thirteen of twenty new tests failed before
+the fix.
+
+145
+00:08:19,814 --> 00:08:21,163
+All twenty pass now.
+
+146
+00:08:21,403 --> 00:08:24,075
+It was tested on local object storage
+only.
+
+147
+00:08:25,067 --> 00:08:25,723
+Eighth.
+
+148
+00:08:25,743 --> 00:08:30,807
+The inbox silently dropped older messages,
+and a bad cursor returned page one.
+
+149
+00:08:31,047 --> 00:08:35,478
+Cursors were unchecked, and screen state
+survived an organization switch.
+
+150
+00:08:35,718 --> 00:08:40,509
+Cursors are now scoped and validated,
+older messages load on request,
+
+151
+00:08:40,529 --> 00:08:42,219
+and screens reset safely.
+
+152
+00:08:42,459 --> 00:08:44,569
+Twenty-six new backend tests pass.
+
+153
+00:08:44,809 --> 00:08:46,885
+Pages are not a snapshot:
+
+154
+00:08:46,905 --> 00:08:49,863
+a busy conversation can be missed until
+refresh.
+
+155
+00:08:50,933 --> 00:08:51,800
+Ninth.
+
+156
+00:08:51,820 --> 00:08:55,612
+Installing the widget twice broke it,
+nothing could remove it,
+
+157
+00:08:55,632 --> 00:08:58,245
+and visitors could see internal usage
+fields.
+
+158
+00:08:58,485 --> 00:09:02,975
+There was no instance registry, and the
+dashboard response shape was reused.
+
+159
+00:09:03,215 --> 00:09:08,455
+A registry now keeps one instance, destroy
+cleans up, conversations resume,
+
+160
+00:09:08,475 --> 00:09:10,762
+and public responses are allow-listed.
+
+161
+00:09:11,002 --> 00:09:15,639
+The compressed loader is five thousand two
+hundred and forty-eight bytes,
+
+162
+00:09:15,659 --> 00:09:18,678
+against a budget of ten thousand two
+hundred and forty.
+
+163
+00:09:18,918 --> 00:09:20,647
+It was tested in Chrome only.
+
+164
+00:09:21,633 --> 00:09:22,187
+Tenth.
+
+165
+00:09:22,207 --> 00:09:24,770
+Recovery shared the busy ingestion
+workers.
+
+166
+00:09:25,010 --> 00:09:28,548
+And a healthy scheduler only meant that a
+process was running.
+
+167
+00:09:28,788 --> 00:09:33,957
+Recovery now has its own queue and worker,
+and health means tasks are being accepted.
+
+168
+00:09:34,197 --> 00:09:39,007
+With every ingestion slot busy, recovery
+still ran in under two seconds,
+
+169
+00:09:39,027 --> 00:09:40,082
+at a test interval.
+
+170
+00:09:40,322 --> 00:09:43,363
+One earlier scheduler crash remains
+unexplained.
+
+171
+00:09:44,367 --> 00:09:45,160
+Eleventh.
+
+172
+00:09:45,180 --> 00:09:47,835
+A backup only counts once it has been
+restored.
+
+173
+00:09:48,075 --> 00:09:52,211
+The rehearsal found the restored database
+had regained delete rights.
+
+174
+00:09:52,451 --> 00:09:57,027
+That is fixed, and restore compares data
+fingerprints, counts and permissions.
+
+175
+00:09:57,267 --> 00:09:58,919
+The local rehearsal passed.
+
+176
+00:09:59,159 --> 00:10:04,015
+Off-site copies, alerting and production-
+scale recovery are not validated.
+
+177
+00:10:06,350 --> 00:10:08,322
+The method was audit driven:
+
+178
+00:10:08,342 --> 00:10:12,897
+build, measure a baseline, record
+findings, and fix one at a time,
+
+179
+00:10:12,917 --> 00:10:15,186
+with a failing test first where possible.
+
+180
+00:10:15,426 --> 00:10:19,966
+Seven findings were remediated, with
+stabilization checkpoints between them.
+
+181
+00:10:20,950 --> 00:10:24,749
+The first audit passed five hundred and
+eighty-two backend tests,
+
+182
+00:10:24,769 --> 00:10:26,736
+yet its added checks failed.
+
+183
+00:10:26,756 --> 00:10:29,027
+All seven findings now pass locally.
+
+184
+00:10:32,300 --> 00:10:36,224
+The listed suites report twelve hundred
+and nine backend tests,
+
+185
+00:10:36,244 --> 00:10:41,936
+seventeen proxy tests run separately, two
+hundred and sixty-two frontend unit tests,
+
+186
+00:10:41,956 --> 00:10:44,349
+and seventeen browser journeys:
+
+187
+00:10:44,369 --> 00:10:45,909
+fifteen hundred and five.
+
+188
+00:10:46,850 --> 00:10:48,760
+The path was not clean.
+
+189
+00:10:48,780 --> 00:10:51,822
+Earlier checkpoints kept failing tests on
+record,
+
+190
+00:10:51,842 --> 00:10:54,323
+and a latency gate was missed before it
+held.
+
+191
+00:10:55,021 --> 00:10:59,642
+To check the tests themselves, fixes were
+deliberately broken ten times,
+
+192
+00:10:59,662 --> 00:11:01,102
+and each break was caught.
+
+193
+00:11:02,050 --> 00:11:05,945
+At one hundred concurrent chats, sixty-
+seven succeeded.
+
+194
+00:11:05,965 --> 00:11:10,457
+Thirty-three received a controlled
+rejection, which is not an answer.
+
+195
+00:11:10,477 --> 00:11:12,895
+None failed unexpectedly.
+
+196
+00:11:12,915 --> 00:11:18,195
+Successful responses had a P95 of about
+sixteen hundred and eighty-two
+
+197
+00:11:18,215 --> 00:11:19,119
+milliseconds.
+
+198
+00:11:19,400 --> 00:11:22,161
+The gate passed ten of ten declared runs,
+
+199
+00:11:22,181 --> 00:11:25,524
+once with only twenty-five milliseconds to
+spare.
+
+200
+00:11:25,544 --> 00:11:28,572
+This is not real model or server
+performance.
+
+201
+00:11:29,517 --> 00:11:34,793
+The self-audit score moved from eighty and
+a half to eighty-five point seven five.
+
+202
+00:11:34,813 --> 00:11:36,993
+It is not independent certification.
+
+203
+00:11:37,233 --> 00:11:40,500
+Hosted CI is configured, but has not been
+run.
+
+204
+00:11:43,050 --> 00:11:48,276
+This undergraduate portfolio project was
+developed with AI coding assistants,
+
+205
+00:11:48,296 --> 00:11:50,438
+including Codex and Claude Code.
+
+206
+00:11:50,678 --> 00:11:53,954
+Its development process used written
+requirements,
+
+207
+00:11:53,974 --> 00:11:57,692
+explicit acceptance criteria, baseline
+measurements,
+
+208
+00:11:57,712 --> 00:12:00,918
+focused remediation and documented
+validation.
+
+209
+00:12:01,158 --> 00:12:05,401
+Failures were kept on record, and
+decisions needing approval were held,
+
+210
+00:12:05,421 --> 00:12:06,380
+not assumed.
+
+211
+00:12:08,950 --> 00:12:10,118
+Where it stands:
+
+212
+00:12:10,138 --> 00:12:15,430
+the core engineering is validated locally,
+and all seven audit findings pass.
+
+213
+00:12:15,450 --> 00:12:18,680
+A migration recovery policy still awaits
+approval.
+
+214
+00:12:18,920 --> 00:12:21,064
+Real AI evaluation,
+
+215
+00:12:21,084 --> 00:12:25,426
+semantic retrieval quality and answer
+correctness are untested.
+
+216
+00:12:25,446 --> 00:12:29,076
+Hosted CI and production deployment remain
+open.
+
+217
+00:12:29,096 --> 00:12:31,101
+The parser is not sandboxed,
+
+218
+00:12:31,121 --> 00:12:34,614
+and production backup and monitoring are
+unfinished.
+
+219
+00:12:34,634 --> 00:12:36,777
+These are requirements still to meet.
+
+220
+00:12:37,717 --> 00:12:42,558
+A multi-tenant AI customer support
+platform with retrieval augmented
+
+221
+00:12:42,577 --> 00:12:43,389
+generation.
+
+222
+00:12:43,629 --> 00:12:45,853
+Its value is in the engineering:
+
+223
+00:12:45,873 --> 00:12:49,553
+isolation, failure handling and evidence
+you can check.
+
+224
+00:12:49,865 --> 00:12:51,261
+Thank you for watching.
+
+225
+00:12:51,281 --> 00:12:53,312
+The portfolio address is on screen.
