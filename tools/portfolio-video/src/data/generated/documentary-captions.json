@@ -1,0 +1,722 @@
+[
+  {
+    "start": 0.4,
+    "end": 7.264,
+    "text": "What does it take to engineer an AI\ncustomer support platform that can serve"
+  },
+  {
+    "start": 7.314,
+    "end": 11.154,
+    "text": "multiple businesses while keeping their\nknowledge, conversations,"
+  },
+  {
+    "start": 11.204,
+    "end": 13.746,
+    "text": "and customer data isolated?"
+  },
+  {
+    "start": 13.796,
+    "end": 19.364,
+    "text": "This case study shows the working product,\nthe architecture behind it,"
+  },
+  {
+    "start": 19.414,
+    "end": 24.55,
+    "text": "what broke along the way, and what is\nstill unproven."
+  },
+  {
+    "start": 25.4,
+    "end": 29.406,
+    "text": "Customers ask the same questions again and\nagain."
+  },
+  {
+    "start": 29.456,
+    "end": 34.678,
+    "text": "The answers usually exist, spread across\npolicy documents and web pages,"
+  },
+  {
+    "start": 34.728,
+    "end": 38.733,
+    "text": "but someone has to find them each time."
+  },
+  {
+    "start": 38.783,
+    "end": 44.006,
+    "text": "A support assistant grounded in a\nbusiness's own material can help."
+  },
+  {
+    "start": 44.056,
+    "end": 48.467,
+    "text": "And if one shared platform serves many\nseparate businesses,"
+  },
+  {
+    "start": 48.517,
+    "end": 54.55,
+    "text": "every answer has to come from the right\none, and only that one."
+  },
+  {
+    "start": 55.4,
+    "end": 60.163,
+    "text": "Here is the real application, running\nlocally with fictional data."
+  },
+  {
+    "start": 60.213,
+    "end": 64.976,
+    "text": "An owner signs in and lands on the\norganization dashboard."
+  },
+  {
+    "start": 65.026,
+    "end": 68.185,
+    "text": "A short wizard creates a chatbot."
+  },
+  {
+    "start": 68.235,
+    "end": 73.8,
+    "text": "Documents are uploaded, and a background\nworker takes each one from queued,"
+  },
+  {
+    "start": 73.85,
+    "end": 76.206,
+    "text": "to processing, to ready."
+  },
+  {
+    "start": 76.256,
+    "end": 82.624,
+    "text": "You can inspect the passages it produced\nand test which ones a question retrieves."
+  },
+  {
+    "start": 82.674,
+    "end": 88.64,
+    "text": "Websites can be added too; here the\ncrawler refuses a private network address."
+  },
+  {
+    "start": 88.69,
+    "end": 93.854,
+    "text": "In the playground, a question streams back\nwith a numbered source."
+  },
+  {
+    "start": 93.904,
+    "end": 95.85900000000001,
+    "text": "One important note:"
+  },
+  {
+    "start": 95.90899999999999,
+    "end": 98.667,
+    "text": "this is a deterministic demonstration."
+  },
+  {
+    "start": 98.717,
+    "end": 103.47999999999999,
+    "text": "The reply is a fixed sentence, not an AI\nanswer."
+  },
+  {
+    "start": 103.53,
+    "end": 108.694,
+    "text": "What is real is the retrieval, the\nstreaming and the citation."
+  },
+  {
+    "start": 108.744,
+    "end": 112.304,
+    "text": "An unrelated question gets a fallback\ninstead."
+  },
+  {
+    "start": 112.354,
+    "end": 117.518,
+    "text": "Once the bot is active and the website's\norigin is verified,"
+  },
+  {
+    "start": 117.568,
+    "end": 121.127,
+    "text": "a visitor asks through the embedded\nwidget."
+  },
+  {
+    "start": 121.177,
+    "end": 126.341,
+    "text": "The team sees that conversation in the\ninbox, marks it resolved,"
+  },
+  {
+    "start": 126.391,
+    "end": 129.55,
+    "text": "and analytics update from stored events."
+  },
+  {
+    "start": 130.4,
+    "end": 133.532,
+    "text": "The system is a modular monolith:"
+  },
+  {
+    "start": 133.582,
+    "end": 138.304,
+    "text": "one Python codebase and one database, run\nas several processes."
+  },
+  {
+    "start": 138.35399999999998,
+    "end": 143.076,
+    "text": "That is not microservices, even though\nthere are several containers."
+  },
+  {
+    "start": 143.126,
+    "end": 149.042,
+    "text": "The Next.js and React dashboard talks to a\nFastAPI backend over ordinary requests."
+  },
+  {
+    "start": 149.09199999999998,
+    "end": 153.814,
+    "text": "Dashboard requests are authenticated and\nchecked against the member's role."
+  },
+  {
+    "start": 153.864,
+    "end": 160.178,
+    "text": "Chat answers come back from the same API\nas a stream of server-sent events."
+  },
+  {
+    "start": 160.228,
+    "end": 166.939,
+    "text": "The widget on a customer's site is a small\nloader that opens an isolated frame."
+  },
+  {
+    "start": 166.989,
+    "end": 171.711,
+    "text": "PostgreSQL holds relational data and\nvectors, using the pgvector extension."
+  },
+  {
+    "start": 171.761,
+    "end": 175.29,
+    "text": "Private object storage keeps the original\nfiles."
+  },
+  {
+    "start": 175.34,
+    "end": 179.267,
+    "text": "Language and embedding models sit behind\nprovider adapters."
+  },
+  {
+    "start": 179.317,
+    "end": 182.449,
+    "text": "Slow work leaves the request path."
+  },
+  {
+    "start": 182.499,
+    "end": 188.414,
+    "text": "Redis carries the queue to Celery workers,\nwhich parse, chunk and embed documents."
+  },
+  {
+    "start": 188.464,
+    "end": 193.584,
+    "text": "A scheduler triggers a recovery sweep on\nits own maintenance worker,"
+  },
+  {
+    "start": 193.63400000000001,
+    "end": 196.766,
+    "text": "so busy ingestion cannot delay it."
+  },
+  {
+    "start": 196.816,
+    "end": 199.55,
+    "text": "Everything runs in Docker containers."
+  },
+  {
+    "start": 200.4,
+    "end": 203.52100000000002,
+    "text": "Retrieval augmented generation means\nfinding evidence first,"
+  },
+  {
+    "start": 203.571,
+    "end": 205.636,
+    "text": "then writing from it."
+  },
+  {
+    "start": 205.686,
+    "end": 209.864,
+    "text": "A file or web page is extracted into text,\ncleaned,"
+  },
+  {
+    "start": 209.914,
+    "end": 214.09300000000002,
+    "text": "and split into overlapping chunks that\nnever cross a heading."
+  },
+  {
+    "start": 214.143,
+    "end": 219.379,
+    "text": "Each chunk gets an embedding, a list of\nnumbers, stored beside the text."
+  },
+  {
+    "start": 219.429,
+    "end": 222.198,
+    "text": "A question is searched two ways:"
+  },
+  {
+    "start": 222.248,
+    "end": 225.721,
+    "text": "vector search compares embeddings, keyword\nsearch matches words,"
+  },
+  {
+    "start": 225.77100000000002,
+    "end": 228.54,
+    "text": "and the two rankings are merged."
+  },
+  {
+    "start": 228.59,
+    "end": 232.769,
+    "text": "Retrieval is always scoped to one\norganization and one chatbot."
+  },
+  {
+    "start": 232.81900000000002,
+    "end": 235.94,
+    "text": "The prompt is assembled, the model\nstreams,"
+  },
+  {
+    "start": 235.99,
+    "end": 239.464,
+    "text": "and citations are validated on the way\nout."
+  },
+  {
+    "start": 239.514,
+    "end": 243.693,
+    "text": "Citation provenance proves a source was\nshown to the model,"
+  },
+  {
+    "start": 243.743,
+    "end": 246.512,
+    "text": "not that it supports the sentence."
+  },
+  {
+    "start": 246.562,
+    "end": 249.683,
+    "text": "Offline, with a word-matching stand-in for\nembeddings,"
+  },
+  {
+    "start": 249.733,
+    "end": 254.617,
+    "text": "the answer appeared in the top five for\neighty-five percent of cases,"
+  },
+  {
+    "start": 254.667,
+    "end": 257.08299999999997,
+    "text": "below the ninety percent target."
+  },
+  {
+    "start": 257.133,
+    "end": 259.55,
+    "text": "Real model accuracy is untested."
+  },
+  {
+    "start": 260.4,
+    "end": 262.656,
+    "text": "Take two fictional businesses."
+  },
+  {
+    "start": 262.706,
+    "end": 266.5,
+    "text": "Each has its own chatbot, documents and\nconversations."
+  },
+  {
+    "start": 266.55,
+    "end": 270.729,
+    "text": "Here the second owner opens the first\none's address,"
+  },
+  {
+    "start": 270.779,
+    "end": 273.42,
+    "text": "and gets organization not found."
+  },
+  {
+    "start": 273.47,
+    "end": 275.726,
+    "text": "Several layers enforce this."
+  },
+  {
+    "start": 275.776,
+    "end": 280.723,
+    "text": "Sessions live on the server, in a cookie\nscripts cannot read."
+  },
+  {
+    "start": 280.773,
+    "end": 284.183,
+    "text": "Roles decide what each member may do."
+  },
+  {
+    "start": 284.233,
+    "end": 287.258,
+    "text": "Queries are scoped to the organization,"
+  },
+  {
+    "start": 287.308,
+    "end": 290.717,
+    "text": "and PostgreSQL enforces forced row-level\nsecurity underneath,"
+  },
+  {
+    "start": 290.767,
+    "end": 295.71500000000003,
+    "text": "so a missed filter is not enough to leak a\nrow."
+  },
+  {
+    "start": 295.765,
+    "end": 299.943,
+    "text": "Public widgets receive short-lived tokens\nlimited to one conversation,"
+  },
+  {
+    "start": 299.993,
+    "end": 303.787,
+    "text": "and visitors get only the fields they\nneed."
+  },
+  {
+    "start": 303.837,
+    "end": 307.631,
+    "text": "Forwarding headers are trusted only from\nlisted proxies,"
+  },
+  {
+    "start": 307.681,
+    "end": 310.706,
+    "text": "and AI providers must use HTTPS."
+  },
+  {
+    "start": 310.756,
+    "end": 314.55,
+    "text": "This is tested design, not a security\ncertification."
+  },
+  {
+    "start": 315.4,
+    "end": 320.817,
+    "text": "An audit then found problems that the\nexisting, passing tests had missed."
+  },
+  {
+    "start": 320.867,
+    "end": 325.113,
+    "text": "First, ten simultaneous chats exhausted\nthe database connection pool."
+  },
+  {
+    "start": 325.163,
+    "end": 329.409,
+    "text": "Each request held one connection while\nasking for another."
+  },
+  {
+    "start": 329.459,
+    "end": 333.314,
+    "text": "The fix releases it early, keeps\ntransactions short,"
+  },
+  {
+    "start": 333.364,
+    "end": 336.438,
+    "text": "and queues or refuses extra work."
+  },
+  {
+    "start": 336.488,
+    "end": 340.734,
+    "text": "At one hundred concurrent requests, sixty-\nseven were served,"
+  },
+  {
+    "start": 340.784,
+    "end": 344.249,
+    "text": "thirty-three were politely refused, and\nnone failed."
+  },
+  {
+    "start": 344.299,
+    "end": 349.326,
+    "text": "Second, a source cut from the prompt could\nstill be cited."
+  },
+  {
+    "start": 349.376,
+    "end": 355.18399999999997,
+    "text": "Now only sources actually rendered can be\ncited, even midway through a stream."
+  },
+  {
+    "start": 355.234,
+    "end": 359.479,
+    "text": "Third, a hostile document could tie up a\nworker."
+  },
+  {
+    "start": 359.529,
+    "end": 365.337,
+    "text": "Each parse now runs in a fresh process\nwith time and memory limits,"
+  },
+  {
+    "start": 365.387,
+    "end": 370.024,
+    "text": "and a failed attempt leaves the previous\nversion in place."
+  },
+  {
+    "start": 370.074,
+    "end": 373.929,
+    "text": "That is containment, not yet a security\nsandbox."
+  },
+  {
+    "start": 373.979,
+    "end": 377.053,
+    "text": "Fourth, found while fixing that one,"
+  },
+  {
+    "start": 377.103,
+    "end": 380.95799999999997,
+    "text": "a stale crawl could overwrite newer stored\npages."
+  },
+  {
+    "start": 381.008,
+    "end": 384.864,
+    "text": "Every write now gets a new object key,"
+  },
+  {
+    "start": 384.914,
+    "end": 389.55,
+    "text": "published only by the attempt that still\nowns the job."
+  },
+  {
+    "start": 390.4,
+    "end": 395.48,
+    "text": "The widget has to behave on websites it\ndoes not control."
+  },
+  {
+    "start": 395.53,
+    "end": 399.427,
+    "text": "Adding the same script twice keeps one\ninstance."
+  },
+  {
+    "start": 399.477,
+    "end": 402.979,
+    "text": "A second instance must be asked for."
+  },
+  {
+    "start": 403.029,
+    "end": 406.925,
+    "text": "Destroying it removes the frame and its\nlistener,"
+  },
+  {
+    "start": 406.975,
+    "end": 410.082,
+    "text": "so single-page applications can remount\nsafely."
+  },
+  {
+    "start": 410.132,
+    "end": 414.029,
+    "text": "An anonymous visitor's conversation\nresumes after a reload,"
+  },
+  {
+    "start": 414.079,
+    "end": 417.975,
+    "text": "and an interrupted answer is recorded as\ninterrupted."
+  },
+  {
+    "start": 418.025,
+    "end": 421.132,
+    "text": "It adapts to a phone screen."
+  },
+  {
+    "start": 421.182,
+    "end": 426.262,
+    "text": "The loader is five thousand two hundred\nand forty-eight bytes compressed,"
+  },
+  {
+    "start": 426.312,
+    "end": 430.998,
+    "text": "against a budget of ten thousand two\nhundred and forty."
+  },
+  {
+    "start": 431.048,
+    "end": 434.55,
+    "text": "These journeys were tested in Chrome only."
+  },
+  {
+    "start": 435.4,
+    "end": 438.069,
+    "text": "The method was audit driven."
+  },
+  {
+    "start": 438.119,
+    "end": 442.343,
+    "text": "Build the initial system, measure a\nbaseline, record findings,"
+  },
+  {
+    "start": 442.39300000000003,
+    "end": 447.781,
+    "text": "fix one at a time with a failing test\nfirst where possible,"
+  },
+  {
+    "start": 447.831,
+    "end": 451.666,
+    "text": "stabilize performance, then validate the\nwhole thing together."
+  },
+  {
+    "start": 451.716,
+    "end": 457.105,
+    "text": "The audit raised seven findings, from the\nconnection pool to the widget."
+  },
+  {
+    "start": 457.155,
+    "end": 459.824,
+    "text": "All seven now pass locally."
+  },
+  {
+    "start": 459.874,
+    "end": 461.767,
+    "text": "The reported results:"
+  },
+  {
+    "start": 461.817,
+    "end": 466.817,
+    "text": "twelve hundred and nine backend tests,\nseventeen proxy tests run separately,"
+  },
+  {
+    "start": 466.867,
+    "end": 471.867,
+    "text": "two hundred and sixty-two frontend unit\ntests, and seventeen browser journeys."
+  },
+  {
+    "start": 471.91700000000003,
+    "end": 474.975,
+    "text": "That is fifteen hundred and five."
+  },
+  {
+    "start": 475.025,
+    "end": 480.025,
+    "text": "To check the tests themselves, fixes were\ndeliberately broken ten times,"
+  },
+  {
+    "start": 480.075,
+    "end": 482.745,
+    "text": "and each break was caught."
+  },
+  {
+    "start": 482.795,
+    "end": 487.018,
+    "text": "The capacity gate passed ten of ten\ndeclared runs,"
+  },
+  {
+    "start": 487.068,
+    "end": 490.514,
+    "text": "once with only twenty-five milliseconds to\nspare."
+  },
+  {
+    "start": 490.564,
+    "end": 496.342,
+    "text": "A backup and restore rehearsal passed, and\nexposed a permissions bug, now fixed."
+  },
+  {
+    "start": 496.392,
+    "end": 502.557,
+    "text": "The self-audit score moved from eighty and\na half to eighty-five point seven five."
+  },
+  {
+    "start": 502.60699999999997,
+    "end": 506.054,
+    "text": "These are local results, not independent\ncertification,"
+  },
+  {
+    "start": 506.104,
+    "end": 509.55,
+    "text": "and hosted CI has not run yet."
+  },
+  {
+    "start": 510.4,
+    "end": 513.55,
+    "text": "This is my undergraduate portfolio\nproject,"
+  },
+  {
+    "start": 513.6,
+    "end": 518.35,
+    "text": "built with AI coding assistants including\nCodex and Claude Code,"
+  },
+  {
+    "start": 518.4,
+    "end": 523.55,
+    "text": "so I will not claim every line was typed\nby hand."
+  },
+  {
+    "start": 523.6,
+    "end": 527.95,
+    "text": "What I want you to judge is the process:"
+  },
+  {
+    "start": 528,
+    "end": 531.15,
+    "text": "written requirements with explicit\nacceptance rules,"
+  },
+  {
+    "start": 531.2,
+    "end": 536.35,
+    "text": "a baseline before changes, an audit,\nfocused fixes with retained failures,"
+  },
+  {
+    "start": 536.4,
+    "end": 540.35,
+    "text": "and decisions held for approval instead of\nassumed."
+  },
+  {
+    "start": 540.4,
+    "end": 544.35,
+    "text": "Ask me about any trade-off in this video,"
+  },
+  {
+    "start": 544.4,
+    "end": 549.55,
+    "text": "including the ones that did not work out\nthe first time."
+  },
+  {
+    "start": 550.4,
+    "end": 552.271,
+    "text": "Where it stands:"
+  },
+  {
+    "start": 552.321,
+    "end": 557.65,
+    "text": "the core engineering is validated locally\nand all seven audit findings pass."
+  },
+  {
+    "start": 557.7,
+    "end": 561.876,
+    "text": "One migration policy decision still blocks\nformal milestone closure."
+  },
+  {
+    "start": 561.926,
+    "end": 564.95,
+    "text": "Real AI evaluation, semantic answer\nquality,"
+  },
+  {
+    "start": 565,
+    "end": 568.792,
+    "text": "hosted CI and production deployment all\nremain open."
+  },
+  {
+    "start": 568.842,
+    "end": 572.25,
+    "text": "Those are the roadmap, not existing\nfeatures,"
+  },
+  {
+    "start": 572.3,
+    "end": 578.013,
+    "text": "which is why you are watching a controlled\ndemonstration rather than an always-on"
+  },
+  {
+    "start": 578.063,
+    "end": 579.55,
+    "text": "public service."
+  },
+  {
+    "start": 580.4,
+    "end": 584.491,
+    "text": "A multi-tenant AI customer support\nplatform with retrieval augmented"
+  },
+  {
+    "start": 584.5409999999999,
+    "end": 585.621,
+    "text": "generation."
+  },
+  {
+    "start": 585.671,
+    "end": 589.009,
+    "text": "Software engineering, full-stack\ndevelopment and AI engineering."
+  },
+  {
+    "start": 589.059,
+    "end": 593.526,
+    "text": "The full case study, with its evidence and\nits limitations,"
+  },
+  {
+    "start": 593.576,
+    "end": 597.2909999999999,
+    "text": "is on my portfolio at venuja dot online."
+  },
+  {
+    "start": 597.341,
+    "end": 599.55,
+    "text": "Thank you for watching."
+  }
+]

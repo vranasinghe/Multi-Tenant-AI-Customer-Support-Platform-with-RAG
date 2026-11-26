@@ -1,0 +1,29 @@
+{
+  "name": "portfolio-video",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Remotion compositions for the portfolio videos. Isolated from the application workspace.",
+  "scripts": {
+    "prepare-media": "node scripts/prepare-media.mjs",
+    "studio": "remotion studio src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "render:showcase": "node scripts/render.mjs showcase-v2",
+    "render:documentary": "node scripts/render.mjs documentary",
+    "stills": "node scripts/stills.mjs"
+  },
+  "dependencies": {
+    "@fontsource/inter": "5.3.0",
+    "@fontsource/jetbrains-mono": "5.3.0",
+    "@remotion/bundler": "4.0.547",
+    "@remotion/cli": "4.0.547",
+    "@remotion/renderer": "4.0.547",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remotion": "4.0.547"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.3",
+    "@types/react-dom": "19.3.0",
+    "typescript": "6.0.3"
+  }
+}

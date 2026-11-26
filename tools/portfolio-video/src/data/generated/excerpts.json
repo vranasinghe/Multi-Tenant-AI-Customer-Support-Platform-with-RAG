@@ -1,0 +1,358 @@
+{
+  "code": {
+    "pool": {
+      "file": "services/api/app/services/chat_controls.py",
+      "first": 121,
+      "last": 136,
+      "lines": [
+        "    deadline = loop.time() + settings.chat_admission_wait_seconds",
+        "    delay = ADMISSION_POLL_MIN_SECONDS",
+        "    key = org_key(org_id)",
+        "    signal = asyncio.Event()",
+        "    queued = admitted = False",
+        "    try:",
+        "        while True:",
+        "            signal.clear()",
+        "            try:",
+        "                lease = await acquire(redis, org_id, conversation_id, settings)",
+        "                admitted = True",
+        "                return lease",
+        "            except ApiError as exc:",
+        "                remaining = deadline - loop.time()",
+        "                if exc.code != \"chat_busy\" or remaining <= 0:",
+        "                    raise"
+      ]
+    },
+    "citation": {
+      "file": "services/api/app/rag/retrieval.py",
+      "first": 271,
+      "last": 281,
+      "lines": [
+        "def render_evidence(chunks: list[RetrievedChunk], *, max_bytes: int = 12_000) -> RenderedContext:",
+        "    \"\"\"Fit escaped UTF-8 bytes including all tags, metadata and newlines.",
+        "",
+        "    Keep ranked order, skip empty/unrenderable metadata, and stop after a partial body. Prefix",
+        "    slicing happens on raw Unicode codepoints *before* escaping, never inside a UTF-8/entity unit.",
+        "    IDs are allocated only to included sources. No mutable retrieved objects survive this boundary.",
+        "    \"\"\"",
+        "    if max_bytes < len(EMPTY_CONTEXT.encode(\"utf-8\")):",
+        "        raise ValueError(\"context_limit\")",
+        "    sources: list[RenderedSource] = []",
+        "    used = len(EMPTY_CONTEXT.encode(\"utf-8\"))"
+      ]
+    },
+    "transport": {
+      "file": "services/api/app/core/provider_urls.py",
+      "first": 10,
+      "last": 25,
+      "lines": [
+        "def provider_url(value: str, *, allow_loopback_http: bool = False) -> str:",
+        "    \"\"\"Canonical ASCII HTTPS base URL; explicit development HTTP is literal loopback only.",
+        "",
+        "    Deliberately reject encoded/dot-segment paths and noncanonical authorities rather than let",
+        "    URL parsers, proxies and providers disagree. This is not a public-IP/SSRF policy: endpoints",
+        "    are operator configuration, never tenant input. HTTPS private services remain supported.",
+        "    \"\"\"",
+        "    message = \"must be an HTTPS provider URL with a valid host/port and safe base path\"",
+        "    if (",
+        "        not value",
+        "        or len(value) > 2048",
+        "        or not value.isascii()",
+        "        or any(ord(c) <= 32 or ord(c) == 127 for c in value)",
+        "        or any(c in value for c in \"\\\\%?#\")",
+        "    ):",
+        "        raise ValueError(message)"
+      ]
+    },
+    "proxy": {
+      "file": "services/api/app/core/proxy_trust.py",
+      "first": 41,
+      "last": 49,
+      "lines": [
+        "def parse_trusted_proxies(value: object) -> list[str]:",
+        "    \"\"\"Canonical entries from a comma-separated string or list; blank means trust no proxy.\"\"\"",
+        "    if isinstance(value, str):",
+        "        if not value.strip():",
+        "            return []",
+        "        value = value.split(\",\")",
+        "    if not isinstance(value, list) or not all(isinstance(item, str) for item in value):",
+        "        raise ValueError(\"FORWARDED_ALLOW_IPS must be a comma-separated list\")",
+        "    return [_canonical(item.strip(), position) for position, item in enumerate(value, 1)]"
+      ]
+    },
+    "parser": {
+      "file": "services/api/app/rag/parser_process.py",
+      "first": 62,
+      "last": 75,
+      "lines": [
+        "    cpu = int(request[\"cpu_seconds\"])",
+        "    memory = int(request[\"memory_bytes\"])",
+        "    for kind, wanted_soft, wanted_hard in (",
+        "        (resource.RLIMIT_CPU, cpu, cpu + 1),  # SIGXCPU at the soft limit, SIGKILL at the hard",
+        "        (resource.RLIMIT_AS, memory, memory),",
+        "        (resource.RLIMIT_CORE, 0, 0),",
+        "        (resource.RLIMIT_FSIZE, 0, 0),",
+        "        (resource.RLIMIT_NOFILE, OPEN_FILES, OPEN_FILES),",
+        "    ):",
+        "        ceiling = resource.getrlimit(kind)[1]",
+        "        soft, hard = wanted_soft, wanted_hard",
+        "        if ceiling != resource.RLIM_INFINITY:  # only ever tighten what the container allows",
+        "            soft, hard = min(soft, ceiling), min(hard, ceiling)",
+        "        resource.setrlimit(kind, (soft, hard))"
+      ]
+    },
+    "fencing": {
+      "file": "services/api/app/rag/pipeline.py",
+      "first": 158,
+      "last": 170,
+      "lines": [
+        "        row = s.execute(",
+        "            text(",
+        "                \"\"\"",
+        "                UPDATE ingestion_jobs",
+        "                SET status = 'processing', attempt = attempt + 1,",
+        "                    started_at = coalesce(started_at, now()), heartbeat_at = now(),",
+        "                    stage = 'validate', error_code = NULL, error_detail = NULL",
+        "                WHERE id = :id AND org_id = :org AND status = 'queued'",
+        "                RETURNING chatbot_id, source_id, document_id, kind, attempt, max_attempts",
+        "                \"\"\"",
+        "            ),",
+        "            {\"id\": job_id, \"org\": org_id},",
+        "        ).first()"
+      ]
+    },
+    "storage": {
+      "file": "services/api/app/rag/originals.py",
+      "first": 59,
+      "last": 74,
+      "lines": [
+        "def adopt(s: Session, document: Document, key: str, *, size: int, etag: str | None) -> None:",
+        "    \"\"\"Make ``key`` the document's original. The caller holds the document and its job claim.\"\"\"",
+        "    record = s.execute(",
+        "        text(",
+        "            \"DELETE FROM storage_deletions WHERE storage_key = :key AND attempts = 0 RETURNING id\"",
+        "        ),",
+        "        {\"key\": key},",
+        "    ).first()",
+        "    if record is None:",
+        "        raise TransientIngestionError(\"storage_error\", \"staged original was reclaimed\")",
+        "    previous = document.storage_key",
+        "    if previous and previous != key:",
+        "        s.add(StorageDeletion(org_id=document.org_id, storage_key=previous))",
+        "    document.storage_key = key",
+        "    document.size_bytes = size",
+        "    document.http_etag = etag"
+      ]
+    },
+    "inbox": {
+      "file": "services/api/app/services/inbox.py",
+      "first": 52,
+      "last": 69,
+      "lines": [
+        "def decode_cursor(cursor: str, scope: str) -> tuple[datetime, uuid.UUID]:",
+        "    \"\"\"The position named by ``cursor``, or ``400 invalid_cursor``.\"\"\"",
+        "    invalid = ApiError(400, \"invalid_cursor\", \"Invalid cursor\")",
+        "    if len(cursor) > CURSOR_MAX_LENGTH:",
+        "        raise invalid",
+        "    try:",
+        "        stamp, ident, issued_for = (",
+        "            base64.b64decode(cursor.encode(\"ascii\"), altchars=b\"-_\", validate=True)",
+        "            .decode()",
+        "            .split(\"|\")",
+        "        )",
+        "        position = datetime.fromisoformat(stamp), uuid.UUID(ident)",
+        "    except ValueError as exc:  # covers base64 and Unicode errors",
+        "        raise invalid from exc",
+        "    if position[0].tzinfo is None or issued_for != scope:",
+        "        raise invalid",
+        "    return position",
+        ""
+      ]
+    },
+    "widget": {
+      "file": "services/api/app/services/public_view.py",
+      "first": 29,
+      "last": 46,
+      "lines": [
+        "def public_citation(citation: dict[str, Any]) -> dict[str, Any]:",
+        "    \"\"\"The citation number, its label and a public link. Not the document or chunk behind it.\"\"\"",
+        "    return {",
+        "        \"id\": citation[\"id\"],",
+        "        \"title\": citation[\"title\"],",
+        "        \"uri\": _public_link(str(citation.get(\"uri\") or \"\")),",
+        "    }",
+        "",
+        "",
+        "def public_message(message: dict[str, Any]) -> dict[str, Any]:",
+        "    return {",
+        "        \"id\": message[\"id\"],",
+        "        \"role\": message[\"role\"],",
+        "        \"content\": message[\"content\"],",
+        "        \"status\": message[\"status\"],",
+        "        \"feedback\": message.get(\"feedback\"),",
+        "        \"citations\": [public_citation(c) for c in message[\"citations\"]],",
+        "    }"
+      ]
+    },
+    "scheduler": {
+      "file": "services/api/app/workers/celery_app.py",
+      "first": 46,
+      "last": 53,
+      "lines": [
+        "        task_routes={",
+        "            \"system.*\": {\"queue\": \"default\"},",
+        "            \"ingest.process_document\": {\"queue\": \"ingest\"},",
+        "            \"ingest.crawl_source\": {\"queue\": \"crawl\"},",
+        "            \"ingest.sweep\": {\"queue\": MAINTENANCE_QUEUE},",
+        "            \"analytics.retention\": {\"queue\": \"default\"},",
+        "            \"analytics.rollup\": {\"queue\": \"default\"},",
+        "        },"
+      ]
+    },
+    "backup": {
+      "file": "deploy/restore.sh",
+      "first": 43,
+      "last": 49,
+      "lines": [
+        "",
+        "# A new database grants the application role every DML right on each table created",
+        "# (infrastructure/postgres/init). A dump only ever adds grants, so rights the source had taken",
+        "# away would come back. Remove those defaults first; the dump restores the source's own.",
+        "\"${COMPOSE[@]}\" exec -T postgres psql -U \"$DB_USER\" -d \"$DB_NAME\" --quiet --set ON_ERROR_STOP=1   --set owner=\"$DB_USER\" --set app=\"${APP_USER}\" <<'SQL'",
+        "ALTER DEFAULT PRIVILEGES FOR ROLE :\"owner\" IN SCHEMA public REVOKE ALL ON TABLES FROM :\"app\";",
+        "ALTER DEFAULT PRIVILEGES FOR ROLE :\"owner\" IN SCHEMA public REVOKE ALL ON SEQUENCES FROM :\"app\";"
+      ]
+    },
+    "ci": {
+      "file": ".github/workflows/ci.yml",
+      "first": 73,
+      "last": 80,
+      "lines": [
+        "  integration:",
+        "    name: Backend suite, real workers, migrations, RLS, runtime image",
+        "    runs-on: ubuntu-24.04",
+        "    timeout-minutes: 45",
+        "    needs: [api-static]",
+        "    env:",
+        "      COMPOSE_PROJECT_NAME: acs-ci",
+        "      COMPOSE_ENV_FILES: ${{ github.workspace }}/ci.env"
+      ]
+    }
+  },
+  "artifacts": {
+    "capacity": {
+      "file": "docs/mvp-improvement/evidence/MILESTONE-A-FINAL/final/suite-data/capacity-100.json",
+      "lines": [
+        "  \"concurrency\": 100,",
+        "  \"requests\": 100,",
+        "  \"success\": 67,",
+        "  \"rejected\": 33,",
+        "  \"failed\": 0,",
+        "  \"successful_p95_ms\": 1682.3886619968107,",
+        "  \"rejected_p95_ms\": 1636.5609369968297,"
+      ]
+    },
+    "mutantsTransport": {
+      "file": "docs/mvp-improvement/evidence/MILESTONE-A-FINAL/verification/mutants-all.json",
+      "lines": [
+        "  \"AUD-03-http-provider-accepted\": {",
+        "      \"20 failed, 141 passed in 7.49s\"",
+        "  \"AUD-03-redirects-followed\": {",
+        "      \"15 failed, 144 passed in 7.48s\""
+      ]
+    },
+    "mutantsProxy": {
+      "file": "docs/mvp-improvement/evidence/MILESTONE-A-FINAL/verification/mutants-all.json",
+      "lines": ["  \"AUD-04-every-peer-trusted\": {", "      \"37 failed, 160 passed in 1.80s\""]
+    },
+    "mutantsAll": {
+      "file": "docs/mvp-improvement/evidence/MILESTONE-A-FINAL/verification/mutants-all.json",
+      "lines": [
+        "  \"AUD-01-auth-session-held\": {",
+        "      \"1 failed, 4 passed in 8.76s\"",
+        "  \"AUD-02-unrendered-sources-citable\": {",
+        "      \"6 failed, 28 passed in 12.97s\"",
+        "  \"AUD-03-http-provider-accepted\": {",
+        "      \"20 failed, 141 passed in 7.49s\"",
+        "  \"AUD-03-redirects-followed\": {",
+        "      \"15 failed, 144 passed in 7.48s\"",
+        "  \"AUD-04-every-peer-trusted\": {",
+        "      \"37 failed, 160 passed in 1.80s\"",
+        "  \"AUD-05-no-memory-limit\": {",
+        "      \"2 failed, 49 passed in 25.32s\"",
+        "  \"AUD-05-stale-attempt-publishes\": {",
+        "      \"3 failed, 45 passed in 59.93s\"",
+        "  \"AUD-07-internal-fields-public\": {",
+        "      \"2 failed, 17 passed in 15.31s\""
+      ]
+    },
+    "proxyTests": {
+      "file": "docs/mvp-improvement/evidence/MILESTONE-A-FINAL/final/ci/runtime-proxy.log",
+      "lines": ["17 passed in 58.16s"]
+    },
+    "hardLimit": {
+      "file": "docs/mvp-improvement/evidence/MILESTONE-A-FINAL/final/suite-data/hard-limit.json",
+      "lines": ["{", "  \"recovery_seconds\": 30.68314270099654,", "  \"bound_seconds\": 40", "}"]
+    },
+    "workerRestart": {
+      "file": "docs/mvp-improvement/evidence/MILESTONE-A-FINAL/final/suite-data/worker-restart.json",
+      "lines": ["{", "  \"recovery_seconds\": 32.16114443400147,", "  \"bound_seconds\": 40", "}"]
+    },
+    "busySlots": {
+      "file": "docs/mvp-improvement/evidence/MILESTONE-A-FINAL/final/suite-data/maintenance-busy-slots.json",
+      "lines": ["{\"recovery_seconds\": 1.7399771329946816, \"bound_seconds\": 15}"]
+    },
+    "restore": {
+      "file": "docs/mvp-improvement/evidence/MILESTONE-A-FINAL/final/ci/restore/summary.log",
+      "lines": ["backup_seconds=3 restore_and_verify_seconds=25"]
+    },
+    "restoreApp": {
+      "file": "docs/mvp-improvement/evidence/MILESTONE-A-FINAL/final/ci/restore/application.log",
+      "lines": ["restored application reads match: 2 messages, 2 search results, 1 conversations"]
+    },
+    "backend": {
+      "file": "docs/mvp-improvement/evidence/MILESTONE-A-FINAL/final/backend-full.log",
+      "lines": [
+        "1209 passed, 17 skipped in 855.10s (0:14:15)",
+        "tests=1226 ran=1209 failed=0 skipped=17 unexpected_skips=0"
+      ]
+    },
+    "web": {
+      "file": "docs/mvp-improvement/evidence/MILESTONE-A-FINAL/final/web-2.log",
+      "lines": [
+        "apps/widget test:       Tests  19 passed (19)",
+        "apps/web test:       Tests  243 passed (243)",
+        "apps/widget build: loader.js: 5248 B gzipped (budget 10240 B)"
+      ]
+    },
+    "browser": {
+      "file": "docs/mvp-improvement/evidence/MILESTONE-A-FINAL/final/browser.log",
+      "lines": ["All smoke checks passed.", "  17 passed (46.9s)"]
+    },
+    "recall": {
+      "file": "docs/mvp-improvement/evidence/MILESTONE-A-FINAL/final/suite-data/rag_metrics.json",
+      "lines": [
+        "  \"dataset_size\": 100,",
+        "  \"answerable_cases\": 80,",
+        "  \"recall_at_5_hits\": 68,",
+        "  \"recall_at_5\": 0.85,",
+        "  \"embedder\": \"hash-v1\",",
+        "  \"provider\": \"demo\",",
+        "  \"live_status\": \"BLOCKED\""
+      ]
+    },
+    "widgetDedup": {
+      "file": "docs/mvp-improvement/evidence/MILESTONE-A-FINAL/verification/mutant-widget-dedup.log",
+      "lines": ["      Tests  2 failed | 17 passed (19)"]
+    },
+    "cursorMutant": {
+      "file": "docs/mvp-improvement/evidence/MILESTONE-A-FINAL/verification/mutants-AUD-06-cursor-not-scoped.json",
+      "lines": [
+        "  \"AUD-06-cursor-not-scoped\": {",
+        "    \"file\": \"app/services/inbox.py\",",
+        "    \"killed\": true,",
+        "      \"2 failed, 24 passed in 10.02s\""
+      ]
+    }
+  }
+}
