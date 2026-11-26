@@ -1,0 +1,47 @@
+name: Performance
+
+# The strict chat capacity gate (c100 success P95 <= 2000 ms, rejection P95 <= 3000 ms), once per
+# run and never retried. The thresholds are in the test. The result depends on the machine: a
+# certification run names a dedicated, otherwise idle runner; a hosted shared runner only shows a
+# trend. Kept out of ci.yml so a slow neighbour cannot block unrelated work.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: Runner label (a dedicated machine for certification)
+        required: true
+        default: ubuntu-24.04
+
+permissions:
+  contents: read
+
+# One measurement at a time: two on one machine would measure each other.
+concurrency:
+  group: performance-${{ inputs.runner || 'ubuntu-24.04' }}
+  cancel-in-progress: false
+
+jobs:
+  capacity:
+    name: Chat capacity gate (hardware-sensitive)
+    runs-on: ${{ inputs.runner || 'ubuntu-24.04' }}
+    timeout-minutes: 25
+    env:
+      COMPOSE_PROJECT_NAME: acs-perf
+      COMPOSE_ENV_FILES: ${{ github.workspace }}/ci.env
+      ARTIFACTS: ${{ github.workspace }}/ci-artifacts
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: bash scripts/ci/make-env.sh ci.env
+      - run: bash scripts/ci/up.sh
+      - run: bash scripts/ci/capacity.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: capacity-artifacts
+          path: ci-artifacts/
+          retention-days: 30
+      - if: always()
+        run: docker compose down -v

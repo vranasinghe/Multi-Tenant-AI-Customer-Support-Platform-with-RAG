@@ -18,8 +18,27 @@ if [ ! -f services/api/widget_assets/v1/loader.js ]; then
 fi
 
 COMPOSE=(docker compose --env-file "$ENV_FILE" -f docker-compose.prod.yml)
+# Operator-created fixed-address network for the reverse proxy (docs/DEPLOY_CONTABO.md).
+if [ -f docker-compose.ingress.yml ]; then
+  COMPOSE+=(-f docker-compose.ingress.yml)
+fi
+if ! grep -qE '^FORWARDED_ALLOW_IPS=.+' "$ENV_FILE"; then
+  echo "Warning: FORWARDED_ALLOW_IPS is empty, so all visitors share Caddy's address in IP rate" >&2
+  echo "limits. See docs/DEPLOY_CONTABO.md, 'Trusted ingress'." >&2
+fi
 
 "${COMPOSE[@]}" build
+
+# Starting the new release runs the migrations. Take a restorable copy of an existing install
+# first (docs/RECOVERY.md); a failed backup stops the deployment before anything changes.
+if [ -n "$("${COMPOSE[@]}" ps -q --status running postgres)" ]; then
+  if [ "${SKIP_BACKUP:-0}" = 1 ]; then
+    echo "Warning: SKIP_BACKUP=1, deploying without a pre-migration backup." >&2
+  else
+    QUIESCE=1 bash deploy/backup.sh
+  fi
+fi
+
 "${COMPOSE[@]}" up -d --remove-orphans
 "${COMPOSE[@]}" ps
 
