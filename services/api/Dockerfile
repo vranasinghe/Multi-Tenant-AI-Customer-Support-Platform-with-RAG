@@ -5,7 +5,7 @@
 
 FROM ghcr.io/astral-sh/uv:0.13.9 AS uv
 
-FROM python:3.13.13-slim-bookworm AS base
+FROM python:3.15.1-slim-bookworm AS base
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 \
