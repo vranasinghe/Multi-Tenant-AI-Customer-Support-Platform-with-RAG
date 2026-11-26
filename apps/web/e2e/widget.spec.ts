@@ -121,6 +121,8 @@ test("widget streams on HTML and Next.js, isolates instances, resumes and render
   await page.goto(`${org}/chatbots/${bot.id}`);
   await page.getByRole("tab", { name: "Install", exact: true }).click();
   await expect(page.getByLabel("Installation script")).toHaveValue(new RegExp(bot.public_key));
+  // Playwright's headless Chromium (used in CI) refuses clipboard writes unless granted.
+  await page.context().grantPermissions(["clipboard-write"], { origin: WEB_ORIGIN });
   await page.getByRole("button", { name: "Copy installation script" }).click();
   await expect(page.getByRole("button", { name: "Copied", exact: true })).toBeVisible();
   await page.locator('iframe[title="Live widget preview"]').scrollIntoViewIfNeeded();

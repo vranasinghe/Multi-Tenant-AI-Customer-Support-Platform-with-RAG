@@ -1,6 +1,6 @@
 """ASGI application factory.
 
-Run with: `uvicorn app.main:create_app --factory` (no module-level app, so importing this module
+Run with: `python -m app.server` (no module-level app, so importing this module
 never requires configuration — tests build apps with explicit settings).
 """
 

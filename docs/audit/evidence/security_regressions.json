@@ -1,7 +1,0 @@
-{
-  "id": "security_regressions",
-  "command": "docker compose exec -T api pytest tests/unit/audit -q --tb=short --junitxml=/tmp/audit-security.xml",
-  "exit_code": 1,
-  "duration_seconds": 3.798,
-  "log": "evidence/security_regressions.log"
-}

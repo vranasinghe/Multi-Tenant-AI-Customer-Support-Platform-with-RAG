@@ -179,7 +179,11 @@ class IngestionJob(Base):
 
 
 class StorageDeletion(Base):
-    """Outbox: an object to remove from storage after its document row was deleted."""
+    """Outbox: an object to remove from storage, not before ``created_at``.
+
+    Written when a document is removed or moves to a new original, and ahead of an upload that
+    may never be published (``app.rag.originals``).
+    """
 
     __tablename__ = "storage_deletions"
 

@@ -42,6 +42,7 @@ _AGENT: frozenset[str] = _VIEWER | {
     "knowledge:write",
     "chatbot:test",
     "conversation:debug",
+    "conversation:write",
 }
 _ADMIN: frozenset[str] = _AGENT | {
     "org:update",

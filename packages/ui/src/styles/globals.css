@@ -9,15 +9,16 @@
 
 :root {
   --radius: 0.625rem;
-  /* Cool-tinted neutrals (hue 250) with one deep teal-blue accent (hue 218). */
-  --background: oklch(0.982 0.004 250);
-  --foreground: oklch(0.21 0.03 255);
+  /* Semantic surfaces and actions shared by the workspace and its components. */
+  --background: #f8fafc;
+  --foreground: #0b1220;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.21 0.03 255);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.21 0.03 255);
-  --primary: oklch(0.5 0.105 218);
-  --primary-foreground: oklch(0.99 0.003 218);
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --ai-accent: #7c3aed;
   --secondary: oklch(0.955 0.01 235);
   --secondary-foreground: oklch(0.28 0.04 245);
   --muted: oklch(0.962 0.006 245);
@@ -27,10 +28,10 @@
   --destructive: oklch(0.55 0.21 27);
   --border: oklch(0.912 0.008 245);
   --input: oklch(0.88 0.01 245);
-  --ring: oklch(0.58 0.12 218);
-  --success: oklch(0.52 0.12 160);
-  --warning: oklch(0.62 0.14 75);
-  --rail: oklch(0.245 0.04 238);
+  --ring: #2563eb;
+  --success: #059669;
+  --warning: #d97706;
+  --rail: #0b1220;
   --shadow-soft: 0 1px 2px oklch(0.25 0.04 250 / 0.06), 0 4px 14px -6px oklch(0.25 0.04 250 / 0.1);
   color-scheme: light;
 }
@@ -42,8 +43,9 @@
   --card-foreground: oklch(0.96 0.006 250);
   --popover: oklch(0.225 0.03 250);
   --popover-foreground: oklch(0.96 0.006 250);
-  --primary: oklch(0.74 0.11 215);
-  --primary-foreground: oklch(0.2 0.04 230);
+  --primary: #93b4ff;
+  --primary-foreground: #0b1220;
+  --ai-accent: #c4b5fd;
   --secondary: oklch(0.28 0.03 250);
   --secondary-foreground: oklch(0.96 0.006 250);
   --muted: oklch(0.27 0.03 250);
@@ -84,6 +86,7 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-ai-accent: var(--ai-accent);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -108,8 +111,14 @@
     @apply border-border outline-ring/50;
   }
   html {
-    font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue",
-      Arial, sans-serif;
+    font-family:
+      "Segoe UI Variable Text",
+      "Segoe UI",
+      system-ui,
+      -apple-system,
+      "Helvetica Neue",
+      Arial,
+      sans-serif;
     font-feature-settings: "cv11", "ss01";
     -webkit-text-size-adjust: 100%;
   }

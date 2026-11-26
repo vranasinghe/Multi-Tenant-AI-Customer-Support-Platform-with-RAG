@@ -42,7 +42,10 @@ function StatCard({
 }) {
   return (
     <div
-      className={cn("grid gap-2 rounded-xl border bg-card p-5", placeholder && "border-dashed bg-muted/30")}
+      className={cn(
+        "grid gap-2 rounded-xl border bg-card p-5",
+        placeholder && "border-dashed bg-muted/30",
+      )}
     >
       <p className="text-sm text-muted-foreground">{label}</p>
       <p className="text-2xl font-semibold tabular-nums">{value}</p>
@@ -56,11 +59,17 @@ export function OverviewDashboard({ org }: { org: Org }) {
   const { state } = useAuth();
   const base = `/orgs/${encodeURIComponent(org.id)}`;
   const { data, error, reload } = useAsyncData(
-    () => Promise.all([api.listChatbots(org.id), api.listMembers(org.id)]),
+    () =>
+      Promise.all([
+        api.listChatbots(org.id),
+        api.listMembers(org.id),
+        api.analyticsSummary(org.id),
+      ]),
     [org.id],
   );
   const bots = data?.[0].data ?? [];
   const members = data?.[1].data ?? [];
+  const analytics = data?.[2];
   const active = bots.filter((b) => b.status === "active").length;
   const verified = state.status === "authenticated" && state.user.email_verified;
 
@@ -129,8 +138,24 @@ export function OverviewDashboard({ org }: { org: Org }) {
                 <StatSkeleton />
               </>
             )}
-            <StatCard label="Conversations (30 days)" value="—" placeholder="Chat phase" />
-            <StatCard label="Answer rate" value="—" placeholder="Analytics phase" />
+            <StatCard
+              label="Conversations (30 days)"
+              value={analytics ? analytics.conversations : "—"}
+              detail={
+                <Link href={`${base}/conversations`} className="underline-offset-4 hover:underline">
+                  Open inbox
+                </Link>
+              }
+            />
+            <StatCard
+              label="Resolution rate"
+              value={
+                analytics?.resolution_rate == null
+                  ? "—"
+                  : `${Math.round(analytics.resolution_rate * 100)}%`
+              }
+              detail="Staff-marked resolved, not AI replies"
+            />
           </section>
 
           <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">

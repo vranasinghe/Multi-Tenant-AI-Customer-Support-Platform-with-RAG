@@ -45,7 +45,7 @@ export const NAV_SECTIONS: readonly { label: string; items: readonly NavItem[] }
       { href: "/chatbots", label: "Chatbots", icon: BotIcon },
       { href: "/knowledge", label: "Knowledge", icon: BookIcon },
       { href: "/conversations", label: "Conversations", icon: ChatIcon },
-      { href: "/analytics", label: "Analytics", icon: ChartIcon, soon: true },
+      { href: "/analytics", label: "Analytics", icon: ChartIcon },
     ],
   },
   {
@@ -142,7 +142,9 @@ function SidebarNav({
     <nav aria-label="Main" className="grid gap-6">
       {NAV_SECTIONS.map((section) => (
         <div key={section.label} className="grid gap-1">
-          <p className="px-3 pb-1 text-xs font-medium tracking-wide text-muted-foreground">{section.label}</p>
+          <p className="px-3 pb-1 text-xs font-medium tracking-wide text-muted-foreground">
+            {section.label}
+          </p>
           <ul className="grid gap-0.5">
             {section.items.map((item) => {
               const href = `${orgBase}${item.href}`;
