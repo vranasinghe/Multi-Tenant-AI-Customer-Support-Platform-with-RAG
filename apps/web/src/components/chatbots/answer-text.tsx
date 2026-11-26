@@ -13,37 +13,37 @@ function inline(text: string, keyPrefix: string): ReactNode[] {
     .replace(/[ \t]+(\[\d{1,2}\])/g, "$1")
     .split(INLINE)
     .map((part, index) => {
-    const key = `${keyPrefix}-${index}`;
-    if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
-      return (
-        <strong key={key} className="font-semibold text-foreground">
-          {part.slice(2, -2)}
-        </strong>
-      );
-    }
-    if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
-      return (
-        <code key={key} className="rounded bg-muted px-1 py-0.5 font-mono text-[0.85em]">
-          {part.slice(1, -1)}
-        </code>
-      );
-    }
-    if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
-      return <em key={key}>{part.slice(1, -1)}</em>;
-    }
-    if (/^\[\d{1,2}\]$/.test(part)) {
-      return (
-        <sup
-          key={key}
-          aria-label={`source ${part.slice(1, -1)}`}
-          className="mx-0.5 inline-flex min-w-4 items-center justify-center rounded bg-accent px-1 text-[0.68rem] leading-4 font-semibold text-accent-foreground"
-        >
-          {part.slice(1, -1)}
-        </sup>
-      );
-    }
-    return part;
-  });
+      const key = `${keyPrefix}-${index}`;
+      if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
+        return (
+          <strong key={key} className="font-semibold text-foreground">
+            {part.slice(2, -2)}
+          </strong>
+        );
+      }
+      if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
+        return (
+          <code key={key} className="rounded bg-muted px-1 py-0.5 font-mono text-[0.85em]">
+            {part.slice(1, -1)}
+          </code>
+        );
+      }
+      if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
+        return <em key={key}>{part.slice(1, -1)}</em>;
+      }
+      if (/^\[\d{1,2}\]$/.test(part)) {
+        return (
+          <sup
+            key={key}
+            aria-label={`source ${part.slice(1, -1)}`}
+            className="mx-0.5 inline-flex min-w-4 items-center justify-center rounded bg-accent px-1 text-[0.68rem] leading-4 font-semibold text-accent-foreground"
+          >
+            {part.slice(1, -1)}
+          </sup>
+        );
+      }
+      return part;
+    });
 }
 
 type Block = { kind: "p"; lines: string[] } | { kind: "ul" | "ol"; items: string[] };
