@@ -2,7 +2,7 @@
 # Production image for the Next.js dashboard. Build context: repository root.
 #   docker build -f apps/web/Dockerfile --build-arg NEXT_PUBLIC_API_URL=http://localhost:8000 .
 
-FROM node:24.20.0-bookworm-slim AS base
+FROM node:26.13.0-bookworm-slim AS base
 ENV PNPM_HOME=/pnpm \
     NEXT_TELEMETRY_DISABLED=1 \
     COREPACK_ENABLE_DOWNLOAD_PROMPT=0
@@ -31,7 +31,7 @@ ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 RUN pnpm --filter @acs/web build
 
 # ---------------------------------------------------------------- runtime
-FROM node:24.20.0-bookworm-slim AS runtime
+FROM node:26.13.0-bookworm-slim AS runtime
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     HOSTNAME=0.0.0.0 \
