@@ -16,6 +16,7 @@ from app.rag.retrieval import RetrievedChunk
 from app.rag.runtime import Runtime
 from app.schemas.conversations import SendMessage
 from app.services import conversations
+from app.services.public_view import public_citation
 from tests.integration.api.conftest import Actor, Api
 from tests.integration.api.test_conversations import conversation, done, send
 from tests.integration.api.test_knowledge_documents import ingest, new_bot
@@ -139,9 +140,12 @@ def test_omitted_source_cannot_reach_sse_or_persisted_citations(
     prompt = provider.prompts[-1][-1]["content"]
     assert '<source id="1"' in prompt and '<source id="2"' not in prompt
     assert "omitted.txt" not in prompt
-    assert [c["chunk_id"] for c in result["citations"]] == [str(candidates[0].chunk_id)]
     stored = actor.get(f"/orgs/{actor.org_id}/conversations/{conv}").json()["messages"][-1]
-    assert stored["content"] == deltas(response) and stored["citations"] == result["citations"]
+    assert [c["chunk_id"] for c in stored["citations"]] == [str(candidates[0].chunk_id)]
+    assert stored["content"] == deltas(response)
+    # A visitor is told the same citations, without the records behind them (WIDGET-PRIV-01).
+    expected = [public_citation(c) for c in stored["citations"]] if public else stored["citations"]
+    assert result["citations"] == expected
     assert "prompt" not in result and "chunks" not in result
 
 

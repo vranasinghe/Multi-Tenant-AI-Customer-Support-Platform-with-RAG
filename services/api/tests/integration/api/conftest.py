@@ -170,6 +170,9 @@ class Actor:
     def patch(self, path: str, json: Any, **kw: Any) -> httpx.Response:
         return self.request("PATCH", path, json=json, **kw)
 
+    def put(self, path: str, json: Any, **kw: Any) -> httpx.Response:
+        return self.request("PUT", path, json=json, **kw)
+
     def delete(self, path: str, **kw: Any) -> httpx.Response:
         return self.request("DELETE", path, **kw)
 

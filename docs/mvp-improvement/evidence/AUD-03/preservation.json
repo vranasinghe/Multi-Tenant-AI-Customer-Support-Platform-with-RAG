@@ -1,7 +1,0 @@
-{
-  "id": "preservation",
-  "command": "docker compose exec -T -e AUDIT_OUTPUT_DIR=/tmp/mvp-improvement/AUD-03-preservation api pytest tests/integration/api/mvp_improvement tests/unit/mvp_improvement/test_rendered_evidence.py tests/unit/audit/test_prompt_evidence.py tests/unit/rag tests/unit/test_chat_provider.py tests/unit/test_config.py tests/unit/test_celery.py tests/integration/api/rag_eval tests/integration/api/test_auth.py tests/integration/api/test_route_permissions.py tests/integration/api/test_widget.py tests/integration/api/test_conversations.py tests/integration/api/test_knowledge_jobs.py -q --tb=short --junitxml=/tmp/mvp-improvement/AUD-03-preservation.xml",
-  "exit_code": 0,
-  "duration_seconds": 63.093,
-  "log": "preservation.log"
-}

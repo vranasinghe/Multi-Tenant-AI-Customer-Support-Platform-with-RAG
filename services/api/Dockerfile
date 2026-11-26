@@ -12,7 +12,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_PYTHON_DOWNLOADS=never \
     UV_PROJECT_ENVIRONMENT=/opt/venv \
-    PATH="/opt/venv/bin:${PATH}"
+    PATH="/opt/venv/bin:${PATH}" \
+    FORWARDED_ALLOW_IPS=""
 COPY --from=uv /uv /usr/local/bin/uv
 RUN groupadd --system --gid 10001 app \
  && useradd --system --uid 10001 --gid app --home-dir /home/app --create-home app
@@ -25,7 +26,7 @@ RUN --mount=type=cache,target=/root/.cache/uv uv sync --locked --no-install-proj
 COPY . .
 USER app
 EXPOSE 8000
-CMD ["uvicorn", "app.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000", "--reload", "--no-access-log"]
+CMD ["python", "-m", "app.server", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
 # ---------------------------------------------------------------- production
 FROM base AS prod-deps
@@ -42,4 +43,5 @@ USER app
 EXPOSE 8000
 HEALTHCHECK --interval=15s --timeout=3s --start-period=10s --retries=3 \
   CMD ["python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=2).status == 200 else 1)"]
-CMD ["uvicorn", "app.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*", "--no-access-log"]
+# Proxy trust is FORWARDED_ALLOW_IPS, validated and applied by app.server (empty = none).
+CMD ["python", "-m", "app.server", "--host", "0.0.0.0", "--port", "8000"]

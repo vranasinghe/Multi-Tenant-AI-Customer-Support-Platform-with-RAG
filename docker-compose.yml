@@ -48,6 +48,16 @@ x-api-environment: &api-environment
   CHAT_MODEL_PRICES: '${CHAT_MODEL_PRICES:-{"gpt-4.1-mini":[0.40,1.60],"gpt-4.1-nano":[0.10,0.40],"gpt-4.1":[2.0,8.0]}}'
   WIDGET_SESSION_MINUTES: ${WIDGET_SESSION_MINUTES:-15}
   WIDGET_MESSAGES_PER_SESSION: ${WIDGET_MESSAGES_PER_SESSION:-30}
+  # Document parser isolation and ingestion limits (docs/INGESTION.md).
+  PARSER_WALL_SECONDS: ${PARSER_WALL_SECONDS:-60}
+  PARSER_CPU_SECONDS: ${PARSER_CPU_SECONDS:-30}
+  PARSER_MEMORY_BYTES: ${PARSER_MEMORY_BYTES:-536870912}
+  INGEST_SOFT_TIME_LIMIT_SECONDS: ${INGEST_SOFT_TIME_LIMIT_SECONDS:-120}
+  INGEST_HARD_TIME_LIMIT_SECONDS: ${INGEST_HARD_TIME_LIMIT_SECONDS:-180}
+  CRAWL_MAX_TASK_SECONDS: ${CRAWL_MAX_TASK_SECONDS:-3300}
+  INGEST_MAX_ACTIVE_PER_ORG: ${INGEST_MAX_ACTIVE_PER_ORG:-1}
+  INGEST_STUCK_AFTER_SECONDS: ${INGEST_STUCK_AFTER_SECONDS:-900}
+  INGEST_SWEEP_INTERVAL_SECONDS: ${INGEST_SWEEP_INTERVAL_SECONDS:-120}
 
 x-api-build: &api-build
   context: ./services/api
@@ -132,6 +142,8 @@ services:
     build: *api-build
     environment:
       <<: *api-environment
+      # Reverse proxies allowed to set X-Forwarded-*; empty (default) trusts nobody.
+      FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:-}
       # Bind mounts from Windows/macOS hosts don't deliver inotify events; poll instead.
       WATCHFILES_FORCE_POLLING: "true"
     volumes:
@@ -162,6 +174,14 @@ services:
 
   worker:
     build: *api-build
+    # Sized for --concurrency=2: two parser children (512 MiB address space each) plus the
+    # Celery processes. Raise all three together with the concurrency (docs/INGESTION.md).
+    mem_limit: ${WORKER_MEMORY_LIMIT:-2g}
+    memswap_limit: ${WORKER_MEMORY_LIMIT:-2g} # equal to mem_limit: no extra swap
+    cpus: ${WORKER_CPUS:-2}
+    pids_limit: ${WORKER_PIDS_LIMIT:-128}
+    # An init process reaps a parser child orphaned by a killed pool process.
+    init: true
     command:
       - celery
       - -A
@@ -191,9 +211,43 @@ services:
       start_period: 20s
       retries: 5
 
-  # Periodic maintenance: re-queues stuck ingestion jobs and retries pending storage deletions.
+  # Runs the recovery sweep on its own slot, so busy ingestion cannot delay it.
+  maintenance:
+    build: *api-build
+    mem_limit: ${MAINTENANCE_MEMORY_LIMIT:-512m}
+    command:
+      - celery
+      - -A
+      - app.workers.celery_app
+      - worker
+      - --queues=maintenance
+      - --concurrency=1
+      - --hostname=maintenance@%h
+      - --loglevel=INFO
+    environment: *api-environment
+    volumes:
+      - ./services/api:/app
+    restart: on-failure
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      storage-init:
+        condition: service_completed_successfully
+    # Asks this consumer through the broker; independent of beat and of the ingestion worker.
+    healthcheck:
+      test: ["CMD", "python", "-m", "app.workers.health", "maintenance"]
+      interval: 30s
+      timeout: 20s
+      start_period: 30s
+      start_interval: 5s
+      retries: 5
+
+  # Schedules the periodic tasks. Run exactly one: two would publish everything twice.
   beat:
     build: *api-build
+    restart: on-failure
     command:
       [
         "celery",
@@ -201,9 +255,18 @@ services:
         "app.workers.celery_app",
         "beat",
         "--loglevel=INFO",
+        "--scheduler=app.workers.health:HeartbeatScheduler",
         "--schedule=/tmp/celerybeat-schedule",
       ]
     environment: *api-environment
+    # Healthy only while the broker keeps accepting its tasks (not merely while it runs).
+    healthcheck:
+      test: ["CMD", "python", "-m", "app.workers.health", "beat"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      start_interval: 5s
+      retries: 3
     volumes:
       - ./services/api:/app
     depends_on:

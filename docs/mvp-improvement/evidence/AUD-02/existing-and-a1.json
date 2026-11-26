@@ -1,7 +1,0 @@
-{
-  "id": "existing-and-a1",
-  "command": "docker compose exec -T -e AUDIT_OUTPUT_DIR=/tmp/mvp-improvement/AUD-02-existing api pytest tests/unit/rag tests/unit/test_chat_provider.py tests/integration/api/rag_eval tests/integration/api/test_conversations.py tests/integration/api/test_auth.py tests/integration/api/test_route_permissions.py tests/integration/api/test_widget.py tests/integration/api/mvp_improvement/test_chat_capacity.py tests/integration/api/mvp_improvement/test_chat_lifecycle.py -q --tb=short --junitxml=/tmp/mvp-improvement/AUD-02-existing.xml",
-  "exit_code": 0,
-  "duration_seconds": 57.648,
-  "log": "existing-and-a1.log"
-}

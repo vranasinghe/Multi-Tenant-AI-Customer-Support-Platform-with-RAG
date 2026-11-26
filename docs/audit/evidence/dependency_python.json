@@ -1,7 +1,0 @@
-{
-  "id": "dependency_python",
-  "command": "docker compose exec -T api uv export --no-dev --format requirements-txt --no-hashes --no-emit-project | Set-Content docs/audit/evidence/python_requirements.txt; uvx --from pip-audit pip-audit -r docs/audit/evidence/python_requirements.txt --no-deps --disable-pip --format=json",
-  "exit_code": 0,
-  "duration_seconds": 22.041,
-  "log": "evidence/dependency_python.log"
-}

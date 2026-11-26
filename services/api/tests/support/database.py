@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 import secrets
 from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 
 import pytest
@@ -37,8 +38,9 @@ def _urls_from_env() -> tuple[URL, URL]:
     return make_url(owner), make_url(app)
 
 
-@pytest.fixture(scope="session")
-def test_database() -> Iterator[TestDatabase]:
+@contextmanager
+def temporary_database() -> Iterator[TestDatabase]:
+    """A new database at head, dropped on exit. For tests that change the schema or need it clean."""
     owner_base, app_base = _urls_from_env()
     name = f"chatbot_test_{secrets.token_hex(4)}"
     admin = create_engine(owner_base, isolation_level="AUTOCOMMIT")
@@ -91,3 +93,9 @@ def test_database() -> Iterator[TestDatabase]:
             )
             conn.execute(text(f'DROP DATABASE IF EXISTS "{name}"'))
         admin.dispose()
+
+
+@pytest.fixture(scope="session")
+def test_database() -> Iterator[TestDatabase]:
+    with temporary_database() as database:
+        yield database

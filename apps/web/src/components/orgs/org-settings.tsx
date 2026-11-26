@@ -5,6 +5,7 @@ import type { FormEvent } from "react";
 
 import { Alert } from "@acs/ui/components/alert";
 import { Button } from "@acs/ui/components/button";
+import { Input } from "@acs/ui/components/input";
 import { Label } from "@acs/ui/components/label";
 import { Select } from "@acs/ui/components/select";
 
@@ -234,5 +235,69 @@ export function AuditLog({ orgId }: { orgId: string }) {
         </Button>
       )}
     </div>
+  );
+}
+
+/** Conversation retention. Default is 365 days when the organization has not set a value. */
+export function RetentionSettingsForm({ org, onSaved }: { org: Org; onSaved: (org: Org) => void }) {
+  const editable = can(org, "org:update");
+  const current =
+    typeof org.settings.conversation_retention_days === "number"
+      ? org.settings.conversation_retention_days
+      : 365;
+  const [days, setDays] = useState(String(current));
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+
+  async function onSubmit(event: FormEvent) {
+    event.preventDefault();
+    if (!editable) return;
+    const value = Number.parseInt(days, 10);
+    if (!Number.isFinite(value) || value < 1 || value > 730) {
+      setMessage({ kind: "error", text: "Retention must be between 1 and 730 days." });
+      return;
+    }
+    setPending(true);
+    setMessage(null);
+    try {
+      onSaved(await api.updateOrg(org.id, { settings: { conversation_retention_days: value } }));
+      setMessage({
+        kind: "ok",
+        text: "Saved. Older conversations are deleted on the daily retention job.",
+      });
+    } catch (error) {
+      setMessage({ kind: "error", text: describeApiError(error) });
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return (
+    <form onSubmit={onSubmit} className="grid max-w-sm gap-4">
+      {message && (
+        <Alert variant={message.kind === "ok" ? "success" : "destructive"}>{message.text}</Alert>
+      )}
+      <div className="grid gap-1">
+        <Label htmlFor="retention-days">Conversation retention (days)</Label>
+        <Input
+          id="retention-days"
+          type="number"
+          min={1}
+          max={730}
+          value={days}
+          onChange={(event) => setDays(event.target.value)}
+          disabled={!editable}
+        />
+        <p className="text-xs text-muted-foreground">
+          Transcripts older than this are deleted for this organization only. Analytics totals
+          remain without the message content. Default is 365 days.
+        </p>
+      </div>
+      {editable && (
+        <Button type="submit" disabled={pending} className="justify-self-start">
+          {pending ? "Saving…" : "Save retention"}
+        </Button>
+      )}
+    </form>
   );
 }

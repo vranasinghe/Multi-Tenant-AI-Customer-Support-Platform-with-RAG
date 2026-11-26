@@ -18,6 +18,7 @@ from app.models.identity import utcnow
 from app.models.tenancy import Organization
 from app.services import conversations
 from app.services.container import AppServices
+from app.services.public_view import public_branding
 from app.services.tenancy.context import set_org_context
 from app.services.widget_domains import resolve, resolve_in
 
@@ -166,5 +167,5 @@ async def bootstrap(
             "retention_days": bot.widget_retention_days,
             "name": bot.name,
             "welcome": bot.welcome_message,
-            "branding": bot.widget_settings,
+            "branding": public_branding(bot.widget_settings),
         }

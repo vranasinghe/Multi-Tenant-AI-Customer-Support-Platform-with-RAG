@@ -28,6 +28,16 @@ import type {
   SignupResponse,
   UpdateChatbotBody,
   User,
+  AnalyticsSummary,
+  ConversationDetail,
+  ConversationExport,
+  ConversationList,
+  InboxFilters,
+  KnowledgeGap,
+  MessagePage,
+  RetentionSettings,
+  Timeseries,
+  UnansweredGroup,
 } from "./types";
 
 export { ApiError } from "./client";
@@ -54,6 +64,113 @@ export function createEndpoints(client: ApiClient) {
         `${org(orgId)}/conversations/${encodeURIComponent(conversationId)}/messages/${encodeURIComponent(messageId)}/feedback`,
         { rating },
       ),
+    listInbox: (orgId: string, filters: InboxFilters = {}) => {
+      const query = new URLSearchParams();
+      if (filters.chatbot_id) query.set("chatbot_id", filters.chatbot_id);
+      if (filters.channel) query.set("channel", filters.channel);
+      if (filters.status) query.set("status", filters.status);
+      if (filters.from) query.set("from", filters.from);
+      if (filters.to) query.set("to", filters.to);
+      if (filters.feedback) query.set("feedback", filters.feedback);
+      if (filters.satisfaction) query.set("satisfaction", filters.satisfaction);
+      if (filters.unanswered) query.set("unanswered", "true");
+      if (filters.grounded === false) query.set("grounded", "false");
+      if (filters.q?.trim()) query.set("q", filters.q.trim());
+      if (filters.cursor) query.set("cursor", filters.cursor);
+      if (filters.limit) query.set("limit", String(filters.limit));
+      const suffix = query.size ? `?${query.toString()}` : "";
+      return client.get<ConversationList>(`${org(orgId)}/conversations${suffix}`);
+    },
+    getConversationDetail: (orgId: string, id: string) =>
+      client.get<ConversationDetail>(`${org(orgId)}/conversations/${encodeURIComponent(id)}`),
+    listMessages: (orgId: string, id: string, cursor: string) => {
+      const query = new URLSearchParams({ limit: "50", cursor });
+      return client.get<MessagePage>(
+        `${org(orgId)}/conversations/${encodeURIComponent(id)}/messages?${query.toString()}`,
+      );
+    },
+    updateConversationStatus: (
+      orgId: string,
+      id: string,
+      status: "open" | "resolved" | "unresolved",
+    ) =>
+      client.patch<{ id: string; status: string }>(
+        `${org(orgId)}/conversations/${encodeURIComponent(id)}`,
+        { status },
+      ),
+    deleteConversation: (orgId: string, id: string) =>
+      client.delete(`${org(orgId)}/conversations/${encodeURIComponent(id)}`),
+    recordSatisfaction: (orgId: string, id: string, score: number, comment?: string) =>
+      client.put<{ id: string; satisfaction_score: number }>(
+        `${org(orgId)}/conversations/${encodeURIComponent(id)}/satisfaction`,
+        { score, comment },
+      ),
+    requestHandoff: (orgId: string, id: string, reason: string, contact?: string) =>
+      client.post<{ id: string; status: string; handoff_status: string }>(
+        `${org(orgId)}/conversations/${encodeURIComponent(id)}/handoff`,
+        { reason, contact },
+      ),
+    updateHandoff: (
+      orgId: string,
+      id: string,
+      status: "acknowledged" | "completed" | "cancelled",
+    ) =>
+      client.patch<{ id: string; status: string; handoff_status: string }>(
+        `${org(orgId)}/conversations/${encodeURIComponent(id)}/handoff`,
+        { status },
+      ),
+    markUnanswered: (orgId: string, id: string, reason = "marked_unanswered") =>
+      client.post<{ status: string }>(
+        `${org(orgId)}/conversations/${encodeURIComponent(id)}/unanswered`,
+        { reason },
+      ),
+    listUnanswered: (orgId: string, chatbotId?: string) => {
+      const query = chatbotId ? `?chatbot_id=${encodeURIComponent(chatbotId)}` : "";
+      return client.get<{ data: UnansweredGroup[] }>(`${org(orgId)}/unanswered${query}`);
+    },
+    listKnowledgeGaps: (orgId: string, chatbotId?: string) => {
+      const query = chatbotId ? `?chatbot_id=${encodeURIComponent(chatbotId)}` : "";
+      return client.get<{ data: KnowledgeGap[] }>(`${org(orgId)}/knowledge-gaps${query}`);
+    },
+    getRetention: (orgId: string) =>
+      client.get<RetentionSettings>(`${org(orgId)}/conversation-retention`),
+    createConversationExport: (
+      orgId: string,
+      body: {
+        chatbot_id?: string;
+        channel?: string;
+        from_at?: string;
+        to_at?: string;
+        status?: string;
+      } = {},
+    ) => client.post<ConversationExport>(`${org(orgId)}/conversations/exports`, body),
+    downloadConversationExport: (orgId: string, exportId: string) =>
+      client.download(`${org(orgId)}/exports/${encodeURIComponent(exportId)}/download`),
+    analyticsSummary: (
+      orgId: string,
+      filters: { from?: string; to?: string; chatbot_id?: string; channel?: string } = {},
+    ) => {
+      const query = new URLSearchParams();
+      if (filters.from) query.set("from", filters.from);
+      if (filters.to) query.set("to", filters.to);
+      if (filters.chatbot_id) query.set("chatbot_id", filters.chatbot_id);
+      if (filters.channel) query.set("channel", filters.channel);
+      const suffix = query.size ? `?${query.toString()}` : "";
+      return client.get<AnalyticsSummary>(`${org(orgId)}/analytics/summary${suffix}`);
+    },
+    analyticsTimeseries: (
+      orgId: string,
+      metric: "conversations" | "resolved" | "tokens" | "cost",
+      interval: "day" | "month",
+      filters: { from?: string; to?: string; chatbot_id?: string; channel?: string } = {},
+    ) => {
+      const query = new URLSearchParams({ metric, interval });
+      if (filters.from) query.set("from", filters.from);
+      if (filters.to) query.set("to", filters.to);
+      if (filters.chatbot_id) query.set("chatbot_id", filters.chatbot_id);
+      if (filters.channel) query.set("channel", filters.channel);
+      return client.get<Timeseries>(`${org(orgId)}/analytics/timeseries?${query.toString()}`);
+    },
     // auth
     signup: (body: { email: string; password: string; name: string; org_name: string }) =>
       client.post<SignupResponse>("/auth/signup", body),
@@ -81,7 +198,8 @@ export function createEndpoints(client: ApiClient) {
     listOrgs: () => client.get<Page<Org>>("/orgs"),
     createOrg: (name: string) => client.post<Org>("/orgs", { name }),
     getOrg: (orgId: string) => client.get<Org>(org(orgId)),
-    updateOrg: (orgId: string, body: { name?: string }) => client.patch<Org>(org(orgId), body),
+    updateOrg: (orgId: string, body: { name?: string; settings?: Record<string, unknown> }) =>
+      client.patch<Org>(org(orgId), body),
     transferOwnership: (orgId: string, body: { new_owner_user_id: string; password: string }) =>
       client.post<Org>(`${org(orgId)}/transfer-ownership`, body),
 
