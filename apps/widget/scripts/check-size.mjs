@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 
 const BUDGET_BYTES = 10 * 1024;
+const { version } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
 const file = fileURLToPath(new URL("../dist/loader.js", import.meta.url));
 const gzipped = gzipSync(readFileSync(file)).length;
 
@@ -19,5 +20,5 @@ copyFileSync(file, new URL("loader.js", target));
 
 writeFileSync(
   new URL("manifest.json", target),
-  JSON.stringify({ version: "1.0.0", file: "loader.js", gzipBytes: gzipped }, null, 2) + "\n",
+  JSON.stringify({ version, file: "loader.js", gzipBytes: gzipped }, null, 2) + "\n",
 );
