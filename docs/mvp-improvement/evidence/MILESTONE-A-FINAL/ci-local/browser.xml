@@ -1,0 +1,82 @@
+<testsuites id="" name="" tests="17" failures="0" skipped="0" errors="0" time="49.805347999999995">
+<testsuite name="chat.spec.ts" timestamp="2026-11-26T08:47:20.174Z" hostname="chromium" tests="1" failures="0" skipped="0" time="4.318" errors="0">
+<testcase name="indexed knowledge streams in the playground, persists, and accepts feedback" classname="chat.spec.ts" time="4.318">
+</testcase>
+</testsuite>
+<testsuite name="chatbot-creation.spec.ts" timestamp="2026-11-26T08:47:20.174Z" hostname="chromium" tests="1" failures="0" skipped="0" time="3.97" errors="0">
+<testcase name="a new user creates a chatbot with the wizard" classname="chatbot-creation.spec.ts" time="3.97">
+</testcase>
+</testsuite>
+<testsuite name="conversation-inbox.spec.ts" timestamp="2026-11-26T08:47:20.174Z" hostname="chromium" tests="4" failures="0" skipped="0" time="11.037" errors="0">
+<testcase name="a website visitor&apos;s conversation reaches the inbox with its sources and stays there" classname="conversation-inbox.spec.ts" time="3.104">
+</testcase>
+<testcase name="playground conversations are listed by channel and filtered by chatbot" classname="conversation-inbox.spec.ts" time="1.304">
+</testcase>
+<testcase name="the inbox works from the keyboard and on a 390px screen" classname="conversation-inbox.spec.ts" time="1.614">
+</testcase>
+<testcase name="one organization&apos;s conversations never appear in another&apos;s inbox" classname="conversation-inbox.spec.ts" time="5.015">
+</testcase>
+</testsuite>
+<testsuite name="conversations.spec.ts" timestamp="2026-11-26T08:47:20.174Z" hostname="chromium" tests="1" failures="0" skipped="0" time="3.402" errors="0">
+<testcase name="conversation inbox and analytics dashboard show stored events" classname="conversations.spec.ts" time="3.402">
+</testcase>
+</testsuite>
+<testsuite name="knowledge.spec.ts" timestamp="2026-11-26T08:47:20.174Z" hostname="chromium" tests="2" failures="0" skipped="0" time="10.57" errors="0">
+<testcase name="upload a document, see it indexed, search it, then delete it" classname="knowledge.spec.ts" time="7.044">
+</testcase>
+<testcase name="private website addresses are refused" classname="knowledge.spec.ts" time="3.526">
+</testcase>
+</testsuite>
+<testsuite name="widget-lifecycle.spec.ts" timestamp="2026-11-26T08:47:20.174Z" hostname="chromium" tests="7" failures="0" skipped="0" time="5.867" errors="0">
+<testcase name="repeated installs make one instance, and destroy releases it completely" classname="widget-lifecycle.spec.ts" time="0.832">
+<properties>
+<property name="serial" value="">
+</property>
+</properties>
+</testcase>
+<testcase name="different keys and explicit instance keys stay independent" classname="widget-lifecycle.spec.ts" time="0.432">
+<properties>
+<property name="serial" value="">
+</property>
+</properties>
+</testcase>
+<testcase name="a visitor resumes after reload and remount, and can start over" classname="widget-lifecycle.spec.ts" time="1.216">
+<properties>
+<property name="serial" value="">
+</property>
+</properties>
+</testcase>
+<testcase name="destroying mid-answer stops the stream, and the widget works again" classname="widget-lifecycle.spec.ts" time="0.821">
+<properties>
+<property name="serial" value="">
+</property>
+</properties>
+<system-out>
+<![CDATA[destroy-mid-stream: stored message status=interrupted
+]]>
+</system-out>
+</testcase>
+<testcase name="public responses carry only what the widget needs" classname="widget-lifecycle.spec.ts" time="0.958">
+<properties>
+<property name="serial" value="">
+</property>
+</properties>
+</testcase>
+<testcase name="keyboard and a 390px screen" classname="widget-lifecycle.spec.ts" time="0.36">
+<properties>
+<property name="serial" value="">
+</property>
+</properties>
+</testcase>
+<testcase name="a Next.js page can mount and unmount across client-side navigation" classname="widget-lifecycle.spec.ts" time="1.248">
+<properties>
+<property name="serial" value="">
+</property>
+</properties>
+</testcase>
+</testsuite>
+<testsuite name="widget.spec.ts" timestamp="2026-11-26T08:47:20.174Z" hostname="chromium" tests="1" failures="0" skipped="0" time="4.521" errors="0">
+<testcase name="widget streams on HTML and Next.js, isolates instances, resumes and renders hostile text safely" classname="widget.spec.ts" time="4.521">
+</testcase>
+</testsuite>
+</testsuites>

@@ -1,0 +1,123 @@
+{
+  "series": "fix2-ab-5",
+  "files_swapped": [
+    "services/api/app/services/chat_controls.py"
+  ],
+  "working_files_restored": true,
+  "runs": [
+    {
+      "pair": 1,
+      "variant": "after",
+      "exit_code": 1,
+      "success_p95_ms": 2298.5,
+      "rejected_p95_ms": 2214.5,
+      "success": 43,
+      "throughput_rps": 17.6
+    },
+    {
+      "pair": 1,
+      "variant": "before",
+      "exit_code": 1,
+      "success_p95_ms": 2359.5,
+      "rejected_p95_ms": 2245.6,
+      "success": 37,
+      "throughput_rps": 14.9
+    },
+    {
+      "pair": 2,
+      "variant": "before",
+      "exit_code": 1,
+      "success_p95_ms": 2632.2,
+      "rejected_p95_ms": 2314.0,
+      "success": 39,
+      "throughput_rps": 14.2
+    },
+    {
+      "pair": 2,
+      "variant": "after",
+      "exit_code": 1,
+      "success_p95_ms": 2239.0,
+      "rejected_p95_ms": 2188.9,
+      "success": 40,
+      "throughput_rps": 17.0
+    },
+    {
+      "pair": 3,
+      "variant": "after",
+      "exit_code": 1,
+      "success_p95_ms": 2385.7,
+      "rejected_p95_ms": 2366.0,
+      "success": 40,
+      "throughput_rps": 15.8
+    },
+    {
+      "pair": 3,
+      "variant": "before",
+      "exit_code": 1,
+      "success_p95_ms": 2651.2,
+      "rejected_p95_ms": 2511.6,
+      "success": 38,
+      "throughput_rps": 13.2
+    },
+    {
+      "pair": 4,
+      "variant": "before",
+      "exit_code": 1,
+      "success_p95_ms": 2572.7,
+      "rejected_p95_ms": 2435.0,
+      "success": 38,
+      "throughput_rps": 13.8
+    },
+    {
+      "pair": 4,
+      "variant": "after",
+      "exit_code": 1,
+      "success_p95_ms": 2246.8,
+      "rejected_p95_ms": 2119.1,
+      "success": 43,
+      "throughput_rps": 17.7
+    },
+    {
+      "pair": 5,
+      "variant": "after",
+      "exit_code": 1,
+      "success_p95_ms": 2385.7,
+      "rejected_p95_ms": 2353.5,
+      "success": 40,
+      "throughput_rps": 15.8
+    },
+    {
+      "pair": 5,
+      "variant": "before",
+      "exit_code": 1,
+      "success_p95_ms": 2153.1,
+      "rejected_p95_ms": 1984.2,
+      "success": 40,
+      "throughput_rps": 17.5
+    }
+  ],
+  "after": {
+    "p95_values": [
+      2239.0,
+      2246.8,
+      2298.5,
+      2385.7,
+      2385.7
+    ],
+    "p95_median": 2298.5,
+    "success_median": 40,
+    "failed_runs": 5
+  },
+  "before": {
+    "p95_values": [
+      2153.1,
+      2359.5,
+      2572.7,
+      2632.2,
+      2651.2
+    ],
+    "p95_median": 2572.7,
+    "success_median": 38,
+    "failed_runs": 5
+  }
+}

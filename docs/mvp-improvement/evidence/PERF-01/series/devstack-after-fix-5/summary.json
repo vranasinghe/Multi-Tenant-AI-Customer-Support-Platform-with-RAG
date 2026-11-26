@@ -1,0 +1,68 @@
+{
+  "series": "devstack-after-fix-5",
+  "planned_runs": 5,
+  "condition": "same as devstack-baseline-5: developer stack (7 containers) up beside acs-a41-qa; with admission backoff 10-50 ms",
+  "declared_at": "2026-11-26T01:23:59+0530",
+  "head": "db4d352fdde162ffa38eb2c6522e5805a2a892f4",
+  "app_diff_sha256": "d0c9abe9583906d20ef176de95eb7aeb729b873de2ff5336f38b56c81ee0b6cb",
+  "app_diff_stat": [
+    " services/api/Dockerfile                            |   8 +-",
+    " services/api/app/core/config.py                    |  20 ++",
+    " services/api/app/main.py                           |   2 +-",
+    " services/api/app/services/chat_controls.py         |  25 ++",
+    " services/api/app/services/conversations.py         |  12 +-",
+    " .../api/tests/integration/test_chat_migration.py   | 285 +++++++++++++++++++--",
+    " services/api/tests/support/database.py             |  12 +-",
+    " 7 files changed, 331 insertions(+), 33 deletions(-)"
+  ],
+  "completed_runs": 5,
+  "failed_runs": 0,
+  "successful_p95_ms_c1": {
+    "median": 49.72,
+    "min": 48.15,
+    "max": 59.16,
+    "all": [
+      59.16,
+      48.8,
+      56.15,
+      49.72,
+      48.15
+    ]
+  },
+  "successful_p95_ms_c10": {
+    "median": 285.97,
+    "min": 282.74,
+    "max": 329.37,
+    "all": [
+      285.97,
+      282.74,
+      329.37,
+      282.74,
+      323.06
+    ]
+  },
+  "successful_p95_ms_c50": {
+    "median": 1201.21,
+    "min": 1178.02,
+    "max": 1340.44,
+    "all": [
+      1178.02,
+      1201.21,
+      1183.41,
+      1212.49,
+      1340.44
+    ]
+  },
+  "successful_p95_ms_c100": {
+    "median": 1741.05,
+    "min": 1705.61,
+    "max": 1834.16,
+    "all": [
+      1823.84,
+      1726.59,
+      1705.61,
+      1834.16,
+      1741.05
+    ]
+  }
+}

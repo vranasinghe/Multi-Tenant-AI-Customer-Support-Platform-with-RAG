@@ -1,0 +1,8 @@
+{
+  "id": "preflight/developer-stack-after",
+  "command": "docker ps --filter name=ai-chatbot-saas --format '{{.Names}} | {{.Status}} | {{.CreatedAt}}'; curl -s -m 10 -o /dev/null -w 'dev api /readyz %{http_code}\\n' http://127.0.0.1:8000/readyz; docker logs ai-chatbot-saas-api-1 --since 5h 2>&1 | grep -ciE 'Traceback' ; docker logs ai-chatbot-saas-api-1 --since 5h 2>&1 | grep -iE 'error|traceback|reload' | tail -4 | cut -c1-200",
+  "started_at": "2026-11-26T03:22:27+0530",
+  "exit_code": 0,
+  "duration_seconds": 0.891,
+  "log": "preflight/developer-stack-after.log"
+}

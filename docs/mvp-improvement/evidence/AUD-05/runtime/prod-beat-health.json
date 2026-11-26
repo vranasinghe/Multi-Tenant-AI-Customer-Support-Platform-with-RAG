@@ -1,0 +1,8 @@
+{
+  "id": "runtime/prod-beat-health",
+  "command": "echo '--- HEAD beat service and image healthcheck'; git show HEAD:docker-compose.prod.yml | sed -n '/^  beat:/,/^  web:/p'; git show HEAD:services/api/Dockerfile | grep -A2 HEALTHCHECK; echo '--- running beat'; docker inspect acs-a5-prod-beat-1 --format 'status={{.State.Status}} health={{.State.Health.Status}} restarts={{.RestartCount}}'; docker inspect acs-a5-prod-beat-1 --format '{{(index .State.Health.Log 0).Output}}' | tail -2; docker compose -p acs-a5-prod --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/prod.env' -f docker-compose.prod.yml logs beat --no-log-prefix 2>&1 | grep -E 'beat|Scheduler' | tail -3",
+  "started_at": "2026-11-26T02:53:46+0530",
+  "exit_code": 0,
+  "duration_seconds": 1.029,
+  "log": "runtime/prod-beat-health.log"
+}

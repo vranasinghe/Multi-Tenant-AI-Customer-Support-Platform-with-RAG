@@ -1,0 +1,8 @@
+{
+  "id": "format-and-syntax",
+  "command": "unset MSYS_NO_PATHCONV; bash -n deploy/deploy.sh && echo 'deploy.sh syntax ok' && corepack pnpm exec prettier --check docker-compose.yml docker-compose.prod.yml package.json 2>&1",
+  "started_at": "2026-11-26T00:42:53+0530",
+  "exit_code": 0,
+  "duration_seconds": 1.097,
+  "log": "format-and-syntax.log"
+}

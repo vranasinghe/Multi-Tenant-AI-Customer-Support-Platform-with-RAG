@@ -1,0 +1,130 @@
+{
+  "AUD-01-auth-session-held": {
+    "file": "app/api/deps.py",
+    "tests": [
+      "tests/integration/api/mvp_improvement/test_chat_capacity.py"
+    ],
+    "exit_code": 1,
+    "killed": true,
+    "summary": [
+      "FAILED tests/integration/api/mvp_improvement/test_chat_capacity.py::test_second_tenant_fairness",
+      "1 failed, 4 passed in 8.76s"
+    ]
+  },
+  "AUD-02-unrendered-sources-citable": {
+    "file": "app/services/chat_prompt.py",
+    "tests": [
+      "tests/integration/api/mvp_improvement/test_citation_provenance.py",
+      "tests/unit/mvp_improvement/test_rendered_evidence.py",
+      "tests/unit/audit/test_prompt_evidence.py"
+    ],
+    "exit_code": 1,
+    "killed": true,
+    "summary": [
+      "FAILED tests/integration/api/mvp_improvement/test_citation_provenance.py::test_omitted_source_cannot_reach_sse_or_persisted_citations[False]",
+      "FAILED tests/integration/api/mvp_improvement/test_citation_provenance.py::test_omitted_source_cannot_reach_sse_or_persisted_citations[True]",
+      "FAILED tests/integration/api/mvp_improvement/test_citation_provenance.py::test_empty_rendered_evidence_sanitizes_configured_fallback",
+      "FAILED tests/unit/mvp_improvement/test_rendered_evidence.py::test_partial_source_excludes_following_candidate_and_mutable_inputs",
+      "FAILED tests/unit/mvp_improvement/test_rendered_evidence.py::test_full_prompt_budget_includes_history_question_and_metadata",
+      "FAILED tests/unit/audit/test_prompt_evidence.py::test_citations_must_only_reference_sources_actually_rendered",
+      "6 failed, 28 passed in 12.97s"
+    ]
+  },
+  "AUD-03-http-provider-accepted": {
+    "file": "app/core/provider_urls.py",
+    "tests": [
+      "tests/unit/mvp_improvement/test_provider_transport.py",
+      "tests/unit/audit/test_prompt_evidence.py"
+    ],
+    "exit_code": 1,
+    "killed": true,
+    "summary": [
+      "FAILED tests/unit/mvp_improvement/test_provider_transport.py::test_local_opt_in_never_grants_lan_container_or_public_http[provider]",
+      "FAILED tests/unit/mvp_improvement/test_provider_transport.py::test_local_opt_in_never_grants_lan_container_or_public_http[host.docker.internal]",
+      "FAILED tests/unit/mvp_improvement/test_provider_transport.py::test_local_opt_in_never_grants_lan_container_or_public_http[localhost.evil.test]",
+      "FAILED tests/unit/mvp_improvement/test_provider_transport.py::test_local_opt_in_never_grants_lan_container_or_public_http[127.0.0.1.evil.test]",
+      "FAILED tests/unit/mvp_improvement/test_provider_transport.py::test_local_opt_in_never_grants_lan_container_or_public_http[[::ffff:127.0.0.1]]",
+      "FAILED tests/unit/mvp_improvement/test_provider_transport.py::test_local_opt_in_never_grants_lan_container_or_public_http[[fe80::1]]",
+      "FAILED tests/unit/audit/test_prompt_evidence.py::test_production_embedding_transport_must_require_https",
+      "20 failed, 141 passed in 7.49s"
+    ]
+  },
+  "AUD-03-redirects-followed": {
+    "file": "app/integrations/llm.py",
+    "tests": [
+      "tests/unit/mvp_improvement/test_provider_transport.py"
+    ],
+    "exit_code": 1,
+    "killed": true,
+    "summary": [
+      "FAILED tests/unit/mvp_improvement/test_provider_transport.py::test_both_adapters_reject_all_redirects[http://provider.example.test/v1-307]",
+      "FAILED tests/unit/mvp_improvement/test_provider_transport.py::test_both_adapters_reject_all_redirects[http://provider.example.test/v1-308]",
+      "FAILED tests/unit/mvp_improvement/test_provider_transport.py::test_both_adapters_reject_all_redirects[/same-host-301]",
+      "FAILED tests/unit/mvp_improvement/test_provider_transport.py::test_both_adapters_reject_all_redirects[/same-host-302]",
+      "FAILED tests/unit/mvp_improvement/test_provider_transport.py::test_both_adapters_reject_all_redirects[/same-host-303]",
+      "FAILED tests/unit/mvp_improvement/test_provider_transport.py::test_both_adapters_reject_all_redirects[/same-host-307]",
+      "FAILED tests/unit/mvp_improvement/test_provider_transport.py::test_both_adapters_reject_all_redirects[/same-host-308]",
+      "15 failed, 144 passed in 7.48s"
+    ]
+  },
+  "AUD-04-every-peer-trusted": {
+    "file": "app/server.py",
+    "tests": [
+      "tests/unit/mvp_improvement/test_proxy_trust.py"
+    ],
+    "exit_code": 1,
+    "killed": true,
+    "summary": [
+      "FAILED tests/unit/mvp_improvement/test_proxy_trust.py::test_junk_left_of_the_appended_client_is_ignored[999.1.1.1]",
+      "FAILED tests/unit/mvp_improvement/test_proxy_trust.py::test_junk_left_of_the_appended_client_is_ignored[<script>]",
+      "FAILED tests/unit/mvp_improvement/test_proxy_trust.py::test_junk_left_of_the_appended_client_is_ignored[203.0.113.7 spoof]",
+      "FAILED tests/unit/mvp_improvement/test_proxy_trust.py::test_forged_variations_share_one_rate_limit_identity",
+      "FAILED tests/unit/mvp_improvement/test_proxy_trust.py::test_launcher_gives_uvicorn_exactly_the_validated_policy[none]",
+      "FAILED tests/unit/mvp_improvement/test_proxy_trust.py::test_launcher_gives_uvicorn_exactly_the_validated_policy[one]",
+      "FAILED tests/unit/mvp_improvement/test_proxy_trust.py::test_launcher_gives_uvicorn_exactly_the_validated_policy[networks]",
+      "37 failed, 160 passed in 1.80s"
+    ]
+  },
+  "AUD-05-no-memory-limit": {
+    "file": "app/rag/parser_process.py",
+    "tests": [
+      "tests/unit/mvp_improvement/test_parser_runner.py"
+    ],
+    "exit_code": 1,
+    "killed": true,
+    "summary": [
+      "FAILED tests/unit/mvp_improvement/test_parser_runner.py::test_the_child_enforces_its_own_resource_limits",
+      "FAILED tests/unit/mvp_improvement/test_parser_runner.py::test_the_memory_limit_stops_an_allocating_parser_and_the_parent_survives",
+      "2 failed, 49 passed in 25.32s"
+    ]
+  },
+  "AUD-05-stale-attempt-publishes": {
+    "file": "app/rag/pipeline.py",
+    "tests": [
+      "tests/integration/api/mvp_improvement/test_ingestion_isolation.py",
+      "tests/integration/api/mvp_improvement/test_original_ownership.py"
+    ],
+    "exit_code": 1,
+    "killed": true,
+    "summary": [
+      "FAILED tests/integration/api/mvp_improvement/test_ingestion_isolation.py::test_publication_checks_ownership_inside_the_publishing_transaction",
+      "FAILED tests/integration/api/mvp_improvement/test_original_ownership.py::test_a_superseded_attempt_cannot_change_the_original_a_newer_one_published[memory]",
+      "FAILED tests/integration/api/mvp_improvement/test_original_ownership.py::test_a_superseded_attempt_cannot_change_the_original_a_newer_one_published[s3]",
+      "3 failed, 45 passed in 59.93s"
+    ]
+  },
+  "AUD-07-internal-fields-public": {
+    "file": "app/services/public_view.py",
+    "tests": [
+      "tests/integration/api/mvp_improvement/test_widget_public_privacy.py",
+      "tests/integration/api/mvp_improvement/test_citation_provenance.py"
+    ],
+    "exit_code": 1,
+    "killed": true,
+    "summary": [
+      "FAILED tests/integration/api/mvp_improvement/test_widget_public_privacy.py::test_public_stream_and_history_use_the_public_fields_only",
+      "FAILED tests/integration/api/mvp_improvement/test_widget_public_privacy.py::test_a_failed_public_answer_reports_no_diagnostic",
+      "2 failed, 17 passed in 15.31s"
+    ]
+  }
+}

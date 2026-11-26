@@ -1,0 +1,8 @@
+{
+  "id": "limits/worker-after-probe",
+  "command": "docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' ps worker --format '{{.Name}} {{.Status}}'; docker inspect acs-a5-qa-worker-1 --format 'restarts={{.RestartCount}} oomkilled={{.State.OOMKilled}} status={{.State.Status}}'",
+  "started_at": "2026-11-26T02:23:44+0530",
+  "exit_code": 0,
+  "duration_seconds": 0.714,
+  "log": "limits/worker-after-probe.log"
+}

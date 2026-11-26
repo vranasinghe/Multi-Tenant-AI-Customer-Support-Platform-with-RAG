@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="4.144" timestamp="2026-11-25T19:20:53.386421+00:00" hostname="aea1fa79f17c"><testcase classname="tests.integration.api.mvp_improvement.test_chat_capacity" name="test_strict_capacity[100]" time="3.060"><failure message="assert (2127.1185340001466 &lt;= 2000)">tests/integration/api/mvp_improvement/test_chat_capacity.py:272: in test_strict_capacity
+    assert report["successful_p95_ms"] &lt;= 2000 and report["rejected_p95_ms"] &lt;= 3000
+E   assert (2127.1185340001466 &lt;= 2000)</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,1010 @@
+diff --git a/.env.example b/.env.example
+index 6978809..a0cdaeb 100644
+--- a/.env.example
++++ b/.env.example
+@@ -38,6 +38,9 @@ CELERY_BROKER_URL=redis://127.0.0.1:6379/1
+ CELERY_RESULT_BACKEND=redis://127.0.0.1:6379/2
+ # Comma-separated browser origins allowed to call the API with credentials.
+ CORS_ALLOWED_ORIGINS=http://localhost:3000
++# Reverse proxies allowed to set X-Forwarded-For/-Proto: exact IPs or CIDRs, comma-separated.
++# Leave empty unless a proxy sits in front of the API. Wildcards and /0 are refused.
++FORWARDED_ALLOW_IPS=
+ # Base URL of the web app, used for links in emails (verify email, reset password, invitations).
+ WEB_BASE_URL=http://localhost:3000
+ 
+diff --git a/.env.production.example b/.env.production.example
+index 709c950..8fdf5f8 100644
+--- a/.env.production.example
++++ b/.env.production.example
+@@ -43,6 +43,11 @@ EMBEDDING_MODEL=gemini-embedding-001
+ EMBEDDING_API_KEY=
+ CHAT_MODEL_PRICES={"gemini-3.5-flash":[0.30,2.50],"gemini-3.5-flash-lite":[0.10,0.40]}
+ 
++# --- Trusted reverse proxy (see docs/DEPLOY_CONTABO.md, "Trusted ingress") ------
++# Exact IP address or CIDR of the proxy in front of the API. Wildcards and /0 are refused.
++# Empty trusts no proxy: all visitors then share the proxy's address in IP rate limits.
++FORWARDED_ALLOW_IPS=
++
+ # --- Tuning ----------------------------------------------------------------------
+ LOG_LEVEL=INFO
+ WORKER_CONCURRENCY=2
+diff --git a/.prettierignore b/.prettierignore
+index 0ae7548..5fc8a17 100644
+--- a/.prettierignore
++++ b/.prettierignore
+@@ -7,3 +7,6 @@ coverage
+ services
+ # Markdown is hand-formatted (wide tables); keep Prettier off it.
+ **/*.md
++# Generated audit records from past runs; keep them exactly as produced.
++docs/audit/**/*.json
++docs/**/evidence/
+diff --git a/apps/web/src/components/chatbots/answer-text.tsx b/apps/web/src/components/chatbots/answer-text.tsx
+index de78a40..3170776 100644
+--- a/apps/web/src/components/chatbots/answer-text.tsx
++++ b/apps/web/src/components/chatbots/answer-text.tsx
+@@ -13,37 +13,37 @@ function inline(text: string, keyPrefix: string): ReactNode[] {
+     .replace(/[ \t]+(\[\d{1,2}\])/g, "$1")
+     .split(INLINE)
+     .map((part, index) => {
+-    const key = `${keyPrefix}-${index}`;
+-    if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
+-      return (
+-        <strong key={key} className="font-semibold text-foreground">
+-          {part.slice(2, -2)}
+-        </strong>
+-      );
+-    }
+-    if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
+-      return (
+-        <code key={key} className="rounded bg-muted px-1 py-0.5 font-mono text-[0.85em]">
+-          {part.slice(1, -1)}
+-        </code>
+-      );
+-    }
+-    if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
+-      return <em key={key}>{part.slice(1, -1)}</em>;
+-    }
+-    if (/^\[\d{1,2}\]$/.test(part)) {
+-      return (
+-        <sup
+-          key={key}
+-          aria-label={`source ${part.slice(1, -1)}`}
+-          className="mx-0.5 inline-flex min-w-4 items-center justify-center rounded bg-accent px-1 text-[0.68rem] leading-4 font-semibold text-accent-foreground"
+-        >
+-          {part.slice(1, -1)}
+-        </sup>
+-      );
+-    }
+-    return part;
+-  });
++      const key = `${keyPrefix}-${index}`;
++      if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
++        return (
++          <strong key={key} className="font-semibold text-foreground">
++            {part.slice(2, -2)}
++          </strong>
++        );
++      }
++      if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
++        return (
++          <code key={key} className="rounded bg-muted px-1 py-0.5 font-mono text-[0.85em]">
++            {part.slice(1, -1)}
++          </code>
++        );
++      }
++      if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
++        return <em key={key}>{part.slice(1, -1)}</em>;
++      }
++      if (/^\[\d{1,2}\]$/.test(part)) {
++        return (
++          <sup
++            key={key}
++            aria-label={`source ${part.slice(1, -1)}`}
++            className="mx-0.5 inline-flex min-w-4 items-center justify-center rounded bg-accent px-1 text-[0.68rem] leading-4 font-semibold text-accent-foreground"
++          >
++            {part.slice(1, -1)}
++          </sup>
++        );
++      }
++      return part;
++    });
+ }
+ 
+ type Block = { kind: "p"; lines: string[] } | { kind: "ul" | "ol"; items: string[] };
+diff --git a/deploy/deploy.sh b/deploy/deploy.sh
+index a170459..8072201 100644
+--- a/deploy/deploy.sh
++++ b/deploy/deploy.sh
+@@ -18,6 +18,14 @@ if [ ! -f services/api/widget_assets/v1/loader.js ]; then
+ fi
+ 
+ COMPOSE=(docker compose --env-file "$ENV_FILE" -f docker-compose.prod.yml)
++# Operator-created fixed-address network for the reverse proxy (docs/DEPLOY_CONTABO.md).
++if [ -f docker-compose.ingress.yml ]; then
++  COMPOSE+=(-f docker-compose.ingress.yml)
++fi
++if ! grep -qE '^FORWARDED_ALLOW_IPS=.+' "$ENV_FILE"; then
++  echo "Warning: FORWARDED_ALLOW_IPS is empty, so all visitors share Caddy's address in IP rate" >&2
++  echo "limits. See docs/DEPLOY_CONTABO.md, 'Trusted ingress'." >&2
++fi
+ 
+ "${COMPOSE[@]}" build
+ "${COMPOSE[@]}" up -d --remove-orphans
+diff --git a/docker-compose.prod.yml b/docker-compose.prod.yml
+index 329c9a6..a88a484 100644
+--- a/docker-compose.prod.yml
++++ b/docker-compose.prod.yml
+@@ -104,7 +104,16 @@ services:
+     image: redis:8.10.3-alpine
+     restart: unless-stopped
+     # AOF on: Celery jobs survive a restart.
+-    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "noeviction"]
++    command:
++      [
++        "redis-server",
++        "--appendonly",
++        "yes",
++        "--maxmemory",
++        "256mb",
++        "--maxmemory-policy",
++        "noeviction",
++      ]
+     volumes:
+       - redisdata:/data
+     healthcheck:
+@@ -153,7 +162,11 @@ services:
+   api:
+     image: acs-api:prod
+     restart: unless-stopped
+-    environment: *api-environment
++    environment:
++      <<: *api-environment
++      # Exact address(es) of the reverse proxy. Empty trusts nobody: behind Caddy every visitor
++      # then shares Caddy's address in IP rate limits. See docs/DEPLOY_CONTABO.md.
++      FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:-}
+     depends_on:
+       migrate:
+         condition: service_completed_successfully
+diff --git a/docker-compose.yml b/docker-compose.yml
+index b528cf5..fe1b905 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -132,6 +132,8 @@ services:
+     build: *api-build
+     environment:
+       <<: *api-environment
++      # Reverse proxies allowed to set X-Forwarded-*; empty (default) trusts nobody.
++      FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:-}
+       # Bind mounts from Windows/macOS hosts don't deliver inotify events; poll instead.
+       WATCHFILES_FORCE_POLLING: "true"
+     volumes:
+diff --git a/docs/CHAT_ENGINE.md b/docs/CHAT_ENGINE.md
+index e7b348b..7b38765 100644
+--- a/docs/CHAT_ENGINE.md
++++ b/docs/CHAT_ENGINE.md
+@@ -127,7 +127,9 @@ concurrent lookups, scaled down with a smaller pool), released before streaming.
+ transaction semantics remain unchanged. Every new tenant transaction restores its RLS context.
+ 
+ Organization/conversation Redis admission precedes preparation. Admission waits at most
+-`CHAT_ADMISSION_WAIT_SECONDS` (default 0.9 seconds) before `429 chat_busy`. Preparation has a
++`CHAT_ADMISSION_WAIT_SECONDS` (default 0.9 seconds) before `429 chat_busy`. While it waits, a
++request asks again after 10, 20, 40 and then every 50 ms, with a last attempt as the window closes,
++so a freed slot waits at most about 50 ms (see the A4.1 stabilization report). Preparation has a
+ separate process-local ceiling, `CHAT_SETUP_CAPACITY` (default eight, scaled to pool capacity).
+ These ceilings are not a physical reservation of database connections. Actual checkout counts
+ and second-tenant availability must be measured; see the A1 implementation report.
+diff --git a/docs/DEPLOY_CONTABO.md b/docs/DEPLOY_CONTABO.md
+index fee9f35..9bb8a52 100644
+--- a/docs/DEPLOY_CONTABO.md
++++ b/docs/DEPLOY_CONTABO.md
+@@ -49,6 +49,51 @@ Fill in: `SITE_HOST`, `ACME_EMAIL`, all passwords/keys (generate each with
+ Production refuses placeholder passwords, the `hash` embedding provider, the `demo` LLM and the
+ `log` email backend, so every one of those must be real.
+ 
++## Trusted ingress (client IPs behind Caddy)
++
++The API trusts forwarding headers only from the addresses in `FORWARDED_ALLOW_IPS` (DEVELOPMENT.md
++section 10). **While it is empty, every visitor appears to the API as Caddy**: the per-IP limits
++(for example 10 logins a minute and 10 sign-ups an hour) are then shared by all visitors, and audit
++records hold Caddy's network instead of the client's. Configure it before real users arrive.
++
++Give Caddy a fixed address on a network that only it uses to reach the API. Choose a private subnet
++that is unused on your server; there is no default. Create `docker-compose.ingress.yml` next to
++`docker-compose.prod.yml` (`deploy/deploy.sh` picks it up):
++
++```yaml
++networks:
++  ingress:
++    ipam:
++      config:
++        - subnet: ${INGRESS_SUBNET:?choose an unused private subnet}
++          ip_range: ${INGRESS_DYNAMIC_RANGE:?part of the subnet used for other containers}
++services:
++  caddy:
++    networks:
++      ingress:
++        ipv4_address: ${CADDY_INGRESS_IP:?an address in the subnet but outside the dynamic range}
++  api:
++    networks: [default, ingress]
++  web:
++    networks: [default, ingress]
++```
++
++Add those three variables to `.env.production`, plus `FORWARDED_ALLOW_IPS` set to exactly the same
++value as `CADDY_INGRESS_IP`. Caddy joins only `ingress`, so it reaches `api` from that address;
++trusting a whole network would also trust every container on it. Other `docker compose` commands in
++this guide need `-f docker-compose.ingress.yml` as well once the file exists.
++
++Requirements this relies on:
++
++- Only Caddy publishes ports. Do not publish the API, PostgreSQL, Redis or object storage.
++- Caddy replaces client-supplied `X-Forwarded-*` headers. This is its default; do not add
++  `trusted_proxies` to the Caddyfile unless another proxy sits in front of it.
++- If a CDN or load balancer is added in front, review both Caddy's and the API's trusted lists.
++
++After deploying, verify on the server: send a request with a made-up `X-Forwarded-For` from outside
++and confirm the API still records your real network (for example in the session list after signing
++in). None of this has been verified on a live deployment.
++
+ ## 4. Build the widget, then deploy
+ 
+ The API image bakes in `services/api/widget_assets`, which is committed to the repo. Only rebuild
+diff --git a/docs/DEVELOPMENT.md b/docs/DEVELOPMENT.md
+index a8b0a30..c48022e 100644
+--- a/docs/DEVELOPMENT.md
++++ b/docs/DEVELOPMENT.md
+@@ -102,7 +102,7 @@ pnpm api:dev
+ pnpm worker:dev
+ ```
+ 
+-- `api:dev` uses `uvicorn --reload`. On Windows that also selects the Selector event loop that async psycopg requires.
++- `api:dev` runs `python -m app.server --reload` (Uvicorn). On Windows that also selects the Selector event loop that async psycopg requires.
+ - `worker:dev` uses `--pool=solo` because Celery's prefork pool does not support Windows.
+ 
+ ### Database migrations
+@@ -279,3 +279,15 @@ docker compose exec -T api pytest tests/unit/mvp_improvement/test_provider_trans
+ The test CA is injected only into test transports. Untrusted, expired and hostname-mismatched
+ chains fail before request credentials/text are sent; the system trust store is unchanged.
+ The public test leaf key under tests/support/provider_tls is never a runtime credential.
++
++## 10. Trusted proxy policy (AUD-04)
++
++`X-Forwarded-For` and `X-Forwarded-Proto` change the client address and scheme the API sees only when the request comes from a peer listed in `FORWARDED_ALLOW_IPS`. The default is empty: **no peer is trusted**, including loopback and private addresses, and the proxy-header middleware is not installed.
++
++- Start the API with `python -m app.server` (`--host`, `--port`, `--reload` only). Both image stages and `pnpm api:dev` do. Running `uvicorn` directly bypasses this launcher: Uvicorn then applies its own defaults and flags.
++- Values are comma-separated literal IPv4/IPv6 addresses or CIDR networks (host bits zero). Refused at startup in every environment: `*`, `/0` and other networks broader than IPv4 `/8` or IPv6 `/16`, `0.0.0.0` / `::`, host names, ports, brackets, zone IDs, netmask notation, IPv4-mapped IPv6 and empty entries.
++- `UVICORN_FORWARDED_ALLOW_IPS` and `UVICORN_PROXY_HEADERS` are refused: use `FORWARDED_ALLOW_IPS`.
++- Header handling is Uvicorn's. From a trusted peer the client is the rightmost `X-Forwarded-For` entry that is not itself trusted (repeated header lines form one chain); `X-Forwarded-Proto` applies only as exactly `http`, `https`, `ws` or `wss`. Uvicorn does not check that an entry is an IP address, so the proxy must append or replace what the client sent.
++- The runtime image binds IPv4 (`0.0.0.0`), so the peer itself is an IPv4 proxy unless the bind address is changed; IPv6 client addresses inside the chain work.
++
++Regression tests: `tests/unit/mvp_improvement/test_proxy_trust.py`, and `tests/integration/test_runtime_proxy_trust.py` against a built runtime image (opt-in; see its docstring).
+diff --git a/docs/PHASE2_SECURITY_REVIEW.md b/docs/PHASE2_SECURITY_REVIEW.md
+index e1d4b2d..ec1cee0 100644
+--- a/docs/PHASE2_SECURITY_REVIEW.md
++++ b/docs/PHASE2_SECURITY_REVIEW.md
+@@ -143,3 +143,7 @@ corepack pnpm -r --if-present test
+ ```
+ 
+ Integration tests create (and drop) their own throwaway database from `MIGRATION_DATABASE_URL`, so development data is never touched; they use Redis DB 15, which they flush.
++
++## Status update: AUD-04 (additive; the sections above describe the earlier build)
++
++Residual risk 1 in section 5 and migration step 3 in section 6 are superseded for the application image. The runtime image no longer passes `--forwarded-allow-ips "*"`; no peer is trusted unless listed in `FORWARDED_ALLOW_IPS`, which is validated at startup (DEVELOPMENT.md section 10). Verified locally against the runtime image: [AUD-04 report](mvp-improvement/AUD-04_IMPLEMENTATION_REPORT.md). Still open: the operator must configure the real proxy address and block direct access to the API, and neither has been verified on a live deployment.
+diff --git a/docs/WIDGET_DEPLOYMENT.md b/docs/WIDGET_DEPLOYMENT.md
+index 1a14840..14c93ac 100644
+--- a/docs/WIDGET_DEPLOYMENT.md
++++ b/docs/WIDGET_DEPLOYMENT.md
+@@ -38,7 +38,7 @@ The build writes `apps/widget/dist/loader.js` and copies its deployable distribu
+ 
+ Build the widget **before** building the production API image. Its runtime Docker stage includes `widget_assets`. Apply migration **0006** before deploying the new API. It adds a FORCE-RLS-protected `chatbot_domains` table, retention settings and hashed resume credentials. Existing Phase 5 sessions remain compatible. Downgrading drops origin/resumption settings and must be treated as destructive; prefer a forward fix.
+ 
+-Serve everything through HTTPS. Preserve the frame route's per-origin `frame-ancestors` CSP; do not replace it with a wildcard or global DENY header. Do not cache frame or session responses. Disable proxy buffering for SSE and permit the configured chat timeout. Configure trusted proxy addresses correctly before relying on IP limits; the pre-existing production Docker wildcard forwarded-IP setting remains an operational deployment risk (see PHASE2_SECURITY_REVIEW.md). Tenant quotas and session limits also apply independently of IP controls.
++Serve everything through HTTPS. Preserve the frame route's per-origin `frame-ancestors` CSP; do not replace it with a wildcard or global DENY header. Do not cache frame or session responses. Disable proxy buffering for SSE and permit the configured chat timeout. Set `FORWARDED_ALLOW_IPS` to the proxy's exact address before relying on IP limits: no peer is trusted by default, so until then all visitors share the proxy's address (DEVELOPMENT.md section 10, DEPLOY_CONTABO.md "Trusted ingress"). The proxy must replace client-supplied `X-Forwarded-*` headers and be the only path to the API. Tenant quotas and session limits also apply independently of IP controls.
+ 
+ No wildcard credentialed CORS was added. Browsers fetch chat from inside the API-hosted iframe using bearer capabilities and `credentials: omit`; customer websites do not need dashboard API CORS access. The sandbox allows scripts and same-origin API access, but no top navigation, popups or forms. Use a dedicated API/widget origin separate from the customer website.
+ 
+diff --git a/docs/mvp-improvement/02_PROGRESS_TRACKER.md b/docs/mvp-improvement/02_PROGRESS_TRACKER.md
+index 62ef8a9..5727693 100644
+--- a/docs/mvp-improvement/02_PROGRESS_TRACKER.md
++++ b/docs/mvp-improvement/02_PROGRESS_TRACKER.md
+@@ -1,6 +1,6 @@
+ # MVP improvement progress tracker
+ 
+-Updated: 22 November 2026 (Asia/Colombo). Current authorized execution: Milestone A3 / AUD-03 only; implementation and local validation complete.
++Updated: 26 November 2026 (Asia/Colombo). Last authorized execution: checkpoint A4.1 (PERF-01, MIG-01, LINT-01); complete, local PASS.
+ 
+ | Task | Status | Evidence / remaining work |
+ |---|---|---|
+@@ -8,14 +8,28 @@ Updated: 22 November 2026 (Asia/Colombo). Current authorized execution: Mileston
+ | A1 / AUD-01 pool starvation | PASS (local validation; preserved) | Original report/evidence unchanged; all 18 tests pass in the A3 final full run and isolated rerun. Two intermediate full runs missed P95 by 4.02/11.51 ms; retained as timing risk. Only loopback fixture opt-ins changed; assertion reverse-hash matches. |
+ | A2 / AUD-02 citations | PASS (local deterministic validation; preserved) | Original report/evidence, implementation and tests unchanged; all 32 tests and original omission regression pass in A3 final full run. Semantic citation quality remains BLOCKED. |
+ | A3 / AUD-03 provider transport | PASS (local transport validation) | `AUD-03_IMPLEMENTATION_REPORT.md`; original failure reproduced then passes unchanged. 159 new tests pass; final backend 795 pass / zero fail/skip; static checks, final runtime build/RLS and five browser tests pass. Browser routing/cookie harness failures retained. Earlier A1 timing failures retained; no gate relaxed. |
+-| A4 / AUD-04 proxy trust | NOT_IMPLEMENTED remediation | Existing wildcard runtime trust remains; actual deployment security unverified. |
++| A4 / AUD-04 proxy trust | PASS (local validation; production ingress BLOCKED) | `AUD-04_IMPLEMENTATION_REPORT.md`; wildcard removed, no peer trusted by default; 197 new unit and 17 runtime-image HTTP cases pass; browser 6/6, smoke, RLS pass. Final backend 1,005 pass / 2 fail / 17 skip, both failures present before A4. |
++| A4.1 stabilization | PASS (local) | `A4_1_STABILIZATION_REPORT.md`; full backend 1,016 pass / 0 fail / 17 conditional skips, 17 runtime proxy tests pass separately, browser 6/6, ruff/format/mypy clean. `pnpm format:check` still fails on 8 untouched web files. |
+ | A5 / AUD-05 parser isolation | NOT_IMPLEMENTED remediation | Existing parser/worker isolation gap remains. |
+ | A6 / AUD-06 inbox | NOT_IMPLEMENTED remediation | Existing placeholder remains. |
+ | A7 / AUD-07 widget lifecycle | NOT_IMPLEMENTED remediation | Existing duplicate-init/teardown gap remains. |
+ | Milestones B–J | NOT_IMPLEMENTED in this improvement work | Not authorized by the current task; no paid providers/deployment/feature expansion. |
+ 
+-Milestone A completion gate: **NOT COMPLETE**. Overall MVP decision: **NOT READY**, unchanged. A1/A2/A3 local PASS and a final green backend run do not establish release readiness. AUD-04–AUD-07 and live/deployment gates remain unresolved.
++## Open observations
+ 
+-All original audit reports/evidence and completed AUD-01/AUD-02 artifacts are preserved. This workspace has no `.git`; modified-file evidence uses hashes. Evidence is separated under `evidence/AUD-01/`, `evidence/AUD-02/` and `evidence/AUD-03/`; see each `results.json` and recorded logs/XML for exact commands, failures, reruns and timing. No acceptance thresholds or assertions were weakened. A3 adapted existing HTTP transport mocks and added explicit local loopback opt-ins to A1 fixtures; original audit tests are unchanged. Earlier failed attempts are retained, not overwritten as successes.
++| ID | Status | Detail |
++|---|---|---|
++| PERF-01 | PASS (local gate), thin margin | Cause: one saturated event loop; 10 ms admission polling, plus Phase 7's extra statements. Backoff 10-50 ms. After: 10/10 repetitions pass (max 1,986.81 ms, 13 ms under the gate); final full suite 1,608.6 ms. Earlier failures retained. Watch on slower hardware/CI. |
++| MIG-01 | PASS | Order-dependent test downgrading a shared database; one usage row without a conversation breaks the 0006 foreign key. Tests now own their databases. |
++| MIG-02 | OPEN, needs decision | Downgrade below 0007 is refused after any conversation deletion, and otherwise drops Phase 7 data. Proposed: forward-only with backup restore (not implemented). |
++| LINT-01 | PASS | `ruff check .` clean without exclusions; migration SQL byte-identical. |
++| DEPLOY-01 | OPEN | Set `FORWARDED_ALLOW_IPS` to Caddy's fixed address before production, or all visitors share one IP rate-limit bucket (`DEPLOY_CONTABO.md`). Caddy, ingress denial and TLS unverified. |
++| CI-01 | OPEN | CI does not run the 17 runtime proxy tests or Playwright; proposal in the A4.1 report. |
++| FMT-01 | OPEN | `pnpm format:check` fails on 8 web component files present at HEAD; CI runs it. |
++| ENV-01 | OPEN | Developer `migrate` image predates 0007; rebuild backend images. |
++
++Milestone A completion gate: **NOT COMPLETE**. Overall MVP decision: **NOT READY**, unchanged. Local A1-A4.1 results do not establish release readiness. AUD-05–AUD-07, the open observations above and live/deployment gates remain unresolved.
++
++All original audit reports/evidence and completed A1–A3 artifacts are preserved. A1–A3 were recorded when this workspace had no `.git`; it now does. Evidence is separated under `evidence/AUD-01/` to `evidence/AUD-04/`; see recorded logs/XML for exact commands, failures, reruns and timing. No acceptance thresholds or assertions were weakened. Earlier failed attempts are retained, not overwritten as successes.
+ 
+-Stop after AUD-03 reporting and validation. Do not automatically begin AUD-04 or later work. No external deployment, paid-provider configuration or push was performed.
++Stop after A4.1. Do not automatically begin AUD-05 or later work. No external deployment, paid-provider configuration, commit or push was performed.
+diff --git a/package.json b/package.json
+index 0602eb1..9d07968 100644
+--- a/package.json
++++ b/package.json
+@@ -17,7 +17,7 @@
+     "test": "pnpm -r --if-present test",
+     "format": "prettier --write .",
+     "format:check": "prettier --check .",
+-    "api:dev": "uv run --directory services/api uvicorn app.main:create_app --factory --reload --port 8000 --no-access-log",
++    "api:dev": "uv run --directory services/api python -m app.server --reload --port 8000",
+     "worker:dev": "uv run --directory services/api celery -A app.workers.celery_app worker --pool=solo --queues=default,ingest,crawl,chat_out,billing --loglevel=INFO",
+     "api:lint": "uv run --directory services/api ruff check . && uv run --directory services/api ruff format --check .",
+     "api:format": "uv run --directory services/api ruff format . && uv run --directory services/api ruff check --fix .",
+diff --git a/packages/ui/src/styles/globals.css b/packages/ui/src/styles/globals.css
+index be88b35..aad95ab 100644
+--- a/packages/ui/src/styles/globals.css
++++ b/packages/ui/src/styles/globals.css
+@@ -9,15 +9,16 @@
+ 
+ :root {
+   --radius: 0.625rem;
+-  /* Cool-tinted neutrals (hue 250) with one deep teal-blue accent (hue 218). */
+-  --background: oklch(0.982 0.004 250);
+-  --foreground: oklch(0.21 0.03 255);
++  /* Semantic surfaces and actions shared by the workspace and its components. */
++  --background: #f8fafc;
++  --foreground: #0b1220;
+   --card: oklch(1 0 0);
+   --card-foreground: oklch(0.21 0.03 255);
+   --popover: oklch(1 0 0);
+   --popover-foreground: oklch(0.21 0.03 255);
+-  --primary: oklch(0.5 0.105 218);
+-  --primary-foreground: oklch(0.99 0.003 218);
++  --primary: #2563eb;
++  --primary-foreground: #ffffff;
++  --ai-accent: #7c3aed;
+   --secondary: oklch(0.955 0.01 235);
+   --secondary-foreground: oklch(0.28 0.04 245);
+   --muted: oklch(0.962 0.006 245);
+@@ -27,10 +28,10 @@
+   --destructive: oklch(0.55 0.21 27);
+   --border: oklch(0.912 0.008 245);
+   --input: oklch(0.88 0.01 245);
+-  --ring: oklch(0.58 0.12 218);
+-  --success: oklch(0.52 0.12 160);
+-  --warning: oklch(0.62 0.14 75);
+-  --rail: oklch(0.245 0.04 238);
++  --ring: #2563eb;
++  --success: #059669;
++  --warning: #d97706;
++  --rail: #0b1220;
+   --shadow-soft: 0 1px 2px oklch(0.25 0.04 250 / 0.06), 0 4px 14px -6px oklch(0.25 0.04 250 / 0.1);
+   color-scheme: light;
+ }
+@@ -42,8 +43,9 @@
+   --card-foreground: oklch(0.96 0.006 250);
+   --popover: oklch(0.225 0.03 250);
+   --popover-foreground: oklch(0.96 0.006 250);
+-  --primary: oklch(0.74 0.11 215);
+-  --primary-foreground: oklch(0.2 0.04 230);
++  --primary: #93b4ff;
++  --primary-foreground: #0b1220;
++  --ai-accent: #c4b5fd;
+   --secondary: oklch(0.28 0.03 250);
+   --secondary-foreground: oklch(0.96 0.006 250);
+   --muted: oklch(0.27 0.03 250);
+@@ -84,6 +86,7 @@
+   --color-popover-foreground: var(--popover-foreground);
+   --color-primary: var(--primary);
+   --color-primary-foreground: var(--primary-foreground);
++  --color-ai-accent: var(--ai-accent);
+   --color-secondary: var(--secondary);
+   --color-secondary-foreground: var(--secondary-foreground);
+   --color-muted: var(--muted);
+@@ -108,8 +111,14 @@
+     @apply border-border outline-ring/50;
+   }
+   html {
+-    font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue",
+-      Arial, sans-serif;
++    font-family:
++      "Segoe UI Variable Text",
++      "Segoe UI",
++      system-ui,
++      -apple-system,
++      "Helvetica Neue",
++      Arial,
++      sans-serif;
+     font-feature-settings: "cv11", "ss01";
+     -webkit-text-size-adjust: 100%;
+   }
+diff --git a/services/api/Dockerfile b/services/api/Dockerfile
+index 4314ce7..649fb10 100644
+--- a/services/api/Dockerfile
++++ b/services/api/Dockerfile
+@@ -12,7 +12,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
+     UV_LINK_MODE=copy \
+     UV_PYTHON_DOWNLOADS=never \
+     UV_PROJECT_ENVIRONMENT=/opt/venv \
+-    PATH="/opt/venv/bin:${PATH}"
++    PATH="/opt/venv/bin:${PATH}" \
++    FORWARDED_ALLOW_IPS=""
+ COPY --from=uv /uv /usr/local/bin/uv
+ RUN groupadd --system --gid 10001 app \
+  && useradd --system --uid 10001 --gid app --home-dir /home/app --create-home app
+@@ -25,7 +26,7 @@ RUN --mount=type=cache,target=/root/.cache/uv uv sync --locked --no-install-proj
+ COPY . .
+ USER app
+ EXPOSE 8000
+-CMD ["uvicorn", "app.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000", "--reload", "--no-access-log"]
++CMD ["python", "-m", "app.server", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+ 
+ # ---------------------------------------------------------------- production
+ FROM base AS prod-deps
+@@ -42,4 +43,5 @@ USER app
+ EXPOSE 8000
+ HEALTHCHECK --interval=15s --timeout=3s --start-period=10s --retries=3 \
+   CMD ["python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=2).status == 200 else 1)"]
+-CMD ["uvicorn", "app.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*", "--no-access-log"]
++# Proxy trust is FORWARDED_ALLOW_IPS, validated and applied by app.server (empty = none).
++CMD ["python", "-m", "app.server", "--host", "0.0.0.0", "--port", "8000"]
+diff --git a/services/api/app/core/config.py b/services/api/app/core/config.py
+index b6fae09..d425684 100644
+--- a/services/api/app/core/config.py
++++ b/services/api/app/core/config.py
+@@ -16,6 +16,7 @@ from pydantic import Field, PostgresDsn, RedisDsn, SecretStr, field_validator, m
+ from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
+ 
+ from app.core.provider_urls import provider_url
++from app.core.proxy_trust import parse_trusted_proxies
+ 
+ AppEnv = Literal["local", "test", "staging", "production"]
+ LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR"]
+@@ -63,6 +64,13 @@ class Settings(BaseSettings):
+     cors_allowed_origins: Annotated[list[str], NoDecode] = Field(default_factory=list)
+     readiness_timeout_seconds: float = Field(default=2.0, gt=0, le=30)
+ 
++    # --- ingress. Peers allowed to set X-Forwarded-For/-Proto (the reverse proxy); empty trusts
++    # nobody. Only `python -m app.server` applies it (see app/core/proxy_trust.py).
++    forwarded_allow_ips: Annotated[list[str], NoDecode] = Field(default_factory=list)
++    # Uvicorn's CLI also reads these, outside this validation: declared only so they are refused.
++    uvicorn_forwarded_allow_ips: str | None = None
++    uvicorn_proxy_headers: str | None = None
++
+     # --- web app / links in emails
+     web_base_url: str = "http://localhost:3000"
+ 
+@@ -199,6 +207,18 @@ class Settings(BaseSettings):
+             return [int(item) for item in value.split(",") if item.strip()]
+         return value
+ 
++    @field_validator("forwarded_allow_ips", mode="before")
++    @classmethod
++    def _trusted_proxies(cls, value: object) -> list[str]:
++        return parse_trusted_proxies(value)
++
++    @model_validator(mode="after")
++    def _no_uvicorn_proxy_overrides(self) -> Settings:
++        for name in ("uvicorn_forwarded_allow_ips", "uvicorn_proxy_headers"):
++            if getattr(self, name) is not None:
++                raise ValueError(f"{name.upper()} is not supported; use FORWARDED_ALLOW_IPS")
++        return self
++
+     @field_validator("web_base_url")
+     @classmethod
+     def _strip_web_base_url(cls, value: str) -> str:
+diff --git a/services/api/app/main.py b/services/api/app/main.py
+index 56c2078..93c8680 100644
+--- a/services/api/app/main.py
++++ b/services/api/app/main.py
+@@ -1,6 +1,6 @@
+ """ASGI application factory.
+ 
+-Run with: `uvicorn app.main:create_app --factory` (no module-level app, so importing this module
++Run with: `python -m app.server` (no module-level app, so importing this module
+ never requires configuration — tests build apps with explicit settings).
+ """
+ 
+diff --git a/services/api/app/services/chat_controls.py b/services/api/app/services/chat_controls.py
+index 4174152..334df05 100644
+--- a/services/api/app/services/chat_controls.py
++++ b/services/api/app/services/chat_controls.py
+@@ -33,6 +33,12 @@ redis.call('EXPIRE', KEYS[1], ARGV[5])
+ redis.call('SET', KEYS[2], ARGV[3], 'EX', ARGV[5])
+ return 1
+ """
++# How often a waiting request asks for a slot again. Waiters share one event loop with the requests
++# already admitted, so asking every 10 ms spent a large part of it on refusals (PERF-01). The first
++# retry stays prompt; later ones back off, and a freed slot waits at most the maximum.
++ADMISSION_POLL_MIN_SECONDS = 0.01
++ADMISSION_POLL_MAX_SECONDS = 0.05
++
+ _RELEASE = """
+ redis.call('ZREM', KEYS[1], ARGV[1])
+ if redis.call('GET', KEYS[2]) == ARGV[1] then redis.call('DEL', KEYS[2]) end
+@@ -90,6 +96,25 @@ async def acquire(
+     return lease
+ 
+ 
++async def admit(
++    redis: Redis, org_id: uuid.UUID, conversation_id: uuid.UUID, settings: Settings
++) -> Lease:
++    """`acquire`, waiting up to the admission window while the conversation or workspace is busy."""
++    loop = asyncio.get_running_loop()
++    deadline = loop.time() + settings.chat_admission_wait_seconds
++    delay = ADMISSION_POLL_MIN_SECONDS
++    while True:
++        try:
++            return await acquire(redis, org_id, conversation_id, settings)
++        except ApiError as exc:
++            remaining = deadline - loop.time()
++            if exc.code != "chat_busy" or remaining <= 0:
++                raise
++        # Never sleep past the window: the last attempt happens as it closes.
++        await asyncio.sleep(min(delay, remaining))
++        delay = min(delay * 2, ADMISSION_POLL_MAX_SECONDS)
++
++
+ def cost(input_tokens: int, output_tokens: int, prices: tuple[float, float]) -> Decimal:
+     return (
+         Decimal(input_tokens) * Decimal(str(prices[0]))
+diff --git a/services/api/app/services/conversations.py b/services/api/app/services/conversations.py
+index 2bdf045..8e5102f 100644
+--- a/services/api/app/services/conversations.py
++++ b/services/api/app/services/conversations.py
+@@ -28,7 +28,7 @@ from app.models.tenancy import Organization
+ from app.rag.retrieval import RenderedEvidence, authorize_chunks, search
+ from app.schemas.conversations import SendMessage
+ from app.services.chat_access import ChatAccess
+-from app.services.chat_controls import Lease, acquire, cost, reserve
++from app.services.chat_controls import Lease, admit, cost, reserve
+ from app.services.chat_prompt import (
+     CitationStream,
+     assemble,
+@@ -209,15 +209,7 @@ async def _prepare(  # noqa: PLR0912, PLR0915
+ ) -> Turn:
+     s = services.settings
+     await services.limiter.check(str(org_id), Limit("chat-org", s.chat_requests_per_minute, 60))
+-    deadline = asyncio.get_running_loop().time() + s.chat_admission_wait_seconds
+-    while True:
+-        try:
+-            lease = await acquire(services.redis, org_id, conversation_id, s)
+-            break
+-        except ApiError as exc:
+-            if exc.code != "chat_busy" or asyncio.get_running_loop().time() >= deadline:
+-                raise
+-            await asyncio.sleep(0.01)
++    lease = await admit(services.redis, org_id, conversation_id, s)
+     pending_turn: tuple[uuid.UUID, Decimal] | None = None
+     try:
+         async with services.chat_work.setup():
+diff --git a/services/api/migrations/versions/20261125_0007_conversation_analytics.py b/services/api/migrations/versions/20261125_0007_conversation_analytics.py
+index 2f171e4..48ea326 100644
+--- a/services/api/migrations/versions/20261125_0007_conversation_analytics.py
++++ b/services/api/migrations/versions/20261125_0007_conversation_analytics.py
+@@ -68,18 +68,22 @@ def upgrade() -> None:
+         """
+     )
+     op.execute(
+-        "CREATE INDEX ix_conversations_inbox ON conversations (org_id, last_message_at DESC, id DESC)"
++        "CREATE INDEX ix_conversations_inbox "
++        "ON conversations (org_id, last_message_at DESC, id DESC)"
+     )
+     op.execute(
+-        "CREATE INDEX ix_conversations_status ON conversations (org_id, status, last_message_at DESC)"
++        "CREATE INDEX ix_conversations_status "
++        "ON conversations (org_id, status, last_message_at DESC)"
+     )
+     op.execute(
+-        "CREATE INDEX ix_conversations_channel ON conversations (org_id, channel, last_message_at DESC)"
++        "CREATE INDEX ix_conversations_channel "
++        "ON conversations (org_id, channel, last_message_at DESC)"
+     )
+ 
+     op.execute("ALTER TABLE messages ADD COLUMN latency_ms integer")
+     op.execute(
+-        "ALTER TABLE messages ADD CONSTRAINT ck_messages_latency_ms CHECK (latency_ms IS NULL OR latency_ms >= 0)"
++        "ALTER TABLE messages ADD CONSTRAINT ck_messages_latency_ms "
++        "CHECK (latency_ms IS NULL OR latency_ms >= 0)"
+     )
+     op.execute("CREATE INDEX ix_messages_content_trgm ON messages USING gin (content gin_trgm_ops)")
+ 
+@@ -225,11 +229,11 @@ def upgrade() -> None:
+     )
+     op.execute("REVOKE ALL ON FUNCTION app.list_orgs_for_conversation_jobs() FROM PUBLIC")
+     op.execute(
+-        f"""
++        """
+         DO $$
+         BEGIN
+-          IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '{APP_ROLE}') THEN
+-            GRANT EXECUTE ON FUNCTION app.list_orgs_for_conversation_jobs() TO {APP_ROLE};
++          IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'platform_app') THEN
++            GRANT EXECUTE ON FUNCTION app.list_orgs_for_conversation_jobs() TO platform_app;
+           END IF;
+         END
+         $$
+diff --git a/services/api/tests/integration/test_chat_migration.py b/services/api/tests/integration/test_chat_migration.py
+index f02241c..9648714 100644
+--- a/services/api/tests/integration/test_chat_migration.py
++++ b/services/api/tests/integration/test_chat_migration.py
+@@ -1,46 +1,306 @@
+-"""Exercise rollback/upgrade only in the fixture's throwaway database, never development data."""
++"""Migrations that change the schema run only on their own throwaway databases (MIG-01).
++
++The round-trip used to downgrade the session's shared database. Whether it passed then depended
++on what earlier tests had left behind: one usage record whose conversation had been deleted (which
++0007 allows and the 0006 schema cannot represent) was enough to fail it. Each test here owns its
++data, and that limitation is asserted explicitly instead of being met by accident.
++"""
+ 
+ from __future__ import annotations
+ 
+ import subprocess
+ import sys
++import uuid
++from collections.abc import Iterator
++from typing import Any
+ 
+ import pytest
+-from sqlalchemy import create_engine, inspect
++from sqlalchemy import Connection, create_engine, inspect, text
+ 
+ from app.services.readiness import ALEMBIC_INI
+-from tests.support.database import TestDatabase
++from tests.support.database import TestDatabase, temporary_database
+ 
+ pytestmark = pytest.mark.integration
+ 
++PHASE7_TABLES = (
++    "conversation_events",
++    "unanswered_questions",
++    "analytics_daily",
++    "conversation_exports",
++)
++# Tables that exist before and after 0007 and must keep every row across it.
++CORE_TABLES = (
++    "organizations",
++    "chatbots",
++    "documents",
++    "document_chunks",
++    "conversations",
++    "messages",
++    "widget_sessions",
++    "chat_usage",
++)
++TENANT_TABLES = ("documents", "document_chunks", "conversations", "messages", "chat_usage")
+ 
+-def test_chat_migration_roundtrip(
+-    test_database: TestDatabase, monkeypatch: pytest.MonkeyPatch
+-) -> None:
+-    assert test_database.name.startswith("chatbot_test_")
+-    monkeypatch.setenv(
+-        "MIGRATION_DATABASE_URL", test_database.owner_url.render_as_string(hide_password=False)
++
++@pytest.fixture
++def database(monkeypatch: pytest.MonkeyPatch) -> Iterator[TestDatabase]:
++    with temporary_database() as scratch:
++        monkeypatch.setenv(
++            "MIGRATION_DATABASE_URL", scratch.owner_url.render_as_string(hide_password=False)
++        )
++        yield scratch
++
++
++def migrate(target: str, direction: str) -> subprocess.CompletedProcess[bytes]:
++    # Run CLI migrations in their own process so Alembic logging cannot disable app loggers.
++    return subprocess.run(  # noqa: S603  # fixed interpreter/CLI; target values are test constants
++        [sys.executable, "-m", "alembic", "-c", str(ALEMBIC_INI), direction, target],
++        check=True,
++        capture_output=True,
+     )
+ 
+-    def migrate(target: str, direction: str) -> None:
+-        # Run CLI migrations in their own process so Alembic logging cannot disable app loggers.
+-        subprocess.run(  # noqa: S603  # fixed interpreter/CLI; target values are test constants
+-            [sys.executable, "-m", "alembic", "-c", str(ALEMBIC_INI), direction, target],
+-            check=True,
+-            capture_output=True,
++
++def query(database: TestDatabase, statement: str, **params: Any) -> list[tuple[Any, ...]]:
++    engine = create_engine(database.owner_url)
++    try:
++        with engine.begin() as conn:
++            result = conn.execute(text(statement), params)
++            return [tuple(row) for row in result] if result.returns_rows else []
++    finally:
++        engine.dispose()
++
++
++def counts(database: TestDatabase, tables: tuple[str, ...]) -> dict[str, int]:
++    return {t: query(database, f"SELECT count(*) FROM {t}")[0][0] for t in tables}  # noqa: S608
++
++
++def seed_tenant(conn: Connection, label: str) -> dict[str, uuid.UUID]:
++    """One organization's history as written before 0007 (columns that exist in 0006 only)."""
++    ids = {
++        name: uuid.uuid4()
++        for name in ("org", "user", "bot", "source", "document", "chunk", "playground", "widget")
++    }
++
++    def run(statement: str, **extra: Any) -> None:
++        conn.execute(text(statement), {**ids, **extra})
++
++    run(
++        "INSERT INTO organizations (id, name, slug) VALUES (:org, :n, :s)",
++        n=label,
++        s=f"org-{label}",
++    )
++    run("INSERT INTO users (id, email, name) VALUES (:user, :e, 'U')", e=f"{label}@example.com")
++    run(
++        "INSERT INTO memberships (id, org_id, user_id, role) VALUES (:m, :org, :user, 'owner')",
++        m=uuid.uuid4(),
++    )
++    run(
++        "INSERT INTO chatbots (id, org_id, name, public_key, model) "
++        "VALUES (:bot, :org, 'Bot', :k, 'gpt-4.1-mini')",
++        k=f"pk_live_{uuid.uuid4().hex[:24]}",
++    )
++    run(
++        "INSERT INTO knowledge_sources (id, org_id, chatbot_id, kind, name) "
++        "VALUES (:source, :org, :bot, 'file', 'policy')"
++    )
++    run(
++        "INSERT INTO documents (id, org_id, chatbot_id, source_id, title, uri) "
++        "VALUES (:document, :org, :bot, :source, 'policy', 'policy.txt')"
++    )
++    run(
++        "INSERT INTO document_chunks (id, org_id, chatbot_id, document_id, document_version, "
++        "ordinal, content, token_count, embedding, embedding_model) VALUES (:chunk, :org, :bot, "
++        ":document, 1, 0, 'synthetic policy', 2, array_fill(0.25, ARRAY[1536])::vector, 'hash-v1')"
++    )
++    for channel, conversation in (("playground", ids["playground"]), ("widget", ids["widget"])):
++        run(
++            "INSERT INTO conversations (id, org_id, chatbot_id, channel, created_at) "
++            "VALUES (:c, :org, :bot, :ch, now() - interval '3 days')",
++            c=conversation,
++            ch=channel,
++        )
++        for role, content, age in (
++            ("user", f"{channel} first question", 2),
++            ("assistant", f"{channel} answer", 1),
++        ):
++            run(
++                "INSERT INTO messages (id, org_id, conversation_id, role, content, status, "
++                "created_at) VALUES (:id, :org, :c, :role, :content, 'complete', "
++                "now() - make_interval(days => :age))",
++                id=uuid.uuid4(),
++                c=conversation,
++                role=role,
++                content=content,
++                age=age,
++            )
++        run(
++            "INSERT INTO chat_usage (id, org_id, conversation_id, model, period, charged_tokens, "
++            "estimated_cost_usd, state) VALUES (:id, :org, :c, 'gpt-4.1-mini', '2026-11', 110, "
++            "0.001, 'settled')",
++            id=uuid.uuid4(),
++            c=conversation,
+         )
++    run(
++        "INSERT INTO widget_sessions (id, org_id, chatbot_id, conversation_id, token_hash, "
++        "public_key, expires_at) VALUES (:id, :org, :bot, :widget, :h, 'pk', "
++        "now() + interval '1 hour')",
++        id=uuid.uuid4(),
++        h=uuid.uuid4().hex,
++    )
++    return ids
++
++
++def seed(database: TestDatabase) -> list[dict[str, uuid.UUID]]:
++    engine = create_engine(database.owner_url)
++    try:
++        with engine.begin() as conn:
++            return [seed_tenant(conn, label) for label in ("alpha", "beta")]
++    finally:
++        engine.dispose()
++
+ 
+-    engine = create_engine(test_database.owner_url)
++def assert_protections(database: TestDatabase, tables: tuple[str, ...]) -> None:
++    for table in tables:
++        assert query(
++            database,
++            "SELECT relrowsecurity, relforcerowsecurity FROM pg_class WHERE relname = :t",
++            t=table,
++        ) == [(True, True)], table
++    assert query(database, "SELECT conname FROM pg_constraint WHERE NOT convalidated") == [], (
++        "an unvalidated constraint would not protect existing rows"
++    )
++
++
++def assert_tenant_isolation(
++    database: TestDatabase, org: uuid.UUID, tables: tuple[str, ...]
++) -> None:
++    engine = create_engine(database.app_url)
++    try:
++        with engine.begin() as conn:
++            for table in tables:
++                visible = f"SELECT count(*) FROM {table}"  # noqa: S608
++                assert conn.execute(text(visible)).scalar() == 0, f"{table} without tenant"
++            conn.execute(text("SELECT set_config('app.current_org_id', :o, true)"), {"o": str(org)})
++            for table in tables:
++                others = f"SELECT count(*) FROM {table} WHERE org_id <> :o"  # noqa: S608
++                own = f"SELECT count(*) FROM {table}"  # noqa: S608
++                assert conn.execute(text(others), {"o": org}).scalar() == 0, table
++                assert conn.execute(text(own)).scalar(), table
++    finally:
++        engine.dispose()
++
++
++def revision(database: TestDatabase) -> str:
++    return str(query(database, "SELECT version_num FROM alembic_version")[0][0])
++
++
++def usage_rows(database: TestDatabase) -> list[tuple[Any, ...]]:
++    return query(
++        database,
++        "SELECT id, org_id, conversation_id, charged_tokens, estimated_cost_usd, state "
++        "FROM chat_usage ORDER BY id",
++    )
++
++
++def test_chat_migration_roundtrip(database: TestDatabase) -> None:
++    assert database.name.startswith("chatbot_test_")
++    engine = create_engine(database.owner_url)
+     try:
+         migrate("0004", "downgrade")
+         assert "conversations" not in inspect(engine).get_table_names()
+     finally:
+         migrate("head", "upgrade")
+         engine.dispose()
+-    engine = create_engine(test_database.owner_url)
++    engine = create_engine(database.owner_url)
+     try:
+         assert {"conversations", "messages", "widget_sessions", "chat_usage"} <= set(
+             inspect(engine).get_table_names()
+         )
+     finally:
+         engine.dispose()
++
++
++def test_upgrade_from_0006_keeps_history_and_backfills_the_inbox(database: TestDatabase) -> None:
++    migrate("0006", "downgrade")
++    alpha, beta = seed(database)
++    before = counts(database, CORE_TABLES)
++    usage = usage_rows(database)
++    vectors = query(database, "SELECT id, embedding::text FROM document_chunks ORDER BY id")
++
++    migrate("head", "upgrade")
++
++    assert revision(database) == "0007"
++    assert counts(database, CORE_TABLES) == before
++    assert usage_rows(database) == usage
++    assert query(database, "SELECT id, embedding::text FROM document_chunks ORDER BY id") == vectors
++    rows = query(
++        database,
++        "SELECT c.channel, c.status, c.preview, c.last_message_at = "
++        "(SELECT max(created_at) FROM messages m WHERE m.conversation_id = c.id) "
++        "FROM conversations c WHERE c.org_id = :o ORDER BY c.channel",
++        o=alpha["org"],
++    )
++    assert rows == [
++        ("playground", "open", "playground first question", True),
++        ("widget", "open", "widget first question", True),
++    ]
++    assert_protections(database, (*TENANT_TABLES, *PHASE7_TABLES, "widget_sessions"))
++    for org in (alpha["org"], beta["org"]):
++        assert_tenant_isolation(database, org, TENANT_TABLES)
++    foreign = query(
++        database,
++        "SELECT conrelid::regclass::text FROM pg_constraint WHERE contype = 'f' "
++        "AND confrelid = 'conversations'::regclass ORDER BY 1",
++    )
++    # chat_usage deliberately has no key to conversations from 0007 on: usage outlives them.
++    assert foreign == [("messages",), ("widget_sessions",)]
++
++
++def test_downgrade_to_0006_and_back_keeps_everything_0006_can_hold(database: TestDatabase) -> None:
++    migrate("0006", "downgrade")
++    seed(database)
++    migrate("head", "upgrade")
++    before = counts(database, CORE_TABLES)
++    usage = usage_rows(database)
++
++    migrate("0006", "downgrade")
++
++    assert revision(database) == "0006"
++    assert counts(database, CORE_TABLES) == before
++    assert usage_rows(database) == usage
++    tables = {r[0] for r in query(database, "SELECT tablename FROM pg_tables")}
++    assert not tables & set(PHASE7_TABLES)  # 0007-only data cannot be kept below 0007
++    assert_protections(database, TENANT_TABLES)
++    migrate("head", "upgrade")
++    assert revision(database) == "0007"
++    assert counts(database, CORE_TABLES) == before
++    assert usage_rows(database) == usage
++
++
++def test_downgrade_is_refused_without_loss_once_a_conversation_was_deleted(
++    database: TestDatabase,
++) -> None:
++    """Known limitation: 0006 requires every usage record to have a conversation. The downgrade
++    must then fail as a whole; recovery is forward, never by deleting usage."""
++    migrate("0006", "downgrade")
++    alpha, _ = seed(database)
++    migrate("head", "upgrade")
++    query(database, "DELETE FROM conversations WHERE id = :c", c=alpha["playground"])
++    query(
++        database,
++        "INSERT INTO analytics_daily (org_id, chatbot_id, day, channel, conversations) "
++        "VALUES (:o, :b, current_date, 'widget', 7)",
++        o=alpha["org"],
++        b=alpha["bot"],
++    )
++    before = counts(database, (*CORE_TABLES, *PHASE7_TABLES))
++    usage = usage_rows(database)
++
++    with pytest.raises(subprocess.CalledProcessError) as failure:
++        migrate("0006", "downgrade")
++
++    assert b"chat_usage_org_id_conversation_id_fkey" in failure.value.stderr
++    assert revision(database) == "0007"
++    assert counts(database, (*CORE_TABLES, *PHASE7_TABLES)) == before
++    assert usage_rows(database) == usage
++    assert_protections(database, (*TENANT_TABLES, *PHASE7_TABLES))
+diff --git a/services/api/tests/support/database.py b/services/api/tests/support/database.py
+index bca3080..ded3adb 100644
+--- a/services/api/tests/support/database.py
++++ b/services/api/tests/support/database.py
+@@ -9,6 +9,7 @@ from __future__ import annotations
+ import os
+ import secrets
+ from collections.abc import Iterator
++from contextlib import contextmanager
+ from dataclasses import dataclass
+ 
+ import pytest
+@@ -37,8 +38,9 @@ def _urls_from_env() -> tuple[URL, URL]:
+     return make_url(owner), make_url(app)
+ 
+ 
+-@pytest.fixture(scope="session")
+-def test_database() -> Iterator[TestDatabase]:
++@contextmanager
++def temporary_database() -> Iterator[TestDatabase]:
++    """A new database at head, dropped on exit. For tests that change the schema or need it clean."""
+     owner_base, app_base = _urls_from_env()
+     name = f"chatbot_test_{secrets.token_hex(4)}"
+     admin = create_engine(owner_base, isolation_level="AUTOCOMMIT")
+@@ -91,3 +93,9 @@ def test_database() -> Iterator[TestDatabase]:
+             )
+             conn.execute(text(f'DROP DATABASE IF EXISTS "{name}"'))
+         admin.dispose()
++
++
++@pytest.fixture(scope="session")
++def test_database() -> Iterator[TestDatabase]:
++    with temporary_database() as database:
++        yield database

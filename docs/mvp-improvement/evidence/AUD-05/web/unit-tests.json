@@ -1,0 +1,8 @@
+{
+  "id": "web/unit-tests",
+  "command": "unset MSYS_NO_PATHCONV; corepack pnpm -r --if-present test 2>&1 | grep -E 'Test Files|Tests |passed|failed|ERR' | tail -14",
+  "started_at": "2026-11-26T03:00:49+0530",
+  "exit_code": 0,
+  "duration_seconds": 18.373,
+  "log": "web/unit-tests.log"
+}

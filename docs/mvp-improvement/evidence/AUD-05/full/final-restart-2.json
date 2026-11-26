@@ -1,0 +1,8 @@
+{
+  "id": "full/final-restart-2",
+  "command": "docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' stop web 2>&1 | tail -2; docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' up -d --force-recreate --wait api worker beat 2>&1 | tail -3; docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' exec -T api sh -c 'echo CORS=$CORS_ALLOWED_ORIGINS'",
+  "started_at": "2026-11-26T03:14:19+0530",
+  "exit_code": 0,
+  "duration_seconds": 12.768,
+  "log": "full/final-restart-2.log"
+}

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="9.657" timestamp="2026-11-26T00:30:26.396748+05:30" hostname="Venuja"><testcase classname="tests.integration.test_runtime_proxy_trust" name="test_direct_peer_cannot_choose_scheme[unset]" time="4.489"><failure message="AssertionError: assert 'https://api.test/healthz' == 'http://api.test/healthz'&#10;  &#10;  - http://api.test/healthz&#10;  + https://api.test/healthz&#10;  ?     +">E   AssertionError: assert 'https://api.test/healthz' == 'http://api.test/healthz'
+      
+      - http://api.test/healthz
+      + https://api.test/healthz
+      ?     +</failure></testcase><testcase classname="tests.integration.test_runtime_proxy_trust" name="test_direct_peer_cannot_choose_scheme[proxy-only]" time="5.119"><failure message="AssertionError: assert 'https://api.test/healthz' == 'http://api.test/healthz'&#10;  &#10;  - http://api.test/healthz&#10;  + https://api.test/healthz&#10;  ?     +">E   AssertionError: assert 'https://api.test/healthz' == 'http://api.test/healthz'
+      
+      - http://api.test/healthz
+      + https://api.test/healthz
+      ?     +</failure></testcase></testsuite></testsuites>

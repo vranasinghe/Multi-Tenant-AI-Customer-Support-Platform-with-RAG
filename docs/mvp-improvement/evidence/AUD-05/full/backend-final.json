@@ -1,0 +1,8 @@
+{
+  "id": "full/backend-final",
+  "command": "docker ps --format '{{.Names}} {{.Status}}'; docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' exec -T -e LIVE_INGESTION=1 -e AUDIT_OUTPUT_DIR=/tmp/a5/final api pytest -q --tb=short -p no:cacheprovider --junitxml=/tmp/a5/final.xml 2>&1 | grep -vE '\\[(info|warning|debug|error)' ; rc=$?; docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' cp api:/tmp/a5/final.xml docs/mvp-improvement/evidence/AUD-05/full/backend-final.xml >/dev/null 2>&1; docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' cp api:/tmp/a5/final docs/mvp-improvement/evidence/AUD-05/full/backend-final-data >/dev/null 2>&1; exit $rc",
+  "started_at": "2026-11-26T03:06:51+0530",
+  "exit_code": 1,
+  "duration_seconds": 437.602,
+  "log": "full/backend-final.log"
+}

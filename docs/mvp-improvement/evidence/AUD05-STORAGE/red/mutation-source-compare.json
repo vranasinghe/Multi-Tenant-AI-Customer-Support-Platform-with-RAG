@@ -1,0 +1,8 @@
+{
+  "id": "red/mutation-source-compare",
+  "command": "(cd services/api && PYTHONPATH='C:/Users/LENOVO/AppData/Local/Temp/claude/d2b7d2600a5d9399/dace9c57-ab8b-412a-ad71-f4a0330f6eb6/scratchpad' python -B 'C:/Users/LENOVO/AppData/Local/Temp/claude/d2b7d2600a5d9399/dace9c57-ab8b-412a-ad71-f4a0330f6eb6/scratchpad/mutate.py' apply no-source-compare); docker compose -p acs-a51-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/d2b7d2600a5d9399/dace9c57-ab8b-412a-ad71-f4a0330f6eb6/scratchpad/qa51.env' exec -T api pytest tests/integration/api/mvp_improvement/test_original_ownership.py -k was_replaced -q --tb=line -p no:cacheprovider --show-capture=no 2>&1 | grep -vE '\\[(info|warning|debug|error)' | tail -8; (cd services/api && PYTHONPATH='C:/Users/LENOVO/AppData/Local/Temp/claude/d2b7d2600a5d9399/dace9c57-ab8b-412a-ad71-f4a0330f6eb6/scratchpad' python -B 'C:/Users/LENOVO/AppData/Local/Temp/claude/d2b7d2600a5d9399/dace9c57-ab8b-412a-ad71-f4a0330f6eb6/scratchpad/mutate.py' restore); true",
+  "started_at": "2026-11-26T10:23:10+0530",
+  "exit_code": 0,
+  "duration_seconds": 5.846,
+  "log": "red/mutation-source-compare.log"
+}

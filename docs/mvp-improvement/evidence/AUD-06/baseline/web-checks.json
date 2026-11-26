@@ -1,0 +1,8 @@
+{
+  "id": "baseline/web-checks",
+  "command": "unset MSYS_NO_PATHCONV; corepack pnpm --filter @acs/web run 2>&1 | grep -E '^  [a-z]' ; echo '== test'; corepack pnpm -r --if-present test 2>&1 | grep -E 'Test Files|Tests ' ; echo '== lint'; corepack pnpm --filter @acs/web lint 2>&1 | tail -4; echo \"lint=$?\"; echo '== typecheck'; corepack pnpm --filter @acs/web typecheck 2>&1 | tail -4; echo '== format'; corepack pnpm format:check 2>&1 | grep warn; true",
+  "started_at": "2026-11-26T11:04:41+0530",
+  "exit_code": 0,
+  "duration_seconds": 36.752,
+  "log": "baseline/web-checks.log"
+}

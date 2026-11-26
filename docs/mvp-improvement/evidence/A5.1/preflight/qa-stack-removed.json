@@ -1,0 +1,8 @@
+{
+  "id": "preflight/qa-stack-removed",
+  "command": "docker compose -p acs-a51-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/d2b7d2600a5d9399/dace9c57-ab8b-412a-ad71-f4a0330f6eb6/scratchpad/qa51-web.env' down -v --remove-orphans 2>&1 | tail -14; echo; docker ps -a --filter label=com.docker.compose.project=acs-a51-qa --format '{{.Names}}'; docker volume ls --format '{{.Name}}' | grep -c acs-a51 || true; docker ps -a --format '{{.Names}}' | grep -c aud04 || true",
+  "started_at": "2026-11-26T10:55:05+0530",
+  "exit_code": 0,
+  "duration_seconds": 4.417,
+  "log": "preflight/qa-stack-removed.log"
+}

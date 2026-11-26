@@ -1,0 +1,8 @@
+{
+  "id": "fix1/red",
+  "command": "docker compose -p acs-a61-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/d2b7d2600a5d9399/dace9c57-ab8b-412a-ad71-f4a0330f6eb6/scratchpad/qa61.env' exec -T api pytest tests/integration/api/mvp_improvement/test_chat_turn_cleanup.py -q --tb=short -p no:cacheprovider --show-capture=no 2>&1 | grep -vE '\\[(info|warning|debug|error)'",
+  "started_at": "2026-11-26T11:56:20+0530",
+  "exit_code": 1,
+  "duration_seconds": 7.946,
+  "log": "fix1/red.log"
+}

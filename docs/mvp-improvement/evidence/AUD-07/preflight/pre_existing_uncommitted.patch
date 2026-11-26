@@ -1,0 +1,3749 @@
+diff --git a/.env.example b/.env.example
+index 6978809..69f1b2d 100644
+--- a/.env.example
++++ b/.env.example
+@@ -38,6 +38,9 @@ CELERY_BROKER_URL=redis://127.0.0.1:6379/1
+ CELERY_RESULT_BACKEND=redis://127.0.0.1:6379/2
+ # Comma-separated browser origins allowed to call the API with credentials.
+ CORS_ALLOWED_ORIGINS=http://localhost:3000
++# Reverse proxies allowed to set X-Forwarded-For/-Proto: exact IPs or CIDRs, comma-separated.
++# Leave empty unless a proxy sits in front of the API. Wildcards and /0 are refused.
++FORWARDED_ALLOW_IPS=
+ # Base URL of the web app, used for links in emails (verify email, reset password, invitations).
+ WEB_BASE_URL=http://localhost:3000
+ 
+@@ -100,3 +103,18 @@ CHAT_MODEL_PRICES={"gpt-4.1-mini":[0.40,1.60],"gpt-4.1-nano":[0.10,0.40],"gpt-4.
+ WIDGET_SESSION_MINUTES=15
+ WIDGET_MESSAGES_PER_SESSION=30
+ 
++# --- Document parsing and ingestion limits (docs/INGESTION.md) -------------------
++# Every parse runs in its own child process under these limits (enforced on Linux).
++# PARSER_WALL_SECONDS=60
++# PARSER_CPU_SECONDS=30
++# PARSER_MEMORY_BYTES=536870912
++# INGEST_SOFT_TIME_LIMIT_SECONDS=120
++# INGEST_HARD_TIME_LIMIT_SECONDS=180
++# CRAWL_MAX_TASK_SECONDS=3300
++# INGEST_MAX_ACTIVE_PER_ORG=1
++# INGEST_STUCK_AFTER_SECONDS=900
++# INGEST_SWEEP_INTERVAL_SECONDS=120
++# Worker container limits (docker compose), sized for two concurrent tasks.
++# WORKER_MEMORY_LIMIT=2g
++# WORKER_CPUS=2
++# WORKER_PIDS_LIMIT=128
+diff --git a/.env.production.example b/.env.production.example
+index 709c950..6eec174 100644
+--- a/.env.production.example
++++ b/.env.production.example
+@@ -43,8 +43,29 @@ EMBEDDING_MODEL=gemini-embedding-001
+ EMBEDDING_API_KEY=
+ CHAT_MODEL_PRICES={"gemini-3.5-flash":[0.30,2.50],"gemini-3.5-flash-lite":[0.10,0.40]}
+ 
++# --- Trusted reverse proxy (see docs/DEPLOY_CONTABO.md, "Trusted ingress") ------
++# Exact IP address or CIDR of the proxy in front of the API. Wildcards and /0 are refused.
++# Empty trusts no proxy: all visitors then share the proxy's address in IP rate limits.
++FORWARDED_ALLOW_IPS=
++
+ # --- Tuning ----------------------------------------------------------------------
+ LOG_LEVEL=INFO
+ WORKER_CONCURRENCY=2
+ CHAT_MONTHLY_TOKEN_LIMIT=2000000
+ CHAT_MONTHLY_COST_LIMIT_USD=25
++
++# --- Document parsing and ingestion limits (docs/INGESTION.md) -------------------
++# Every parse runs in its own child process under these limits (enforced on Linux).
++# PARSER_WALL_SECONDS=60
++# PARSER_CPU_SECONDS=30
++# PARSER_MEMORY_BYTES=536870912
++# INGEST_SOFT_TIME_LIMIT_SECONDS=120
++# INGEST_HARD_TIME_LIMIT_SECONDS=180
++# CRAWL_MAX_TASK_SECONDS=3300
++# INGEST_MAX_ACTIVE_PER_ORG=1
++# INGEST_STUCK_AFTER_SECONDS=900
++# INGEST_SWEEP_INTERVAL_SECONDS=120
++# Worker container limits (docker compose), sized for two concurrent tasks.
++# WORKER_MEMORY_LIMIT=2g
++# WORKER_CPUS=2
++# WORKER_PIDS_LIMIT=128
+diff --git a/.prettierignore b/.prettierignore
+index 0ae7548..5fc8a17 100644
+--- a/.prettierignore
++++ b/.prettierignore
+@@ -7,3 +7,6 @@ coverage
+ services
+ # Markdown is hand-formatted (wide tables); keep Prettier off it.
+ **/*.md
++# Generated audit records from past runs; keep them exactly as produced.
++docs/audit/**/*.json
++docs/**/evidence/
+diff --git a/apps/web/src/components/chatbots/answer-text.tsx b/apps/web/src/components/chatbots/answer-text.tsx
+index de78a40..3170776 100644
+--- a/apps/web/src/components/chatbots/answer-text.tsx
++++ b/apps/web/src/components/chatbots/answer-text.tsx
+@@ -13,37 +13,37 @@ function inline(text: string, keyPrefix: string): ReactNode[] {
+     .replace(/[ \t]+(\[\d{1,2}\])/g, "$1")
+     .split(INLINE)
+     .map((part, index) => {
+-    const key = `${keyPrefix}-${index}`;
+-    if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
+-      return (
+-        <strong key={key} className="font-semibold text-foreground">
+-          {part.slice(2, -2)}
+-        </strong>
+-      );
+-    }
+-    if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
+-      return (
+-        <code key={key} className="rounded bg-muted px-1 py-0.5 font-mono text-[0.85em]">
+-          {part.slice(1, -1)}
+-        </code>
+-      );
+-    }
+-    if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
+-      return <em key={key}>{part.slice(1, -1)}</em>;
+-    }
+-    if (/^\[\d{1,2}\]$/.test(part)) {
+-      return (
+-        <sup
+-          key={key}
+-          aria-label={`source ${part.slice(1, -1)}`}
+-          className="mx-0.5 inline-flex min-w-4 items-center justify-center rounded bg-accent px-1 text-[0.68rem] leading-4 font-semibold text-accent-foreground"
+-        >
+-          {part.slice(1, -1)}
+-        </sup>
+-      );
+-    }
+-    return part;
+-  });
++      const key = `${keyPrefix}-${index}`;
++      if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
++        return (
++          <strong key={key} className="font-semibold text-foreground">
++            {part.slice(2, -2)}
++          </strong>
++        );
++      }
++      if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
++        return (
++          <code key={key} className="rounded bg-muted px-1 py-0.5 font-mono text-[0.85em]">
++            {part.slice(1, -1)}
++          </code>
++        );
++      }
++      if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
++        return <em key={key}>{part.slice(1, -1)}</em>;
++      }
++      if (/^\[\d{1,2}\]$/.test(part)) {
++        return (
++          <sup
++            key={key}
++            aria-label={`source ${part.slice(1, -1)}`}
++            className="mx-0.5 inline-flex min-w-4 items-center justify-center rounded bg-accent px-1 text-[0.68rem] leading-4 font-semibold text-accent-foreground"
++          >
++            {part.slice(1, -1)}
++          </sup>
++        );
++      }
++      return part;
++    });
+ }
+ 
+ type Block = { kind: "p"; lines: string[] } | { kind: "ul" | "ol"; items: string[] };
+diff --git a/apps/web/src/components/conversations/conversation-detail.tsx b/apps/web/src/components/conversations/conversation-detail.tsx
+index 0bac79f..eec000c 100644
+--- a/apps/web/src/components/conversations/conversation-detail.tsx
++++ b/apps/web/src/components/conversations/conversation-detail.tsx
+@@ -15,19 +15,18 @@ import { ConfirmDialog } from "@/components/kit/confirm-dialog";
+ import { ErrorState, ListSkeleton, PageHeader } from "@/components/kit/states";
+ import { api } from "@/lib/api";
+ import { describeApiError } from "@/lib/api/messages";
+-import type { Org } from "@/lib/api/types";
++import type { InboxMessage, MessagePage, Org } from "@/lib/api/types";
+ import { can } from "@/lib/orgs";
+ import { useAsyncData } from "@/lib/use-async-data";
+ 
+ import { ConversationStatusBadge, formatWhen, handoffLabel } from "./conversation-status";
+ 
+-export function ConversationDetailScreen({
+-  org,
+-  conversationId,
+-}: {
+-  org: Org;
+-  conversationId: string;
+-}) {
++export function ConversationDetailScreen(props: { org: Org; conversationId: string }) {
++  // Keyed by scope: nothing of the previous conversation or organization stays on screen.
++  return <Detail key={`${props.org.id}/${props.conversationId}`} {...props} />;
++}
++
++function Detail({ org, conversationId }: { org: Org; conversationId: string }) {
+   const router = useRouter();
+   const base = `/orgs/${encodeURIComponent(org.id)}`;
+   const { data, error, reload, update } = useAsyncData(
+@@ -70,7 +69,7 @@ export function ConversationDetailScreen({
+             <ArrowLeftIcon /> All conversations
+           </Link>
+         }
+-        title={data.preview || "Conversation"}
++        title={<span className="wrap-anywhere">{data.preview || "Conversation"}</span>}
+         description={`${data.chatbot_name} · ${data.channel} · last message ${formatWhen(data.last_message_at)}`}
+         actions={<ConversationStatusBadge status={data.status} />}
+       />
+@@ -260,34 +259,12 @@ export function ConversationDetailScreen({
+         <h2 id="history-heading" className="font-semibold">
+           Messages
+         </h2>
+-        <ol className="grid gap-3" aria-label="Message history">
+-          {data.messages.map((item) => (
+-            <li key={item.id} className="rounded-xl border bg-card p-4">
+-              <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+-                {item.role === "user" ? "Customer" : "Assistant"} · {item.status}
+-              </p>
+-              {item.role === "assistant" ? (
+-                <AnswerText text={item.content} />
+-              ) : (
+-                <p className="mt-2 text-sm text-pretty whitespace-pre-wrap">{item.content}</p>
+-              )}
+-              {item.citations.length > 0 && (
+-                <ul className="mt-2 grid gap-1 text-xs text-muted-foreground">
+-                  {item.citations.map((citation) => (
+-                    <li key={`${item.id}-${citation.id}`}>
+-                      [{citation.id}] {citation.title}
+-                    </li>
+-                  ))}
+-                </ul>
+-              )}
+-              {item.feedback != null && (
+-                <p className="mt-2 text-xs text-muted-foreground">
+-                  Answer feedback: {item.feedback === 1 ? "helpful" : "not helpful"}
+-                </p>
+-              )}
+-            </li>
+-          ))}
+-        </ol>
++        <History
++          orgId={org.id}
++          conversationId={conversationId}
++          latest={data.messages}
++          olderCursor={data.older_cursor}
++        />
+       </section>
+ 
+       {deletable && (
+@@ -317,3 +294,108 @@ export function ConversationDetailScreen({
+     </div>
+   );
+ }
++
++/** The newest messages come with the conversation; earlier ones are fetched page by page. */
++function History({
++  orgId,
++  conversationId,
++  latest,
++  olderCursor,
++}: {
++  orgId: string;
++  conversationId: string;
++  latest: InboxMessage[];
++  olderCursor: string | null;
++}) {
++  const [pages, setPages] = useState<MessagePage[]>([]);
++  const [loading, setLoading] = useState(false);
++  const [error, setError] = useState<string | null>(null);
++  const oldest = pages[pages.length - 1];
++  const cursor = oldest ? oldest.next_cursor : olderCursor;
++
++  // Oldest first. Ids are kept once, whatever the pages overlap.
++  const messages = new Map<string, InboxMessage>();
++  for (const page of [...pages].reverse()) {
++    for (const item of page.data) messages.set(item.id, item);
++  }
++  for (const item of latest) messages.set(item.id, item);
++
++  async function loadEarlier(from: string) {
++    setLoading(true);
++    setError(null);
++    try {
++      const page = await api.listMessages(orgId, conversationId, from);
++      setPages((current) => [...current, page]);
++    } catch (failure) {
++      setError(describeApiError(failure));
++    } finally {
++      setLoading(false);
++    }
++  }
++
++  return (
++    <div className="grid gap-3">
++      {error && (
++        <p role="alert" className="text-sm text-destructive">
++          {error}
++        </p>
++      )}
++      {cursor && (
++        <Button
++          type="button"
++          variant="outline"
++          className="justify-self-start"
++          disabled={loading}
++          onClick={() => void loadEarlier(cursor)}
++        >
++          Load earlier messages
++        </Button>
++      )}
++      {messages.size === 0 ? (
++        <p className="text-sm text-muted-foreground">
++          No messages are stored for this conversation.
++        </p>
++      ) : (
++        <ol className="grid gap-3" aria-label="Message history">
++          {[...messages.values()].map((item) => (
++            <MessageItem key={item.id} item={item} />
++          ))}
++        </ol>
++      )}
++    </div>
++  );
++}
++
++function MessageItem({ item }: { item: InboxMessage }) {
++  return (
++    <li className="min-w-0 rounded-xl border bg-card p-4 wrap-anywhere">
++      <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
++        {item.role === "user" ? "Customer" : "Assistant"} · {item.status} ·{" "}
++        <time dateTime={item.created_at}>{formatWhen(item.created_at)}</time>
++      </p>
++      <div data-testid="message-content">
++        {item.role === "assistant" ? (
++          <AnswerText text={item.content} />
++        ) : (
++          <p className="mt-2 text-sm text-pretty whitespace-pre-wrap">{item.content}</p>
++        )}
++      </div>
++      {item.citations.length > 0 && (
++        // Stored snapshots of what the answer cited. Text only: no link to the document.
++        <ul aria-label="Sources" className="mt-2 grid gap-1 text-xs text-muted-foreground">
++          {item.citations.map((citation) => (
++            <li key={`${item.id}-${citation.id}`}>
++              [{citation.id}] {citation.title}
++              {citation.page ? ` · page ${citation.page}` : ""}
++            </li>
++          ))}
++        </ul>
++      )}
++      {item.feedback != null && item.feedback !== 0 && (
++        <p className="mt-2 text-xs text-muted-foreground">
++          Answer feedback: {item.feedback === 1 ? "helpful" : "not helpful"}
++        </p>
++      )}
++    </li>
++  );
++}
+diff --git a/apps/web/src/components/conversations/conversations-screen.tsx b/apps/web/src/components/conversations/conversations-screen.tsx
+index fce31ba..bee272f 100644
+--- a/apps/web/src/components/conversations/conversations-screen.tsx
++++ b/apps/web/src/components/conversations/conversations-screen.tsx
+@@ -1,7 +1,7 @@
+ "use client";
+ 
+ import Link from "next/link";
+-import { useMemo, useState } from "react";
++import { useState } from "react";
+ 
+ import { Button } from "@acs/ui/components/button";
+ import { Input } from "@acs/ui/components/input";
+@@ -10,13 +10,25 @@ import { Select } from "@acs/ui/components/select";
+ import { ChatIcon, SearchIcon } from "@/components/kit/icons";
+ import { EmptyState, ErrorState, ListSkeleton, PageHeader } from "@/components/kit/states";
+ import { api } from "@/lib/api";
+-import type { ConversationStatus, InboxFilters, Org } from "@/lib/api/types";
++import { describeApiError } from "@/lib/api/messages";
++import type {
++  ConversationList,
++  ConversationStatus,
++  ConversationSummary,
++  InboxFilters,
++  Org,
++} from "@/lib/api/types";
+ import { can } from "@/lib/orgs";
+ import { useAsyncData } from "@/lib/use-async-data";
+ 
+ import { ConversationStatusBadge, formatWhen, handoffLabel } from "./conversation-status";
+ 
+ export function ConversationsScreen({ org }: { org: Org }) {
++  // Keyed by organization: filters, options and rows of one organization never reach another.
++  return <Inbox key={org.id} org={org} />;
++}
++
++function Inbox({ org }: { org: Org }) {
+   const base = `/orgs/${encodeURIComponent(org.id)}`;
+   const [q, setQ] = useState("");
+   const [chatbotId, setChatbotId] = useState("");
+@@ -25,28 +37,28 @@ export function ConversationsScreen({ org }: { org: Org }) {
+   const [from, setFrom] = useState("");
+   const [to, setTo] = useState("");
+   const [extra, setExtra] = useState("");
+-  const [cursor, setCursor] = useState<string | null>(null);
+   const bots = useAsyncData(() => api.listChatbots(org.id), [org.id]);
+ 
+-  const filters = useMemo<InboxFilters>(() => {
+-    const next: InboxFilters = { q, limit: 25, cursor };
+-    if (chatbotId) next.chatbot_id = chatbotId;
+-    if (channel) next.channel = channel as InboxFilters["channel"];
+-    if (status) next.status = status as ConversationStatus;
+-    if (from) next.from = new Date(from).toISOString();
+-    if (to) next.to = new Date(`${to}T23:59:59`).toISOString();
+-    if (extra === "negative") next.feedback = "negative";
+-    if (extra === "positive") next.feedback = "positive";
+-    if (extra === "unanswered") next.unanswered = true;
+-    if (extra === "ungrounded") next.grounded = false;
+-    if (extra === "csat-low") next.satisfaction = "negative";
+-    return next;
+-  }, [q, chatbotId, channel, status, from, to, extra, cursor]);
+-
+-  const { data, error, reload } = useAsyncData(
+-    () => api.listInbox(org.id, filters),
+-    [org.id, q, chatbotId, channel, status, from, to, extra, cursor],
+-  );
++  const filters: InboxFilters = { q, limit: 25 };
++  if (chatbotId) filters.chatbot_id = chatbotId;
++  if (channel) filters.channel = channel as InboxFilters["channel"];
++  if (status) filters.status = status as ConversationStatus;
++  // Both ends are local days: a bare date would be read as midnight UTC.
++  if (from) filters.from = new Date(`${from}T00:00:00`).toISOString();
++  if (to) filters.to = new Date(`${to}T23:59:59`).toISOString();
++  if (extra === "negative") filters.feedback = "negative";
++  if (extra === "positive") filters.feedback = "positive";
++  if (extra === "unanswered") filters.unanswered = true;
++  if (extra === "ungrounded") filters.grounded = false;
++  if (extra === "csat-low") filters.satisfaction = "negative";
++
++  const filtered = Boolean(q.trim() || chatbotId || channel || status || from || to || extra);
++
++  function clearFilters() {
++    for (const set of [setQ, setChatbotId, setChannel, setStatus, setFrom, setTo, setExtra]) {
++      set("");
++    }
++  }
+ 
+   return (
+     <div className="grid gap-6">
+@@ -70,20 +82,14 @@ export function ConversationsScreen({ org }: { org: Org }) {
+             aria-label="Search conversations"
+             placeholder="Search messages"
+             value={q}
+-            onChange={(event) => {
+-              setCursor(null);
+-              setQ(event.target.value);
+-            }}
++            onChange={(event) => setQ(event.target.value)}
+             className="pl-9"
+           />
+         </div>
+         <Select
+           aria-label="Chatbot"
+           value={chatbotId}
+-          onChange={(event) => {
+-            setCursor(null);
+-            setChatbotId(event.target.value);
+-          }}
++          onChange={(event) => setChatbotId(event.target.value)}
+         >
+           <option value="">All chatbots</option>
+           {bots.data?.data.map((bot) => (
+@@ -95,10 +101,7 @@ export function ConversationsScreen({ org }: { org: Org }) {
+         <Select
+           aria-label="Channel"
+           value={channel}
+-          onChange={(event) => {
+-            setCursor(null);
+-            setChannel(event.target.value);
+-          }}
++          onChange={(event) => setChannel(event.target.value)}
+         >
+           <option value="">All channels</option>
+           <option value="widget">Widget</option>
+@@ -107,10 +110,7 @@ export function ConversationsScreen({ org }: { org: Org }) {
+         <Select
+           aria-label="Status"
+           value={status}
+-          onChange={(event) => {
+-            setCursor(null);
+-            setStatus(event.target.value);
+-          }}
++          onChange={(event) => setStatus(event.target.value)}
+         >
+           <option value="">Any status</option>
+           <option value="open">Open</option>
+@@ -118,14 +118,7 @@ export function ConversationsScreen({ org }: { org: Org }) {
+           <option value="unresolved">Unresolved</option>
+           <option value="handed_off">Handed off</option>
+         </Select>
+-        <Select
+-          aria-label="Flags"
+-          value={extra}
+-          onChange={(event) => {
+-            setCursor(null);
+-            setExtra(event.target.value);
+-          }}
+-        >
++        <Select aria-label="Flags" value={extra} onChange={(event) => setExtra(event.target.value)}>
+           <option value="">Any flags</option>
+           <option value="negative">Negative answer feedback</option>
+           <option value="positive">Positive answer feedback</option>
+@@ -137,70 +130,25 @@ export function ConversationsScreen({ org }: { org: Org }) {
+           type="date"
+           aria-label="From date"
+           value={from}
+-          onChange={(event) => {
+-            setCursor(null);
+-            setFrom(event.target.value);
+-          }}
++          onChange={(event) => setFrom(event.target.value)}
+         />
+         <Input
+           type="date"
+           aria-label="To date"
+           value={to}
+-          onChange={(event) => {
+-            setCursor(null);
+-            setTo(event.target.value);
+-          }}
++          onChange={(event) => setTo(event.target.value)}
+         />
+       </form>
+ 
+-      {error ? (
+-        <ErrorState message={error} onRetry={reload} />
+-      ) : !data ? (
+-        <ListSkeleton label="Loading conversations…" rows={5} />
+-      ) : data.data.length === 0 ? (
+-        <EmptyState
+-          icon={<ChatIcon />}
+-          title="No conversations yet"
+-          description="Conversations appear here once customers chat in the widget or you test in the playground. Playground threads are listed, but they are excluded from analytics."
+-        />
+-      ) : (
+-        <div className="grid gap-3">
+-          <p className="text-sm text-muted-foreground">{data.total} conversations</p>
+-          <ul className="grid gap-2" aria-label="Conversations">
+-            {data.data.map((row) => (
+-              <li key={row.id}>
+-                <Link
+-                  href={`${base}/conversations/${encodeURIComponent(row.id)}`}
+-                  className="grid gap-2 rounded-xl border bg-card p-4 hover:bg-accent/40 focus-visible:ring-2 focus-visible:ring-ring"
+-                >
+-                  <div className="flex flex-wrap items-center justify-between gap-2">
+-                    <p className="font-medium text-pretty">{row.preview || "Empty conversation"}</p>
+-                    <ConversationStatusBadge status={row.status} />
+-                  </div>
+-                  <p className="text-sm text-muted-foreground">
+-                    {row.chatbot_name} · {row.channel} · {formatWhen(row.last_message_at)}
+-                    {row.unanswered_count > 0 ? ` · ${row.unanswered_count} unanswered` : ""}
+-                    {handoffLabel(row.handoff_status)
+-                      ? ` · ${handoffLabel(row.handoff_status)}`
+-                      : ""}
+-                    {row.satisfaction_score ? ` · CSAT ${row.satisfaction_score}/5` : ""}
+-                  </p>
+-                </Link>
+-              </li>
+-            ))}
+-          </ul>
+-          {data.has_more && (
+-            <Button
+-              type="button"
+-              variant="outline"
+-              className="justify-self-start"
+-              onClick={() => setCursor(data.next_cursor)}
+-            >
+-              Load more
+-            </Button>
+-          )}
+-        </div>
+-      )}
++      {/* Remounted for every filter combination: earlier rows, pages and errors go at once,
++          and a late answer for them has nowhere to land. */}
++      <Results
++        key={JSON.stringify(filters)}
++        orgId={org.id}
++        base={base}
++        filters={filters}
++        onClear={filtered ? clearFilters : null}
++      />
+ 
+       {can(org, "analytics:read") && (
+         <p className="text-sm text-muted-foreground">
+@@ -214,3 +162,113 @@ export function ConversationsScreen({ org }: { org: Org }) {
+     </div>
+   );
+ }
++
++function Results({
++  orgId,
++  base,
++  filters,
++  onClear,
++}: {
++  orgId: string;
++  base: string;
++  filters: InboxFilters;
++  onClear: (() => void) | null;
++}) {
++  const first = useAsyncData(() => api.listInbox(orgId, filters), [orgId]);
++  const [later, setLater] = useState<ConversationList[]>([]);
++  const [loading, setLoading] = useState(false);
++  const [moreError, setMoreError] = useState<string | null>(null);
++
++  if (first.error) return <ErrorState message={first.error} onRetry={first.reload} />;
++  if (!first.data) return <ListSkeleton label="Loading conversations…" rows={5} />;
++
++  if (first.data.data.length === 0) {
++    return onClear ? (
++      <EmptyState
++        icon={<ChatIcon />}
++        title="No matching conversations"
++        description="Nothing stored matches these filters."
++        action={
++          <Button type="button" variant="outline" onClick={onClear}>
++            Clear filters
++          </Button>
++        }
++      />
++    ) : (
++      <EmptyState
++        icon={<ChatIcon />}
++        title="No conversations yet"
++        description="Conversations appear here once customers chat in the widget or you test in the playground. Playground threads are listed, but they are excluded from analytics."
++      />
++    );
++  }
++
++  const pages = [first.data, ...later];
++  const last = pages[pages.length - 1] ?? first.data;
++  // A conversation that gets a new message while you browse can be returned by two pages.
++  const rows = new Map<string, ConversationSummary>();
++  for (const item of pages.flatMap((page) => page.data)) rows.set(item.id, item);
++
++  async function loadMore() {
++    setLoading(true);
++    setMoreError(null);
++    try {
++      const page = await api.listInbox(orgId, { ...filters, cursor: last.next_cursor });
++      setLater((current) => [...current, page]);
++    } catch (failure) {
++      setMoreError(describeApiError(failure));
++    } finally {
++      setLoading(false);
++    }
++  }
++
++  return (
++    <div className="grid gap-3">
++      <p className="text-sm text-muted-foreground">
++        Showing {rows.size} of {Math.max(first.data.total, rows.size)} conversations, latest
++        activity first
++      </p>
++      <ul className="grid gap-2" aria-label="Conversations">
++        {[...rows.values()].map((row) => (
++          <li key={row.id} className="min-w-0">
++            <Link
++              href={`${base}/conversations/${encodeURIComponent(row.id)}`}
++              className="grid gap-2 rounded-xl border bg-card p-4 hover:bg-accent/40 focus-visible:ring-2 focus-visible:ring-ring"
++            >
++              <div className="flex flex-wrap items-center justify-between gap-2">
++                <p className="min-w-0 font-medium text-pretty wrap-anywhere">
++                  {row.preview || "Empty conversation"}
++                </p>
++                <ConversationStatusBadge status={row.status} />
++              </div>
++              <p className="text-sm text-muted-foreground">
++                {row.chatbot_name} · {row.channel} · last message{" "}
++                <time dateTime={row.last_message_at}>{formatWhen(row.last_message_at)}</time> ·
++                started <time dateTime={row.created_at}>{formatWhen(row.created_at)}</time>
++                {row.unanswered_count > 0 ? ` · ${row.unanswered_count} unanswered` : ""}
++                {handoffLabel(row.handoff_status) ? ` · ${handoffLabel(row.handoff_status)}` : ""}
++                {row.satisfaction_score ? ` · CSAT ${row.satisfaction_score}/5` : ""}
++              </p>
++            </Link>
++          </li>
++        ))}
++      </ul>
++      {moreError && (
++        <p role="alert" className="text-sm text-destructive">
++          {moreError}
++        </p>
++      )}
++      {last.has_more && (
++        <Button
++          type="button"
++          variant="outline"
++          className="justify-self-start"
++          disabled={loading}
++          onClick={() => void loadMore()}
++        >
++          Load more
++        </Button>
++      )}
++    </div>
++  );
++}
+diff --git a/apps/web/src/lib/api/index.ts b/apps/web/src/lib/api/index.ts
+index a7c06c4..cccc9b6 100644
+--- a/apps/web/src/lib/api/index.ts
++++ b/apps/web/src/lib/api/index.ts
+@@ -34,6 +34,7 @@ import type {
+   ConversationList,
+   InboxFilters,
+   KnowledgeGap,
++  MessagePage,
+   RetentionSettings,
+   Timeseries,
+   UnansweredGroup,
+@@ -82,6 +83,12 @@ export function createEndpoints(client: ApiClient) {
+     },
+     getConversationDetail: (orgId: string, id: string) =>
+       client.get<ConversationDetail>(`${org(orgId)}/conversations/${encodeURIComponent(id)}`),
++    listMessages: (orgId: string, id: string, cursor: string) => {
++      const query = new URLSearchParams({ limit: "50", cursor });
++      return client.get<MessagePage>(
++        `${org(orgId)}/conversations/${encodeURIComponent(id)}/messages?${query.toString()}`,
++      );
++    },
+     updateConversationStatus: (
+       orgId: string,
+       id: string,
+diff --git a/apps/web/src/lib/api/types.ts b/apps/web/src/lib/api/types.ts
+index 6360971..a0a4a30 100644
+--- a/apps/web/src/lib/api/types.ts
++++ b/apps/web/src/lib/api/types.ts
+@@ -316,6 +316,15 @@ export interface ConversationEvent {
+   created_at: string;
+ }
+ 
++export type InboxMessage = ChatMessage & { created_at: string };
++
++export interface MessagePage {
++  /** Oldest first within the page; `next_cursor` leads to still earlier messages. */
++  data: InboxMessage[];
++  next_cursor: string | null;
++  has_more: boolean;
++}
++
+ export interface ConversationDetail {
+   id: string;
+   chatbot_id: string;
+@@ -330,7 +339,9 @@ export interface ConversationDetail {
+   handoff_contact: string | null;
+   created_at: string;
+   last_message_at: string;
+-  messages: ChatMessage[];
++  messages: InboxMessage[];
++  /** Set when earlier messages exist beyond the newest ones returned here. */
++  older_cursor: string | null;
+   events: ConversationEvent[];
+   conversation?: { id: string; chatbot_id: string; channel: string };
+ }
+diff --git a/deploy/deploy.sh b/deploy/deploy.sh
+index a170459..8072201 100644
+--- a/deploy/deploy.sh
++++ b/deploy/deploy.sh
+@@ -18,6 +18,14 @@ if [ ! -f services/api/widget_assets/v1/loader.js ]; then
+ fi
+ 
+ COMPOSE=(docker compose --env-file "$ENV_FILE" -f docker-compose.prod.yml)
++# Operator-created fixed-address network for the reverse proxy (docs/DEPLOY_CONTABO.md).
++if [ -f docker-compose.ingress.yml ]; then
++  COMPOSE+=(-f docker-compose.ingress.yml)
++fi
++if ! grep -qE '^FORWARDED_ALLOW_IPS=.+' "$ENV_FILE"; then
++  echo "Warning: FORWARDED_ALLOW_IPS is empty, so all visitors share Caddy's address in IP rate" >&2
++  echo "limits. See docs/DEPLOY_CONTABO.md, 'Trusted ingress'." >&2
++fi
+ 
+ "${COMPOSE[@]}" build
+ "${COMPOSE[@]}" up -d --remove-orphans
+diff --git a/docker-compose.prod.yml b/docker-compose.prod.yml
+index 329c9a6..07f35c5 100644
+--- a/docker-compose.prod.yml
++++ b/docker-compose.prod.yml
+@@ -59,6 +59,16 @@ x-api-environment: &api-environment
+   CHAT_MODEL_PRICES: '${CHAT_MODEL_PRICES:-{"gpt-4.1-mini":[0.40,1.60],"gpt-4.1-nano":[0.10,0.40],"gpt-4.1":[2.0,8.0]}}'
+   WIDGET_SESSION_MINUTES: ${WIDGET_SESSION_MINUTES:-15}
+   WIDGET_MESSAGES_PER_SESSION: ${WIDGET_MESSAGES_PER_SESSION:-30}
++  # Document parser isolation and ingestion limits (docs/INGESTION.md).
++  PARSER_WALL_SECONDS: ${PARSER_WALL_SECONDS:-60}
++  PARSER_CPU_SECONDS: ${PARSER_CPU_SECONDS:-30}
++  PARSER_MEMORY_BYTES: ${PARSER_MEMORY_BYTES:-536870912}
++  INGEST_SOFT_TIME_LIMIT_SECONDS: ${INGEST_SOFT_TIME_LIMIT_SECONDS:-120}
++  INGEST_HARD_TIME_LIMIT_SECONDS: ${INGEST_HARD_TIME_LIMIT_SECONDS:-180}
++  CRAWL_MAX_TASK_SECONDS: ${CRAWL_MAX_TASK_SECONDS:-3300}
++  INGEST_MAX_ACTIVE_PER_ORG: ${INGEST_MAX_ACTIVE_PER_ORG:-1}
++  INGEST_STUCK_AFTER_SECONDS: ${INGEST_STUCK_AFTER_SECONDS:-900}
++  INGEST_SWEEP_INTERVAL_SECONDS: ${INGEST_SWEEP_INTERVAL_SECONDS:-120}
+ 
+ x-logging: &default-logging
+   driver: json-file
+@@ -104,7 +114,16 @@ services:
+     image: redis:8.10.3-alpine
+     restart: unless-stopped
+     # AOF on: Celery jobs survive a restart.
+-    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "noeviction"]
++    command:
++      [
++        "redis-server",
++        "--appendonly",
++        "yes",
++        "--maxmemory",
++        "256mb",
++        "--maxmemory-policy",
++        "noeviction",
++      ]
+     volumes:
+       - redisdata:/data
+     healthcheck:
+@@ -153,7 +172,11 @@ services:
+   api:
+     image: acs-api:prod
+     restart: unless-stopped
+-    environment: *api-environment
++    environment:
++      <<: *api-environment
++      # Exact address(es) of the reverse proxy. Empty trusts nobody: behind Caddy every visitor
++      # then shares Caddy's address in IP rate limits. See docs/DEPLOY_CONTABO.md.
++      FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:-}
+     depends_on:
+       migrate:
+         condition: service_completed_successfully
+@@ -164,6 +187,14 @@ services:
+ 
+   worker:
+     image: acs-api:prod
++    # Sized for --concurrency=2: two parser children (512 MiB address space each) plus the
++    # Celery processes. Raise all three together with the concurrency (docs/INGESTION.md).
++    mem_limit: ${WORKER_MEMORY_LIMIT:-2g}
++    memswap_limit: ${WORKER_MEMORY_LIMIT:-2g} # equal to mem_limit: no extra swap
++    cpus: ${WORKER_CPUS:-2}
++    pids_limit: ${WORKER_PIDS_LIMIT:-128}
++    # An init process reaps a parser child orphaned by a killed pool process.
++    init: true
+     restart: unless-stopped
+     command:
+       - celery
+@@ -189,7 +220,6 @@ services:
+       timeout: 15s
+       start_period: 30s
+       retries: 5
+-    mem_limit: 1500m
+     logging: *default-logging
+ 
+   beat:
+diff --git a/docker-compose.yml b/docker-compose.yml
+index b528cf5..b46b8ff 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -48,6 +48,16 @@ x-api-environment: &api-environment
+   CHAT_MODEL_PRICES: '${CHAT_MODEL_PRICES:-{"gpt-4.1-mini":[0.40,1.60],"gpt-4.1-nano":[0.10,0.40],"gpt-4.1":[2.0,8.0]}}'
+   WIDGET_SESSION_MINUTES: ${WIDGET_SESSION_MINUTES:-15}
+   WIDGET_MESSAGES_PER_SESSION: ${WIDGET_MESSAGES_PER_SESSION:-30}
++  # Document parser isolation and ingestion limits (docs/INGESTION.md).
++  PARSER_WALL_SECONDS: ${PARSER_WALL_SECONDS:-60}
++  PARSER_CPU_SECONDS: ${PARSER_CPU_SECONDS:-30}
++  PARSER_MEMORY_BYTES: ${PARSER_MEMORY_BYTES:-536870912}
++  INGEST_SOFT_TIME_LIMIT_SECONDS: ${INGEST_SOFT_TIME_LIMIT_SECONDS:-120}
++  INGEST_HARD_TIME_LIMIT_SECONDS: ${INGEST_HARD_TIME_LIMIT_SECONDS:-180}
++  CRAWL_MAX_TASK_SECONDS: ${CRAWL_MAX_TASK_SECONDS:-3300}
++  INGEST_MAX_ACTIVE_PER_ORG: ${INGEST_MAX_ACTIVE_PER_ORG:-1}
++  INGEST_STUCK_AFTER_SECONDS: ${INGEST_STUCK_AFTER_SECONDS:-900}
++  INGEST_SWEEP_INTERVAL_SECONDS: ${INGEST_SWEEP_INTERVAL_SECONDS:-120}
+ 
+ x-api-build: &api-build
+   context: ./services/api
+@@ -132,6 +142,8 @@ services:
+     build: *api-build
+     environment:
+       <<: *api-environment
++      # Reverse proxies allowed to set X-Forwarded-*; empty (default) trusts nobody.
++      FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:-}
+       # Bind mounts from Windows/macOS hosts don't deliver inotify events; poll instead.
+       WATCHFILES_FORCE_POLLING: "true"
+     volumes:
+@@ -162,6 +174,14 @@ services:
+ 
+   worker:
+     build: *api-build
++    # Sized for --concurrency=2: two parser children (512 MiB address space each) plus the
++    # Celery processes. Raise all three together with the concurrency (docs/INGESTION.md).
++    mem_limit: ${WORKER_MEMORY_LIMIT:-2g}
++    memswap_limit: ${WORKER_MEMORY_LIMIT:-2g} # equal to mem_limit: no extra swap
++    cpus: ${WORKER_CPUS:-2}
++    pids_limit: ${WORKER_PIDS_LIMIT:-128}
++    # An init process reaps a parser child orphaned by a killed pool process.
++    init: true
+     command:
+       - celery
+       - -A
+diff --git a/docs/API_SPEC.md b/docs/API_SPEC.md
+index 56756f2..bdf1d04 100644
+--- a/docs/API_SPEC.md
++++ b/docs/API_SPEC.md
+@@ -197,6 +197,7 @@ Each endpoint lists the required permission (see [SECURITY.md §4](SECURITY.md#4
+ |---|---|---|---|
+ | GET | `/orgs/{org_id}/conversations` | `conversation:read` | Inbox: `chatbot_id`, `channel`, `status`, `from`, `to`, `feedback`, `satisfaction`, `unanswered`, `grounded=false`, `q`, cursor pagination |
+ | GET | `/orgs/{org_id}/conversations/{conversation_id}` | `conversation:read` | Transcript, status, CSAT, handoff, events (messages included; retrieval still gated) |
++| GET | `/orgs/{org_id}/conversations/{conversation_id}/messages` | `conversation:read` | Earlier transcript pages; `?cursor&limit` (≤100) |
+ | PATCH | `/orgs/{org_id}/conversations/{conversation_id}` | `conversation:write` | Staff outcome `{ status: open\|resolved\|unresolved }`. An AI reply does not change status. |
+ | DELETE | `/orgs/{org_id}/conversations/{conversation_id}` | `conversation:delete` | Hard delete transcript; usage and daily aggregates remain |
+ | PUT | `/orgs/{org_id}/conversations/{conversation_id}/satisfaction` | `conversation:write` | Conversation CSAT `{ score: 1–5, comment? }` |
+diff --git a/docs/CHAT_ENGINE.md b/docs/CHAT_ENGINE.md
+index e7b348b..a2b52c8 100644
+--- a/docs/CHAT_ENGINE.md
++++ b/docs/CHAT_ENGINE.md
+@@ -67,6 +67,7 @@ Dashboard routes use the existing session cookie, membership lookup and CSRF hea
+ - `GET /api/v1/orgs/{org}/conversations` — org inbox with search, filters and cursor pagination (`conversation:read`).
+ - `GET /api/v1/orgs/{org}/conversations/{conversation}` — transcript, status, CSAT, handoff and events (`conversation:read`).
+ - `GET /api/v1/orgs/{org}/analytics/summary` — live product metrics from stored events (`analytics:read`). See [analytics-metrics.md](analytics-metrics.md).
++- `GET /api/v1/orgs/{org}/conversations/{conversation}/messages?cursor&limit` — earlier transcript pages (`conversation:read`, `limit` ≤ 100, default 50): `data` oldest first, `next_cursor` leads further back. The transcript response returns the newest 200 messages and sets `older_cursor` when there are more. Cursors name their organization, list and filters; anything else is `400 invalid_cursor`. They grant nothing. Lists are not snapshots: new activity moves a conversation to the top.
+ - `POST /api/v1/orgs/{org}/conversations/{conversation}/messages` — SSE (`chatbot:test`). Body: `{"content":"Returns policy?","context_messages":12}`. Clients cannot supply roles, history, tenant IDs or model overrides.
+ - `PUT /api/v1/orgs/{org}/conversations/{conversation}/messages/{message}/feedback` — `{"rating":1}`, `-1`, or `0` to clear (`chatbot:test`). Only finished assistant replies accept feedback.
+ - `POST /api/v1/orgs/{org}/chatbots/{bot}/widget-sessions` — issue a restricted session (`channel:manage`, verified email). Requires an active bot. Returns `token`, `conversation_id`, `expires_at` once. Send `Cache-Control: no-store` when forwarding this credential from your own trusted backend; do not embed it in static source or URLs.
+@@ -127,7 +128,10 @@ concurrent lookups, scaled down with a smaller pool), released before streaming.
+ transaction semantics remain unchanged. Every new tenant transaction restores its RLS context.
+ 
+ Organization/conversation Redis admission precedes preparation. Admission waits at most
+-`CHAT_ADMISSION_WAIT_SECONDS` (default 0.9 seconds) before `429 chat_busy`. Preparation has a
++`CHAT_ADMISSION_WAIT_SECONDS` (default 0.9 seconds) before `429 chat_busy`. While it waits, a
++release in the same API process wakes the oldest waiter at once. Polling is the fallback, for slots
++freed by another process or by expiry: after 10, 20, 40, 80, 160 and then every 200 ms, with a last
++attempt as the window closes (see the A6.1 stabilization report). Preparation has a
+ separate process-local ceiling, `CHAT_SETUP_CAPACITY` (default eight, scaled to pool capacity).
+ These ceilings are not a physical reservation of database connections. Actual checkout counts
+ and second-tenant availability must be measured; see the A1 implementation report.
+diff --git a/docs/DATABASE.md b/docs/DATABASE.md
+index 9794698..f9e8243 100644
+--- a/docs/DATABASE.md
++++ b/docs/DATABASE.md
+@@ -237,7 +237,7 @@ Indexes: `ix_chatbots_org (org_id) WHERE deleted_at IS NULL`.
+ 
+ ### 3.4 Knowledge
+ 
+-> **As implemented (migration `0004`)** — differences from the tables below: `knowledge_sources`, `documents` and `ingestion_jobs` have **no `deleted_at`**: deleting a document/source hard-deletes it, its chunks (vectors) and jobs in one transaction, and queues the stored original for removal in the new outbox table `storage_deletions` (so a crash cannot orphan a file). `documents` also has `file_hash` (SHA-256 of the upload; unique per chatbot → duplicate uploads are rejected by the database), `embedding_model`, and no `language`; `document_chunks` has `embedding_model` and a `vector(1536)` + HNSW index, `fts` uses the `simple` config; `ingestion_jobs.kind` is `process_document | crawl`. Cross-tenant job/outbox discovery for the sweeper uses `app.list_stuck_jobs()` and `app.list_pending_storage_deletions()` (SECURITY DEFINER). See [INGESTION.md](INGESTION.md).
++> **As implemented (migration `0004`)** — differences from the tables below: `knowledge_sources`, `documents` and `ingestion_jobs` have **no `deleted_at`**: deleting a document/source hard-deletes it, its chunks (vectors) and jobs in one transaction, and queues the stored original for removal in the new outbox table `storage_deletions` (so a crash cannot orphan a file). Since A5.1 the same table also records an upload before it is made; for such a row `created_at` is the earliest time it may be reclaimed, and `attempts > 0` marks a row the purge has claimed (INGESTION.md §9). `documents` also has `file_hash` (SHA-256 of the upload; unique per chatbot → duplicate uploads are rejected by the database), `embedding_model`, and no `language`; `document_chunks` has `embedding_model` and a `vector(1536)` + HNSW index, `fts` uses the `simple` config; `ingestion_jobs.kind` is `process_document | crawl`. Cross-tenant job/outbox discovery for the sweeper uses `app.list_stuck_jobs()` and `app.list_pending_storage_deletions()` (SECURITY DEFINER). See [INGESTION.md](INGESTION.md).
+ 
+ **knowledge_sources**
+ | Column | Type | Notes |
+@@ -261,7 +261,7 @@ Indexes: `ix_chatbots_org (org_id) WHERE deleted_at IS NULL`.
+ | source_id | uuid | FK ⓒ→knowledge_sources CASCADE |
+ | title | text | |
+ | uri | text | filename or canonical URL |
+-| storage_key | text | `orgs/{org}/chatbots/{bot}/documents/{doc}/v{n}/original` |
++| storage_key | text | uploads `orgs/{org}/chatbots/{bot}/documents/{doc}/v0/original`; web pages `…/{doc}/g-{id}/original`, a new key per publication (see INGESTION.md §9) |
+ | mime_type | text | sniffed |
+ | size_bytes | bigint | |
+ | content_hash | bytea | SHA-256 of normalized text (dedupe & change detection) |
+diff --git a/docs/DEPLOY_CONTABO.md b/docs/DEPLOY_CONTABO.md
+index fee9f35..f9945b3 100644
+--- a/docs/DEPLOY_CONTABO.md
++++ b/docs/DEPLOY_CONTABO.md
+@@ -49,6 +49,51 @@ Fill in: `SITE_HOST`, `ACME_EMAIL`, all passwords/keys (generate each with
+ Production refuses placeholder passwords, the `hash` embedding provider, the `demo` LLM and the
+ `log` email backend, so every one of those must be real.
+ 
++## Trusted ingress (client IPs behind Caddy)
++
++The API trusts forwarding headers only from the addresses in `FORWARDED_ALLOW_IPS` (DEVELOPMENT.md
++section 10). **While it is empty, every visitor appears to the API as Caddy**: the per-IP limits
++(for example 10 logins a minute and 10 sign-ups an hour) are then shared by all visitors, and audit
++records hold Caddy's network instead of the client's. Configure it before real users arrive.
++
++Give Caddy a fixed address on a network that only it uses to reach the API. Choose a private subnet
++that is unused on your server; there is no default. Create `docker-compose.ingress.yml` next to
++`docker-compose.prod.yml` (`deploy/deploy.sh` picks it up):
++
++```yaml
++networks:
++  ingress:
++    ipam:
++      config:
++        - subnet: ${INGRESS_SUBNET:?choose an unused private subnet}
++          ip_range: ${INGRESS_DYNAMIC_RANGE:?part of the subnet used for other containers}
++services:
++  caddy:
++    networks:
++      ingress:
++        ipv4_address: ${CADDY_INGRESS_IP:?an address in the subnet but outside the dynamic range}
++  api:
++    networks: [default, ingress]
++  web:
++    networks: [default, ingress]
++```
++
++Add those three variables to `.env.production`, plus `FORWARDED_ALLOW_IPS` set to exactly the same
++value as `CADDY_INGRESS_IP`. Caddy joins only `ingress`, so it reaches `api` from that address;
++trusting a whole network would also trust every container on it. Other `docker compose` commands in
++this guide need `-f docker-compose.ingress.yml` as well once the file exists.
++
++Requirements this relies on:
++
++- Only Caddy publishes ports. Do not publish the API, PostgreSQL, Redis or object storage.
++- Caddy replaces client-supplied `X-Forwarded-*` headers. This is its default; do not add
++  `trusted_proxies` to the Caddyfile unless another proxy sits in front of it.
++- If a CDN or load balancer is added in front, review both Caddy's and the API's trusted lists.
++
++After deploying, verify on the server: send a request with a made-up `X-Forwarded-For` from outside
++and confirm the API still records your real network (for example in the session list after signing
++in). None of this has been verified on a live deployment.
++
+ ## 4. Build the widget, then deploy
+ 
+ The API image bakes in `services/api/widget_assets`, which is committed to the repo. Only rebuild
+@@ -102,9 +147,11 @@ Each customer site origin must be added and verified in the dashboard.
+ 
+ ## Notes and limits
+ 
+-- **Memory budget** (container limits sum to about 7 GB; swap is a 2 GB safety net): Postgres 2.5 GB,
+-  worker 1.5 GB, api 1 GB, web 0.6 GB, storage 0.5 GB, redis 0.4 GB, beat 0.3 GB, caddy 0.2 GB.
+-  Lower `WORKER_CONCURRENCY` if crawls cause memory pressure.
++- **Memory budget** (container limits sum to about 7.5 GB; swap is a 2 GB safety net): Postgres 2.5 GB,
++  worker 2 GB, api 1 GB, web 0.6 GB, storage 0.5 GB, redis 0.4 GB, beat 0.3 GB, caddy 0.2 GB.
++  The worker also has 2 CPUs, 128 PIDs and no extra swap, sized for `WORKER_CONCURRENCY=2`
++  ([INGESTION.md §8](INGESTION.md)). Raising the concurrency needs `WORKER_MEMORY_LIMIT`,
++  `WORKER_CPUS` and `WORKER_PIDS_LIMIT` raised with it, and this host has little room left.
+ - **Single server = single point of failure.** Reboots restart containers automatically
+   (`restart: unless-stopped`), but there is no failover.
+ - **Moving to a real domain later:** change `SITE_HOST`, point DNS at the VPS, rebuild `web`.
+diff --git a/docs/DEVELOPMENT.md b/docs/DEVELOPMENT.md
+index a8b0a30..57e5b22 100644
+--- a/docs/DEVELOPMENT.md
++++ b/docs/DEVELOPMENT.md
+@@ -102,8 +102,10 @@ pnpm api:dev
+ pnpm worker:dev
+ ```
+ 
+-- `api:dev` uses `uvicorn --reload`. On Windows that also selects the Selector event loop that async psycopg requires.
++- `api:dev` runs `python -m app.server --reload` (Uvicorn). On Windows that also selects the Selector event loop that async psycopg requires.
+ - `worker:dev` uses `--pool=solo` because Celery's prefork pool does not support Windows.
++- A native Windows worker has **no parser CPU/memory limits, parent-death signal or Celery time limits** (only the parser's wall-clock deadline). Use the Docker worker to exercise containment; staging and production refuse to run without it ([INGESTION.md §7](INGESTION.md)).
++- The containment, recovery and real-worker tests (`tests/unit/mvp_improvement/test_parser_runner.py`, `tests/integration/api/mvp_improvement/test_ingestion_*.py`) need Linux; run them in the API container. The real-worker file starts its own Celery worker on Redis databases 12/13 and takes about two minutes.
+ 
+ ### Database migrations
+ ```powershell
+@@ -279,3 +281,15 @@ docker compose exec -T api pytest tests/unit/mvp_improvement/test_provider_trans
+ The test CA is injected only into test transports. Untrusted, expired and hostname-mismatched
+ chains fail before request credentials/text are sent; the system trust store is unchanged.
+ The public test leaf key under tests/support/provider_tls is never a runtime credential.
++
++## 10. Trusted proxy policy (AUD-04)
++
++`X-Forwarded-For` and `X-Forwarded-Proto` change the client address and scheme the API sees only when the request comes from a peer listed in `FORWARDED_ALLOW_IPS`. The default is empty: **no peer is trusted**, including loopback and private addresses, and the proxy-header middleware is not installed.
++
++- Start the API with `python -m app.server` (`--host`, `--port`, `--reload` only). Both image stages and `pnpm api:dev` do. Running `uvicorn` directly bypasses this launcher: Uvicorn then applies its own defaults and flags.
++- Values are comma-separated literal IPv4/IPv6 addresses or CIDR networks (host bits zero). Refused at startup in every environment: `*`, `/0` and other networks broader than IPv4 `/8` or IPv6 `/16`, `0.0.0.0` / `::`, host names, ports, brackets, zone IDs, netmask notation, IPv4-mapped IPv6 and empty entries.
++- `UVICORN_FORWARDED_ALLOW_IPS` and `UVICORN_PROXY_HEADERS` are refused: use `FORWARDED_ALLOW_IPS`.
++- Header handling is Uvicorn's. From a trusted peer the client is the rightmost `X-Forwarded-For` entry that is not itself trusted (repeated header lines form one chain); `X-Forwarded-Proto` applies only as exactly `http`, `https`, `ws` or `wss`. Uvicorn does not check that an entry is an IP address, so the proxy must append or replace what the client sent.
++- The runtime image binds IPv4 (`0.0.0.0`), so the peer itself is an IPv4 proxy unless the bind address is changed; IPv6 client addresses inside the chain work.
++
++Regression tests: `tests/unit/mvp_improvement/test_proxy_trust.py`, and `tests/integration/test_runtime_proxy_trust.py` against a built runtime image (opt-in; see its docstring).
+diff --git a/docs/INGESTION.md b/docs/INGESTION.md
+index 285936c..9475ec5 100644
+--- a/docs/INGESTION.md
++++ b/docs/INGESTION.md
+@@ -15,34 +15,36 @@ upload (raw body) ─► validate extension + type + signature ─► private ob
+ documents + ingestion_jobs rows (one transaction) ─► Celery `ingest.process_document`
+                                                                   │
+  claim job (compare-and-set) ► read original ► extract ► normalize ► dedupe ► chunk ► embed (batched)
++   one heavy job per org             (parser child process)
+                                                                   │
+                           one transaction: insert chunks(v+1) · delete old versions · document ready · job succeeded
+ ```
+ 
+ Website sources use `ingest.crawl_source`: robots.txt → bounded BFS through `SafeFetcher` → main-content extraction → per page the same dedupe/chunk/embed/publish path. Unchanged pages (same content hash and embedding model) are skipped, so a re-sync only re-embeds what changed.
+ 
+-Statuses: documents `queued → processing → ready | failed`; jobs `queued → processing → succeeded | failed`. Errors carry a stable `error_code` (`unsupported_type`, `corrupt`, `encrypted`, `no_text`, `too_large`, `too_many_pages`, `duplicate_content`, `embedding_failed`, `storage_error`, `blocked_destination`, `fetch_failed`…) and a user-safe message. Failed documents can be retried (`POST …/documents/{id}/reprocess`).
++Statuses: documents `queued → processing → ready | failed`; jobs `queued → processing → succeeded | failed`. Errors carry a stable `error_code` (`unsupported_type`, `corrupt`, `encrypted`, `no_text`, `too_large`, `too_many_pages`, `duplicate_content`, `embedding_failed`, `storage_error`, `blocked_destination`, `fetch_failed`, `parse_timeout`, `parse_resource_limit`, `parse_invalid_output`, `task_timeout`…) and a user-safe message. Failed documents can be retried (`POST …/documents/{id}/reprocess`).
+ 
+ ## 2. Security properties (and where they are tested)
+ 
+ | Property | Mechanism | Tests |
+ |---|---|---|
+ | File type is decided by content | extension ∧ declared MIME ∧ magic bytes must agree; OOXML must be a plain `.docx` (macros/templates refused); OLE (encrypted) → `encrypted` | `unit/rag/test_files.py`, `test_knowledge_documents.py` |
+-| Decompression/parse bombs | zip entry count, size and ratio caps, member reads capped, `defusedxml` (no entity expansion), PDF page and text caps | `unit/rag/test_extract.py` |
+-| Private storage | bucket has public access blocked; no object URL is ever given to a browser; keys are server-generated UUID paths (filenames never reach keys); workers/purger refuse keys outside `orgs/{org}/` | `test_workers_refuse_storage_keys…`, `test_storage_purge_retries…` |
++| Decompression/parse bombs | zip entry count, size and ratio caps, member reads capped, `defusedxml` (no entity expansion), PDF page and text caps; every parse in a limited child process (§7) | `unit/rag/test_extract.py`, `unit/mvp_improvement/test_parser_runner.py` |
++| Private storage | bucket has public access blocked; no object URL is ever given to a browser; keys are server-generated UUID paths (filenames never reach keys); workers/purger refuse keys outside `orgs/{org}/`; an object is written once, never overwritten (§9) | `test_workers_refuse_storage_keys…`, `test_storage_purge_retries…` |
+ | SSRF | http(s) only, no credentials, ports 80/443, every resolved address must be globally routable (loopback, RFC1918, link-local/cloud metadata, CGNAT, multicast, IPv4-mapped/6to4/Teredo/NAT64 all refused); **connect to the validated IP** (rebinding-safe, TLS SNI preserved); manual redirects re-validated per hop; size/time/redirect caps; `Accept-Encoding: identity` | `unit/rag/test_safe_fetch.py`, `test_knowledge_websites.py` |
+ | Site authorization | creating a website source requires an explicit "I may crawl this site" confirmation, recorded in the source config | `test_source_validation` |
+ | Tenant isolation | `org_id` + `chatbot_id` filtered in every SQL query **and** RLS on all new tables; composite FKs; workers set the tenant GUC from the job payload; retrieval joins the live chatbot | `rag_eval`, `test_sql_filters_hide_deleted_chatbots_and_foreign_tenants`, existing isolation sweeps |
+-| Deletion | document/source delete removes chunks, vectors and jobs in the same transaction; the original is removed via an outbox (`storage_deletions`) so a crash cannot orphan it | `test_delete_removes_chunks…`, live test |
++| Deletion | document/source delete removes chunks, vectors and jobs in the same transaction; the original is removed via an outbox (`storage_deletions`) so a crash cannot orphan it | `test_delete_removes_chunks…`, live test, `test_original_ownership.py` |
+ | Untrusted text | extracted text is data; rendered with `<`, `>`, `&`, quotes escaped inside delimited blocks; retrieved text is never placed in the system message; UI shows passages as plain text | `unit/rag/test_prompt_safety.py`, `rag_eval` injection test, `knowledge.test.tsx` |
+ | No sensitive logging | logs carry ids, stages, counts and error codes only; error details are our own strings (never document text) | `test_logs_never_contain_document_text…` |
+ 
+ ## 3. Reliability
+ 
+ * **No duplicate processing**: claim is a compare-and-set; a partial unique index allows one active job per document and per crawl source; concurrent workers → exactly one wins (tested with 6 threads).
+-* **Retries**: transient failures (embedding provider 429/5xx/timeouts, storage or DB hiccups, DNS `EAI_AGAIN`, HTTP 429/5xx) re-queue the job and retry with exponential backoff (`INGEST_RETRY_BASE_SECONDS`·2ⁿ, capped, ±20% jitter) up to `INGEST_MAX_ATTEMPTS`; permanent failures (corrupt, no text, blocked destination…) are never retried automatically.
++* **Attempt fencing**: `ingestion_jobs.attempt` only grows, on claim. Heartbeat, publish, fail, re-queue and every crawl write require `status = 'processing' AND attempt = <mine>`, checked with the row locked where something is written. A worker that was reset by the sweeper, superseded, or whose document was deleted changes nothing (`stale` / `gone`). Lock order is source → document → job everywhere that takes more than one.
++* **Retries**: transient failures (embedding provider 429/5xx/timeouts, storage or DB hiccups, DNS `EAI_AGAIN`, HTTP 429/5xx, task soft time limit, a parser killed from outside or unable to start) re-queue the job and retry with exponential backoff (`INGEST_RETRY_BASE_SECONDS`·2ⁿ, capped, ±20% jitter) up to `INGEST_MAX_ATTEMPTS`; permanent failures (corrupt, no text, blocked destination, parser wall/CPU/memory/result limit…) are never retried automatically; manual reprocessing stays available.
+ * **Safe to retry**: chunks are only visible after the atomic publish; a failed or retried attempt leaves the previous version intact. A failed *re*processing keeps serving the last published version.
+-* **Recovery**: `ingest.sweep` (Celery beat, every 2 min) re-publishes jobs whose broker message was lost (queued > 2 min), resets jobs whose worker died (stale heartbeat), fails jobs that already used all attempts, and finishes pending storage deletions. It discovers work through two narrow `SECURITY DEFINER` functions (no BYPASSRLS role) and acts inside each organization's own context.
++* **Recovery**: `ingest.sweep` (Celery beat, every `INGEST_SWEEP_INTERVAL_SECONDS`, 2 min) re-publishes jobs whose broker message was lost (queued > 2 min), resets jobs whose worker died (heartbeat older than `INGEST_STUCK_AFTER_SECONDS`, re-checked at the update), fails jobs that already used all attempts (including pages an exhausted crawl left `processing`), and finishes pending storage deletions, including uploads that were never published (§9). It discovers work through two narrow `SECURITY DEFINER` functions (no BYPASSRLS role) and acts inside each organization's own context.
+ 
+ ## 4. Retrieval
+ 
+@@ -63,6 +65,10 @@ Statuses: documents `queued → processing → ready | failed`; jobs `queued →
+ | `EMBEDDING_PROVIDER`, `EMBEDDING_MODEL`, `EMBEDDING_BASE_URL`, `EMBEDDING_API_KEY`, `EMBEDDING_BATCH_SIZE` | `hash`, `hash-v1`, OpenAI URL, –, 64 | `hash` is a **local development baseline** and is refused in production; `openai_compatible` calls any `/embeddings` endpoint. Dimensions are fixed at 1536 (column width) |
+ | `INGEST_MAX_ATTEMPTS`, `INGEST_RETRY_BASE_SECONDS`, `INGEST_RETRY_MAX_SECONDS`, `INGEST_STUCK_AFTER_SECONDS` | 4, 5, 300, 900 | Retry policy and stuck-job threshold |
+ | `CRAWL_MAX_PAGES_LIMIT`, `CRAWL_MAX_DEPTH_LIMIT`, `CRAWL_DELAY_SECONDS`, `FETCH_*` | 200, 5, 0.5 s, 10 s / 20 s / 5 MiB / 5 redirects | Crawl bounds |
++| `PARSER_WALL_SECONDS`, `PARSER_CPU_SECONDS`, `PARSER_MEMORY_BYTES`, `PARSER_MAX_RESULT_BYTES` | 60, 30, 512 MiB, 32 MiB | Parser child budgets (§7) |
++| `INGEST_SOFT_TIME_LIMIT_SECONDS`, `INGEST_HARD_TIME_LIMIT_SECONDS`, `CRAWL_MAX_TASK_SECONDS` | 120, 180, 3300 | Celery task limits (§8) |
++| `INGEST_MAX_ACTIVE_PER_ORG`, `INGEST_DEFER_SECONDS`, `INGEST_SWEEP_INTERVAL_SECONDS` | 1, 2, 120 | Admission and recovery (§8) |
++| `WORKER_MEMORY_LIMIT`, `WORKER_CPUS`, `WORKER_PIDS_LIMIT` (compose) | 2g, 2, 128 | Worker container limits (§8) |
+ | `RATE_LIMIT_UPLOAD_PER_MINUTE`, `RATE_LIMIT_SEARCH_PER_MINUTE` | 60 | Per organization / per user |
+ 
+ ## 6. Known limitations
+@@ -74,6 +80,8 @@ Statuses: documents `queued → processing → ready | failed`; jobs `queued →
+ * Duplicate detection by normalized text hash catches identical text across formats, not near-duplicates.
+ * Postgres/`pgvector` HNSW with selective filters relies on iterative scans (`hnsw.iterative_scan`); very large tenants may need partitioning or per-tenant indexes later.
+ * Chatbot deletion is a soft delete: its chunks stay in the table (hidden from retrieval) until the purge job planned for the undo window.
++* Parser isolation contains resources; it is not a security sandbox (§7).
++* A Word file whose `document.xml` is larger than about 40 MiB now fails with `parse_resource_limit`, although the archive guard accepts up to 100 MiB (§7).
+ 
+ 
+ ## Provider transport security (AUD-03)
+@@ -97,3 +105,97 @@ Worker/parser hard resource isolation remains AUD-05, outside this change.
+ Only `APP_ENV=local|test` plus explicit `ALLOW_INSECURE_LOCAL_PROVIDERS=true` permits HTTP,
+ and only for localhost, canonical IPv4 loopback or IPv6 ::1. Container hostnames and LAN addresses
+ are not HTTP exceptions. See DEVELOPMENT.md section 9 for operator migration guidance and limits.
++
++## 7. Parser isolation (AUD-05)
++
++Every PDF, DOCX, TXT and HTML parse — uploads, reindexing, reprocessing, stored web pages and
++live crawl pages — goes through `rag/parser_runner.py`, which starts a **fresh interpreter**
++(`rag/parser_process.py`) per document. The parent keeps network fetching, storage, embedding and
++database publication; the child only turns bytes into text blocks.
++
++| Control | Enforced by | Default |
++|---|---|---|
++| Wall-clock deadline, from the moment the child reports its limits are set | parent kills the process group and reaps it (≤2 s) | 60 s |
++| CPU seconds (`SIGXCPU`, then `SIGKILL`) | kernel, `RLIMIT_CPU` | 30 s |
++| Address space | kernel, `RLIMIT_AS` | 512 MiB |
++| No core dumps, no file writes, 32 descriptors, not dumpable | `RLIMIT_CORE/FSIZE/NOFILE`, `prctl` | fixed |
++| Input size | parent, before spawning | upload / fetch limits |
++| Result size; every field type-checked; JSON only, never pickle | parent | 32 MiB |
++| Environment | empty (Windows keeps `SYSTEMROOT`, `WINDIR`); no inherited descriptors; no shell | — |
++| Parent killed (hard time limit, OOM, `docker stop`) | `PR_SET_PDEATHSIG`; child-side `SIGALRM` backstop; `init: true` reaps | — |
++| Document deleted or attempt superseded | parent polls the claim every second and kills the child | — |
++
++Data moves over the two pipes only, so there are no temporary files to clean up. Child stderr is
++discarded; logs carry `parser.finished` with pid, outcome, exit reason, duration, result size and
++the limits in force — never document text.
++
++**Platforms.** Containment is declared for **Linux** (production: the Docker image; Docker Desktop
++on Windows/macOS). With `APP_ENV=staging|production`, a worker refuses to start, and a parser
++refuses to run, where it is unavailable. Native Windows development (`--pool=solo`) still parses in
++a child with the parent deadline, but has **no CPU/memory limits, no parent-death signal and no
++Celery time limits**.
++
++**Not covered.** The child runs as the worker's user with the same filesystem view and network
++namespace: a parser exploit could read files that user can read (including `/proc/<pid>/environ` of
++the worker), or open network connections. There is no seccomp profile, separate user or egress
++policy. `robots.txt` is parsed in the worker (stdlib, 512 KiB cap).
++
++**Measured fit** (QA host, one run each): the largest ordinary inputs the limits accept parsed
++within 3.2 s wall, 3 s CPU and 333 MiB of address space. Word XML costs about 14× its size in
++memory: 39 MiB of `document.xml` just fits, 44 MiB does not.
++`docs/mvp-improvement/tools/measure_a5.py` repeats the measurement.
++
++## 8. Worker limits, fairness and recovery (AUD-05)
++
++**Time limits** (prefork pool only). Documents: soft 120 s, hard 180 s. Crawls: the worst case for
++`CRAWL_MAX_PAGES_LIMIT` pages — `20 + pages × (10 s robots delay cap + 20 s fetch + 60 s parse +
++30 s embedding)` with defaults — capped at `CRAWL_MAX_TASK_SECONDS` (3300 s hard, 3240 s soft; the
++200-page default is therefore at the cap). Both stay under the broker's 3600 s visibility timeout.
++A soft limit becomes a retryable `task_timeout`. A hard limit makes the pool send `SIGTERM` and,
++100 ms later, `SIGKILL`: a `finally` block may or may not run, and a lost process runs none. Either
++way the job stays `processing` until the sweeper resets it, at most one stuck
++threshold plus one sweep interval later (about 17 minutes with defaults), and the last published
++version keeps serving. The sweeper runs on the same worker, so it also needs a free slot: two long
++crawls from two organizations can delay recovery until one finishes.
++
++**Fairness.** One organization runs at most `INGEST_MAX_ACTIVE_PER_ORG` (1) heavy jobs, documents
++and crawls together, across all workers. The count comes from the job rows under a per-org advisory
++lock, so no separate permit can leak. A job over the limit is not failed and uses no attempt: its
++message is re-published after 2, 4, 8, then every 15 s (at most 40 times, after which the sweeper
++takes over), and the organization's next waiting job is woken as soon as one finishes.
++Consequence: a tenant's uploads wait behind that tenant's own running crawl.
++
++**Container limits** (both compose files): 2 GiB memory with no additional swap, 2 CPUs, 128 PIDs,
++`init: true`, sized for `--concurrency=2` (two 512 MiB parser children plus the Celery processes).
++Raise all of them together with the concurrency. Compose values are only effective if the engine
++applies them: verify with `docker inspect` or `/sys/fs/cgroup/{memory.max,memory.swap.max,cpu.max,pids.max}`.
++
++## 9. Stored originals of web pages (A5.1)
++
++Reprocessing and reindexing read a document's stored original, so who may change it matters as much
++as who may publish chunks. An object write cannot be part of a database transaction, so a page's raw
++HTML is **never written over an existing object**:
++
++1. Before the upload, the new key (`orgs/{org}/chatbots/{bot}/documents/{doc}/g-{id}/original`) is
++   recorded in `storage_deletions` as "delete this unless published", not before a time later than the
++   writer can still be running (crawl hard time limit + 300 s). The check that this attempt still owns
++   the job is made in that transaction.
++2. The upload runs with no transaction open.
++3. Publication (`documents.storage_key`, size and ETag) happens in the same fenced transaction as the
++   chunks: it removes that record and queues the previous object for deletion. A document that has
++   never published a version takes the new original at once, so it can be reprocessed.
++4. A writer that finished but did not publish (superseded, deleted, failed) makes its object
++   reclaimable immediately. A killed writer cannot; its object is reclaimed once its time has come.
++
++The purge claims a record before touching its object, skips records that are not yet due, and never
++deletes a key a document points at. A claimed key can no longer be published: the attempt fails with a
++retryable `storage_error` instead of pointing at a deleted object. A document job refuses to publish
++from an original that was replaced while it ran. Deleting a source or document locks it before reading
++its keys, so a publication in progress cannot slip a new object past the deletion.
++
++Consequences: a failed re-crawl of a published page keeps the previous original, size and chunks; an
++interrupted upload can stay in storage for up to the grace period plus one sweep (about an hour with
++defaults) and is not counted against the organization's storage limit; and cleanup needs `beat` and a
++free worker slot. Uploaded files are unaffected: each upload already has its own key. Documents stored
++under the earlier `v0/original` keys keep working and move to a new key at their next publication.
++
+diff --git a/docs/PHASE2_SECURITY_REVIEW.md b/docs/PHASE2_SECURITY_REVIEW.md
+index e1d4b2d..ec1cee0 100644
+--- a/docs/PHASE2_SECURITY_REVIEW.md
++++ b/docs/PHASE2_SECURITY_REVIEW.md
+@@ -143,3 +143,7 @@ corepack pnpm -r --if-present test
+ ```
+ 
+ Integration tests create (and drop) their own throwaway database from `MIGRATION_DATABASE_URL`, so development data is never touched; they use Redis DB 15, which they flush.
++
++## Status update: AUD-04 (additive; the sections above describe the earlier build)
++
++Residual risk 1 in section 5 and migration step 3 in section 6 are superseded for the application image. The runtime image no longer passes `--forwarded-allow-ips "*"`; no peer is trusted unless listed in `FORWARDED_ALLOW_IPS`, which is validated at startup (DEVELOPMENT.md section 10). Verified locally against the runtime image: [AUD-04 report](mvp-improvement/AUD-04_IMPLEMENTATION_REPORT.md). Still open: the operator must configure the real proxy address and block direct access to the API, and neither has been verified on a live deployment.
+diff --git a/docs/SECURITY.md b/docs/SECURITY.md
+index 3495fd8..9bcef46 100644
+--- a/docs/SECURITY.md
++++ b/docs/SECURITY.md
+@@ -232,7 +232,7 @@ All outbound fetches of tenant-supplied URLs (crawler, sitemap, meta-tag domain
+ - Malware scanning: **not in MVP**. Files are never served to other users except as a download to org members of the same tenant. ClamAV scanning is post-MVP (or MVP if a design partner requires it — Q-19).
+ - Downloads use presigned GET with `Content-Disposition: attachment` and the original filename sanitized.
+ 
+-> **Implemented (2026-11-22)** — deviations from the text above: uploads are a size-capped **raw request body** through the API (no presigned PUT, no multipart parser exposed), validated before anything is stored (extension ∧ declared type ∧ magic bytes); structure guards apply to DOCX (entries, size, ratio 200:1, entity expansion blocked) and PDF (pages, text size, encryption detected); macro-enabled/template formats are refused. Parsers run **in-process in the worker** (no sandbox, no per-task time limits yet). No download endpoint exists yet, so originals are never served. Malware scanning is still not implemented. See [INGESTION.md](INGESTION.md).
++> **Implemented (2026-11-22)** — deviations from the text above: uploads are a size-capped **raw request body** through the API (no presigned PUT, no multipart parser exposed), validated before anything is stored (extension ∧ declared type ∧ magic bytes); structure guards apply to DOCX (entries, size, ratio 200:1, entity expansion blocked) and PDF (pages, text size, encryption detected); macro-enabled/template formats are refused. Parsers run in a **fresh child process per document** with CPU, address-space and wall-clock limits, an empty environment and bounded output (AUD-05, 2026-11-26); ingestion tasks have soft/hard time limits. This is resource containment, **not a sandbox**: the child keeps the worker's user, filesystem view and network (no seccomp, separate user or egress policy). Stored web-page originals are written under a new key each time and published only by the attempt that owns the job (INGESTION.md §9). No download endpoint exists yet, so originals are never served. Malware scanning is still not implemented. See [INGESTION.md](INGESTION.md).
+ 
+ ---
+ 
+diff --git a/docs/WIDGET_DEPLOYMENT.md b/docs/WIDGET_DEPLOYMENT.md
+index 1a14840..14c93ac 100644
+--- a/docs/WIDGET_DEPLOYMENT.md
++++ b/docs/WIDGET_DEPLOYMENT.md
+@@ -38,7 +38,7 @@ The build writes `apps/widget/dist/loader.js` and copies its deployable distribu
+ 
+ Build the widget **before** building the production API image. Its runtime Docker stage includes `widget_assets`. Apply migration **0006** before deploying the new API. It adds a FORCE-RLS-protected `chatbot_domains` table, retention settings and hashed resume credentials. Existing Phase 5 sessions remain compatible. Downgrading drops origin/resumption settings and must be treated as destructive; prefer a forward fix.
+ 
+-Serve everything through HTTPS. Preserve the frame route's per-origin `frame-ancestors` CSP; do not replace it with a wildcard or global DENY header. Do not cache frame or session responses. Disable proxy buffering for SSE and permit the configured chat timeout. Configure trusted proxy addresses correctly before relying on IP limits; the pre-existing production Docker wildcard forwarded-IP setting remains an operational deployment risk (see PHASE2_SECURITY_REVIEW.md). Tenant quotas and session limits also apply independently of IP controls.
++Serve everything through HTTPS. Preserve the frame route's per-origin `frame-ancestors` CSP; do not replace it with a wildcard or global DENY header. Do not cache frame or session responses. Disable proxy buffering for SSE and permit the configured chat timeout. Set `FORWARDED_ALLOW_IPS` to the proxy's exact address before relying on IP limits: no peer is trusted by default, so until then all visitors share the proxy's address (DEVELOPMENT.md section 10, DEPLOY_CONTABO.md "Trusted ingress"). The proxy must replace client-supplied `X-Forwarded-*` headers and be the only path to the API. Tenant quotas and session limits also apply independently of IP controls.
+ 
+ No wildcard credentialed CORS was added. Browsers fetch chat from inside the API-hosted iframe using bearer capabilities and `credentials: omit`; customer websites do not need dashboard API CORS access. The sandbox allows scripts and same-origin API access, but no top navigation, popups or forms. Use a dedicated API/widget origin separate from the customer website.
+ 
+diff --git a/docs/mvp-improvement/02_PROGRESS_TRACKER.md b/docs/mvp-improvement/02_PROGRESS_TRACKER.md
+index 62ef8a9..48036a0 100644
+--- a/docs/mvp-improvement/02_PROGRESS_TRACKER.md
++++ b/docs/mvp-improvement/02_PROGRESS_TRACKER.md
+@@ -1,6 +1,6 @@
+ # MVP improvement progress tracker
+ 
+-Updated: 22 November 2026 (Asia/Colombo). Current authorized execution: Milestone A3 / AUD-03 only; implementation and local validation complete.
++Updated: 26 November 2026 (Asia/Colombo). Last authorized execution: checkpoint A6.1 (PERF-01 and AUD-06 closure); complete, local PASS.
+ 
+ | Task | Status | Evidence / remaining work |
+ |---|---|---|
+@@ -8,14 +8,42 @@ Updated: 22 November 2026 (Asia/Colombo). Current authorized execution: Mileston
+ | A1 / AUD-01 pool starvation | PASS (local validation; preserved) | Original report/evidence unchanged; all 18 tests pass in the A3 final full run and isolated rerun. Two intermediate full runs missed P95 by 4.02/11.51 ms; retained as timing risk. Only loopback fixture opt-ins changed; assertion reverse-hash matches. |
+ | A2 / AUD-02 citations | PASS (local deterministic validation; preserved) | Original report/evidence, implementation and tests unchanged; all 32 tests and original omission regression pass in A3 final full run. Semantic citation quality remains BLOCKED. |
+ | A3 / AUD-03 provider transport | PASS (local transport validation) | `AUD-03_IMPLEMENTATION_REPORT.md`; original failure reproduced then passes unchanged. 159 new tests pass; final backend 795 pass / zero fail/skip; static checks, final runtime build/RLS and five browser tests pass. Browser routing/cookie harness failures retained. Earlier A1 timing failures retained; no gate relaxed. |
+-| A4 / AUD-04 proxy trust | NOT_IMPLEMENTED remediation | Existing wildcard runtime trust remains; actual deployment security unverified. |
+-| A5 / AUD-05 parser isolation | NOT_IMPLEMENTED remediation | Existing parser/worker isolation gap remains. |
+-| A6 / AUD-06 inbox | NOT_IMPLEMENTED remediation | Existing placeholder remains. |
++| A4 / AUD-04 proxy trust | PASS (local validation; production ingress BLOCKED) | `AUD-04_IMPLEMENTATION_REPORT.md`; wildcard removed, no peer trusted by default; 197 new unit and 17 runtime-image HTTP cases pass; browser 6/6, smoke, RLS pass. Final backend 1,005 pass / 2 fail / 17 skip, both failures present before A4. |
++| A4.1 stabilization | PASS (local) | `A4_1_STABILIZATION_REPORT.md`; full backend 1,016 pass / 0 fail / 17 conditional skips, 17 runtime proxy tests pass separately, browser 6/6, ruff/format/mypy clean. `pnpm format:check` still fails on 8 untouched web files. |
++| A5 / AUD-05 parser isolation | PASS (local validation; Linux containers) | `AUD-05_IMPLEMENTATION_REPORT.md`; every parse in a limited child, task limits, enforced worker limits, attempt fencing, per-org admission; 100 new tests; final backend 1,116 pass / 0 fail / 17 conditional skips, 17 runtime proxy tests pass separately, browser 6/6, capacity 10/10. No migration. Crawl limit expiry and a real-worker crawl NOT_TESTED. |
++| A5.1 ingestion integrity and crawl validation | PASS (local validation) | `A5_1_INGESTION_INTEGRITY_REPORT.md`; stale-write race reproduced and fixed without a migration; 20 storage tests (3 also on real object storage) and 12 real-worker crawl tests; final backend 1,148 pass / 0 fail / 17 conditional skips, 17 runtime proxy tests pass separately, browser 6/6, capacity 10/10 (worst mixed-crawl margin 103 ms). Production-length crawl limits not waited out. |
++| A6.1 PERF-01 stabilization | PASS (local gate) | `A6_1_PERFORMANCE_STABILIZATION_REPORT.md`; 10/10 declared runs, worst P95 1,798 ms; full backend 1,183 pass / 0 fail / 17 conditional skips. 1,600 ms headroom objective not met. |
++| A6 / AUD-06 inbox | PASS (local validation; closed by A6.1) | `AUD-06_CLOSURE_REPORT.md`. Original report and its failed run retained. `AUD-06_IMPLEMENTATION_REPORT.md`. Phase 7 inbox already existed; closed pagination, transcript truncation, timestamps, cursor validation, stale data and mobile overflow gaps. No migration. 1,173 pass / 1 capacity fail / 17 skips; web 243; browser 10/10; inbox P95 at most 133 ms on 10,000 conversations. |
+ | A7 / AUD-07 widget lifecycle | NOT_IMPLEMENTED remediation | Existing duplicate-init/teardown gap remains. |
+ | Milestones B–J | NOT_IMPLEMENTED in this improvement work | Not authorized by the current task; no paid providers/deployment/feature expansion. |
+ 
+-Milestone A completion gate: **NOT COMPLETE**. Overall MVP decision: **NOT READY**, unchanged. A1/A2/A3 local PASS and a final green backend run do not establish release readiness. AUD-04–AUD-07 and live/deployment gates remain unresolved.
++## Open observations
+ 
+-All original audit reports/evidence and completed AUD-01/AUD-02 artifacts are preserved. This workspace has no `.git`; modified-file evidence uses hashes. Evidence is separated under `evidence/AUD-01/`, `evidence/AUD-02/` and `evidence/AUD-03/`; see each `results.json` and recorded logs/XML for exact commands, failures, reruns and timing. No acceptance thresholds or assertions were weakened. A3 adapted existing HTTP transport mocks and added explicit local loopback opt-ins to A1 fixtures; original audit tests are unchanged. Earlier failed attempts are retained, not overwritten as successes.
++| ID | Status | Detail |
++|---|---|---|
++| PERF-01 | PASS (local gate), thin margin | Cause: one saturated event loop; 10 ms admission polling, plus Phase 7's extra statements. Backoff 10-50 ms. After: 10/10 repetitions pass (max 1,986.81 ms, 13 ms under the gate); final full suite 1,608.6 ms. Earlier failures retained. Watch on slower hardware/CI. |
++| PERF-01 (A6.1) | PASS (local gate), host-sensitive | Redundant post-answer cleanup removed; released slots wake waiters. Margin at least 202 ms in declared runs; a throttled host exceeded the gate in both variants of one A/B. |
++| WIDGET-PRIV-01 | OPEN, needs runtime verification | Public widget history appears to include token counts, estimated cost and internal document and chunk ids. Source inspection only; review in AUD-07. |
++| PERF-01 (A6 update) | superseded by A6.1 | 26 November: c100 success P95 2,110 ms in the full suite; alternating A/B 2,020 ms (with AUD-06) and 2,036 ms (without), 1 of 5 each over the 2,000 ms gate. |
++| WIDGET-USAGE | merged into WIDGET-PRIV-01 | Public widget history returns token counts, estimated cost and citation ids to visitors. Predates AUD-06. |
++| MIG-01 | PASS | Order-dependent test downgrading a shared database; one usage row without a conversation breaks the 0006 foreign key. Tests now own their databases. |
++| MIG-02 | OPEN, needs decision | Downgrade below 0007 is refused after any conversation deletion, and otherwise drops Phase 7 data. Proposed: forward-only with backup restore (not implemented). |
++| LINT-01 | PASS | `ruff check .` clean without exclusions; migration SQL byte-identical. |
++| AUD05-STORAGE | PASS (fixed, local) | Crawled originals were overwritten in place. New key per write, published by the owning attempt; unpublished uploads reclaimed through the outbox. |
++| AUD05-CRAWL | PASS (validated, local) | Real-worker success, bad pages, soft and hard limits, loss, restart, deletion, duplicates, fencing, retries, fairness. |
++| DEVBEAT-CRASH | OPEN, observation | The developer `beat` container exited on 26 November in Celery's shelve schedule store; no restart policy in development. Not investigated. |
++| ORG-ORIGINALS | OPEN, observation | Chatbot soft delete keeps originals; an organization row deletion would cascade outbox rows away. Predates A5.1. |
++| AUD05-DOCX | OPEN, accept or revisit | A `.docx` with more than about 40 MiB of document XML now fails `parse_resource_limit` (512 MiB parser budget); previously attempted. |
++| AUD05-SANDBOX | OPEN | The parser child shares the worker's user, filesystem and network. No seccomp, separate user or egress limit. |
++| AUD05-RECOVERY | OPEN, observation | Hard-killed jobs recover after up to about 17 min with defaults, and the sweeper needs a free slot on the same two-slot worker. |
++| OPS-BEAT | OPEN, pre-existing | Production `beat` reports unhealthy: it inherits the image's HTTP health check. |
++| DEPLOY-01 | OPEN | Set `FORWARDED_ALLOW_IPS` to Caddy's fixed address before production, or all visitors share one IP rate-limit bucket (`DEPLOY_CONTABO.md`). Caddy, ingress denial and TLS unverified. |
++| CI-01 | OPEN | CI does not run the 17 runtime proxy tests or Playwright; proposal in the A4.1 report. |
++| FMT-01 | OPEN | `pnpm format:check` fails on 8 web component files present at HEAD; CI runs it. |
++| ENV-01 | OPEN | Developer `migrate` image predates 0007; rebuild backend images. |
++
++Milestone A completion gate: **NOT COMPLETE**. Overall MVP decision: **NOT READY**, unchanged. Local results do not establish release readiness. AUD-07, the open observations above and live/deployment gates remain unresolved.
++
++All original audit reports/evidence and completed A1–A3 artifacts are preserved. A1–A3 were recorded when this workspace had no `.git`; it now does. Evidence is separated under `evidence/AUD-01/` to `evidence/AUD-05/`, `evidence/AUD05-STORAGE/`, `evidence/AUD05-CRAWL/` and `evidence/A5.1/`; see recorded logs/XML for exact commands, failures, reruns and timing. No acceptance thresholds or assertions were weakened. Earlier failed attempts are retained, not overwritten as successes.
+ 
+-Stop after AUD-03 reporting and validation. Do not automatically begin AUD-04 or later work. No external deployment, paid-provider configuration or push was performed.
++Stop after A6.1. Do not automatically begin AUD-07 or later work. No external deployment, paid-provider configuration, commit or push was performed.
+diff --git a/package.json b/package.json
+index 0602eb1..9d07968 100644
+--- a/package.json
++++ b/package.json
+@@ -17,7 +17,7 @@
+     "test": "pnpm -r --if-present test",
+     "format": "prettier --write .",
+     "format:check": "prettier --check .",
+-    "api:dev": "uv run --directory services/api uvicorn app.main:create_app --factory --reload --port 8000 --no-access-log",
++    "api:dev": "uv run --directory services/api python -m app.server --reload --port 8000",
+     "worker:dev": "uv run --directory services/api celery -A app.workers.celery_app worker --pool=solo --queues=default,ingest,crawl,chat_out,billing --loglevel=INFO",
+     "api:lint": "uv run --directory services/api ruff check . && uv run --directory services/api ruff format --check .",
+     "api:format": "uv run --directory services/api ruff format . && uv run --directory services/api ruff check --fix .",
+diff --git a/packages/ui/src/styles/globals.css b/packages/ui/src/styles/globals.css
+index be88b35..aad95ab 100644
+--- a/packages/ui/src/styles/globals.css
++++ b/packages/ui/src/styles/globals.css
+@@ -9,15 +9,16 @@
+ 
+ :root {
+   --radius: 0.625rem;
+-  /* Cool-tinted neutrals (hue 250) with one deep teal-blue accent (hue 218). */
+-  --background: oklch(0.982 0.004 250);
+-  --foreground: oklch(0.21 0.03 255);
++  /* Semantic surfaces and actions shared by the workspace and its components. */
++  --background: #f8fafc;
++  --foreground: #0b1220;
+   --card: oklch(1 0 0);
+   --card-foreground: oklch(0.21 0.03 255);
+   --popover: oklch(1 0 0);
+   --popover-foreground: oklch(0.21 0.03 255);
+-  --primary: oklch(0.5 0.105 218);
+-  --primary-foreground: oklch(0.99 0.003 218);
++  --primary: #2563eb;
++  --primary-foreground: #ffffff;
++  --ai-accent: #7c3aed;
+   --secondary: oklch(0.955 0.01 235);
+   --secondary-foreground: oklch(0.28 0.04 245);
+   --muted: oklch(0.962 0.006 245);
+@@ -27,10 +28,10 @@
+   --destructive: oklch(0.55 0.21 27);
+   --border: oklch(0.912 0.008 245);
+   --input: oklch(0.88 0.01 245);
+-  --ring: oklch(0.58 0.12 218);
+-  --success: oklch(0.52 0.12 160);
+-  --warning: oklch(0.62 0.14 75);
+-  --rail: oklch(0.245 0.04 238);
++  --ring: #2563eb;
++  --success: #059669;
++  --warning: #d97706;
++  --rail: #0b1220;
+   --shadow-soft: 0 1px 2px oklch(0.25 0.04 250 / 0.06), 0 4px 14px -6px oklch(0.25 0.04 250 / 0.1);
+   color-scheme: light;
+ }
+@@ -42,8 +43,9 @@
+   --card-foreground: oklch(0.96 0.006 250);
+   --popover: oklch(0.225 0.03 250);
+   --popover-foreground: oklch(0.96 0.006 250);
+-  --primary: oklch(0.74 0.11 215);
+-  --primary-foreground: oklch(0.2 0.04 230);
++  --primary: #93b4ff;
++  --primary-foreground: #0b1220;
++  --ai-accent: #c4b5fd;
+   --secondary: oklch(0.28 0.03 250);
+   --secondary-foreground: oklch(0.96 0.006 250);
+   --muted: oklch(0.27 0.03 250);
+@@ -84,6 +86,7 @@
+   --color-popover-foreground: var(--popover-foreground);
+   --color-primary: var(--primary);
+   --color-primary-foreground: var(--primary-foreground);
++  --color-ai-accent: var(--ai-accent);
+   --color-secondary: var(--secondary);
+   --color-secondary-foreground: var(--secondary-foreground);
+   --color-muted: var(--muted);
+@@ -108,8 +111,14 @@
+     @apply border-border outline-ring/50;
+   }
+   html {
+-    font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue",
+-      Arial, sans-serif;
++    font-family:
++      "Segoe UI Variable Text",
++      "Segoe UI",
++      system-ui,
++      -apple-system,
++      "Helvetica Neue",
++      Arial,
++      sans-serif;
+     font-feature-settings: "cv11", "ss01";
+     -webkit-text-size-adjust: 100%;
+   }
+diff --git a/services/api/Dockerfile b/services/api/Dockerfile
+index 4314ce7..649fb10 100644
+--- a/services/api/Dockerfile
++++ b/services/api/Dockerfile
+@@ -12,7 +12,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
+     UV_LINK_MODE=copy \
+     UV_PYTHON_DOWNLOADS=never \
+     UV_PROJECT_ENVIRONMENT=/opt/venv \
+-    PATH="/opt/venv/bin:${PATH}"
++    PATH="/opt/venv/bin:${PATH}" \
++    FORWARDED_ALLOW_IPS=""
+ COPY --from=uv /uv /usr/local/bin/uv
+ RUN groupadd --system --gid 10001 app \
+  && useradd --system --uid 10001 --gid app --home-dir /home/app --create-home app
+@@ -25,7 +26,7 @@ RUN --mount=type=cache,target=/root/.cache/uv uv sync --locked --no-install-proj
+ COPY . .
+ USER app
+ EXPOSE 8000
+-CMD ["uvicorn", "app.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000", "--reload", "--no-access-log"]
++CMD ["python", "-m", "app.server", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+ 
+ # ---------------------------------------------------------------- production
+ FROM base AS prod-deps
+@@ -42,4 +43,5 @@ USER app
+ EXPOSE 8000
+ HEALTHCHECK --interval=15s --timeout=3s --start-period=10s --retries=3 \
+   CMD ["python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=2).status == 200 else 1)"]
+-CMD ["uvicorn", "app.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*", "--no-access-log"]
++# Proxy trust is FORWARDED_ALLOW_IPS, validated and applied by app.server (empty = none).
++CMD ["python", "-m", "app.server", "--host", "0.0.0.0", "--port", "8000"]
+diff --git a/services/api/app/api/conversations.py b/services/api/app/api/conversations.py
+index 4fae137..7af0ffc 100644
+--- a/services/api/app/api/conversations.py
++++ b/services/api/app/api/conversations.py
+@@ -133,6 +133,23 @@ async def get_conversation(
+     return detail
+ 
+ 
++@router.get("/conversations/{conversation_id}/messages")
++async def list_messages(
++    org_id: uuid.UUID,
++    conversation_id: uuid.UUID,
++    ctx: ChatRead,
++    services: ServicesDep,
++    cursor: str | None = None,
++    limit: Annotated[int, Query(ge=1, le=100)] = inbox.MESSAGE_PAGE_DEFAULT,
++) -> dict[str, Any]:
++    """Transcript pages, newest first: ``next_cursor`` leads to earlier messages."""
++    async with services.session_factory() as db:
++        await set_org_context(db, ctx.org_id)
++        return await inbox.list_messages(
++            db, ctx.org_id, conversation_id, service.message_out, cursor=cursor, limit=limit
++        )
++
++
+ @router.post("/conversations/{conversation_id}/messages")
+ async def send_message(
+     org_id: uuid.UUID,
+diff --git a/services/api/app/core/config.py b/services/api/app/core/config.py
+index b6fae09..fdd66a6 100644
+--- a/services/api/app/core/config.py
++++ b/services/api/app/core/config.py
+@@ -8,7 +8,7 @@ HTTPS-only CORS origins).
+ from __future__ import annotations
+ 
+ from functools import lru_cache
+-from math import isfinite
++from math import ceil, isfinite
+ from typing import Annotated, Literal
+ from urllib.parse import urlsplit
+ 
+@@ -16,12 +16,15 @@ from pydantic import Field, PostgresDsn, RedisDsn, SecretStr, field_validator, m
+ from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
+ 
+ from app.core.provider_urls import provider_url
++from app.core.proxy_trust import parse_trusted_proxies
+ 
+ AppEnv = Literal["local", "test", "staging", "production"]
+ LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR"]
+ LogFormat = Literal["console", "json"]
+ 
+ PLACEHOLDER_MARKER = "change-me"
++#: Largest ``Crawl-delay`` from robots.txt the crawler honours.
++MAX_CRAWL_DELAY_SECONDS = 10.0
+ SQLALCHEMY_DRIVER = "postgresql+psycopg"
+ 
+ 
+@@ -63,6 +66,13 @@ class Settings(BaseSettings):
+     cors_allowed_origins: Annotated[list[str], NoDecode] = Field(default_factory=list)
+     readiness_timeout_seconds: float = Field(default=2.0, gt=0, le=30)
+ 
++    # --- ingress. Peers allowed to set X-Forwarded-For/-Proto (the reverse proxy); empty trusts
++    # nobody. Only `python -m app.server` applies it (see app/core/proxy_trust.py).
++    forwarded_allow_ips: Annotated[list[str], NoDecode] = Field(default_factory=list)
++    # Uvicorn's CLI also reads these, outside this validation: declared only so they are refused.
++    uvicorn_forwarded_allow_ips: str | None = None
++    uvicorn_proxy_headers: str | None = None
++
+     # --- web app / links in emails
+     web_base_url: str = "http://localhost:3000"
+ 
+@@ -121,6 +131,12 @@ class Settings(BaseSettings):
+     extract_max_chars: int = Field(default=5_000_000, ge=1000)
+     docx_max_uncompressed_bytes: int = Field(default=100 * 1024 * 1024, ge=1024)
+ 
++    # --- document parser isolation (docs/INGESTION.md): each parse runs in its own child process
++    parser_wall_seconds: float = Field(default=60.0, gt=0, le=600)
++    parser_cpu_seconds: int = Field(default=30, ge=1, le=600)
++    parser_memory_bytes: int = Field(default=512 * 1024 * 1024, ge=256 * 1024 * 1024)
++    parser_max_result_bytes: int = Field(default=32 * 1024 * 1024, ge=1024, le=32 * 1024 * 1024)
++
+     # --- chunking (tokens are estimated: ~4 characters each, no tokenizer dependency)
+     chunk_size_tokens: int = Field(default=350, ge=32, le=2000)
+     chunk_overlap_tokens: int = Field(default=50, ge=0, le=500)
+@@ -170,6 +186,15 @@ class Settings(BaseSettings):
+     ingest_retry_base_seconds: int = Field(default=5, ge=0)
+     ingest_retry_max_seconds: int = Field(default=300, ge=0)
+     ingest_stuck_after_seconds: int = Field(default=900, ge=30)
++    ingest_sweep_interval_seconds: float = Field(default=120, ge=5, le=3600)
++    # Heavy jobs (documents and crawls) one organization may run at once, and how long a job
++    # that has to wait is first rescheduled for (doubling, capped).
++    ingest_max_active_per_org: int = Field(default=1, ge=1, le=16)
++    ingest_defer_seconds: float = Field(default=2, gt=0, le=15)
++    # Celery task limits. Both stay below the broker's one-hour visibility timeout.
++    ingest_soft_time_limit_seconds: int = Field(default=120, ge=2, le=3500)
++    ingest_hard_time_limit_seconds: int = Field(default=180, ge=3, le=3540)
++    crawl_max_task_seconds: int = Field(default=3300, ge=120, le=3540)  # operator maximum
+ 
+     # --- website crawling (SafeFetcher)
+     crawl_user_agent: str = "ACSBot/1.0 (+https://example.com/bot)"
+@@ -199,6 +224,18 @@ class Settings(BaseSettings):
+             return [int(item) for item in value.split(",") if item.strip()]
+         return value
+ 
++    @field_validator("forwarded_allow_ips", mode="before")
++    @classmethod
++    def _trusted_proxies(cls, value: object) -> list[str]:
++        return parse_trusted_proxies(value)
++
++    @model_validator(mode="after")
++    def _no_uvicorn_proxy_overrides(self) -> Settings:
++        for name in ("uvicorn_forwarded_allow_ips", "uvicorn_proxy_headers"):
++            if getattr(self, name) is not None:
++                raise ValueError(f"{name.upper()} is not supported; use FORWARDED_ALLOW_IPS")
++        return self
++
+     @field_validator("web_base_url")
+     @classmethod
+     def _strip_web_base_url(cls, value: str) -> str:
+@@ -228,6 +265,14 @@ class Settings(BaseSettings):
+             raise ValueError(msg)
+         return self
+ 
++    @model_validator(mode="after")
++    def _task_limits(self) -> Settings:
++        if self.ingest_soft_time_limit_seconds >= self.ingest_hard_time_limit_seconds:
++            raise ValueError(
++                "INGEST_SOFT_TIME_LIMIT_SECONDS must be below INGEST_HARD_TIME_LIMIT_SECONDS"
++            )
++        return self
++
+     @model_validator(mode="after")
+     def _chat_guards(self) -> Settings:
+         if any(
+@@ -305,6 +350,24 @@ class Settings(BaseSettings):
+             raise ValueError("; ".join(problems))
+         return self
+ 
++    @property
++    def crawl_hard_time_limit_seconds(self) -> int:
++        """Worst case for the page limit (robots, then delay + fetch + parse + one embedding
++        request per page), capped by the operator maximum."""
++        per_page = (
++            max(self.crawl_delay_seconds, MAX_CRAWL_DELAY_SECONDS)
++            + self.fetch_total_timeout_seconds
++            + self.parser_wall_seconds
++            + self.embedding_timeout_seconds
++        )
++        budget = self.fetch_total_timeout_seconds + self.crawl_max_pages_limit * per_page
++        return min(ceil(budget), self.crawl_max_task_seconds)
++
++    @property
++    def crawl_soft_time_limit_seconds(self) -> int:
++        hard = self.crawl_hard_time_limit_seconds
++        return max(hard - 60, hard // 2)
++
+     @property
+     def broker_url(self) -> str:
+         return str(self.celery_broker_url or self.redis_url)
+diff --git a/services/api/app/main.py b/services/api/app/main.py
+index 56c2078..93c8680 100644
+--- a/services/api/app/main.py
++++ b/services/api/app/main.py
+@@ -1,6 +1,6 @@
+ """ASGI application factory.
+ 
+-Run with: `uvicorn app.main:create_app --factory` (no module-level app, so importing this module
++Run with: `python -m app.server` (no module-level app, so importing this module
+ never requires configuration — tests build apps with explicit settings).
+ """
+ 
+diff --git a/services/api/app/models/knowledge.py b/services/api/app/models/knowledge.py
+index 5a28b38..6653db4 100644
+--- a/services/api/app/models/knowledge.py
++++ b/services/api/app/models/knowledge.py
+@@ -179,7 +179,11 @@ class IngestionJob(Base):
+ 
+ 
+ class StorageDeletion(Base):
+-    """Outbox: an object to remove from storage after its document row was deleted."""
++    """Outbox: an object to remove from storage, not before ``created_at``.
++
++    Written when a document is removed or moves to a new original, and ahead of an upload that
++    may never be published (``app.rag.originals``).
++    """
+ 
+     __tablename__ = "storage_deletions"
+ 
+diff --git a/services/api/app/rag/crawl_job.py b/services/api/app/rag/crawl_job.py
+index 62c68dd..f475aec 100644
+--- a/services/api/app/rag/crawl_job.py
++++ b/services/api/app/rag/crawl_job.py
+@@ -4,6 +4,12 @@ A crawl is resumable and idempotent: pages whose content hash and embedding mode
+ are skipped, so a retry after a transient failure (or a manual re-sync) only re-embeds what
+ changed. Pages that disappear are reported (``not_seen``) but not deleted automatically, because
+ "not reached this time" is not the same as "gone".
++
++Every write is fenced by the job's attempt (see ``pipeline``): a superseded, reset or deleted
++crawl stops without publishing. Pages are parsed in the supervised parser child.
++
++A page's raw HTML is stored under a new key each time and becomes the document's original only
++when this attempt publishes it (see ``originals``).
+ """
+ 
+ from __future__ import annotations
+@@ -16,20 +22,27 @@ from sqlalchemy import func, select, text
+ from app.core.ids import new_id
+ from app.core.logging import get_logger
+ from app.models.knowledge import Document, KnowledgeSource
++from app.rag import originals
+ from app.rag.crawler import CrawlConfig, CrawledPage, CrawlStats, crawl
+-from app.rag.errors import IngestionError, TransientIngestionError
++from app.rag.errors import IngestionError
+ from app.rag.extract import ExtractedDocument
++from app.rag.html_extract import HtmlPage
+ from app.rag.pipeline import (
+     HTML,
+     REFRESH_SOURCE_SQL,
+     JobClaim,
++    JobDeferredError,
++    StaleClaimError,
++    StoredOriginal,
++    claim_is_current,
+     claim_job,
+-    fail_job,
+     heartbeat,
+     index_document,
+-    requeue_job,
++    lock_claim,
++    lock_source,
++    run_claimed,
+ )
+-from app.rag.storage import StorageError, document_key
++from app.rag.storage import StorageError, generation_key
+ 
+ if TYPE_CHECKING:
+     from app.rag.runtime import Runtime
+@@ -51,29 +64,20 @@ def _config_from_source(source: KnowledgeSource, rt: Runtime) -> CrawlConfig:
+ 
+ 
+ def run_crawl_job(rt: Runtime, org_id: uuid.UUID, job_id: uuid.UUID) -> str:
+-    claim = claim_job(rt, org_id, job_id)
++    """Returns ``done|skipped|deferred|failed|gone|stale``; see ``run_document_job``."""
++    try:
++        claim = claim_job(rt, org_id, job_id)
++    except JobDeferredError:
++        log.info("crawl.job_deferred", job_id=str(job_id))
++        return "deferred"
+     if claim is None:
+         return "skipped"
+-    try:
++
++    def work() -> str:
+         _run(rt, claim)
+-    except IngestionError as exc:
+-        if exc.retryable and claim.attempt < claim.max_attempts:
+-            requeue_job(rt, claim, exc)
+-            raise
+-        fail_job(rt, claim, exc)
+-        return "failed"
+-    except StorageError as exc:
+-        wrapped = TransientIngestionError("storage_error", type(exc).__name__)
+-        if claim.attempt < claim.max_attempts:
+-            requeue_job(rt, claim, wrapped)
+-            raise wrapped from exc
+-        fail_job(rt, claim, wrapped)
+-        return "failed"
+-    except Exception as exc:
+-        log.exception("crawl.unexpected_error", job_id=str(job_id))
+-        fail_job(rt, claim, IngestionError("internal_error", type(exc).__name__))
+-        return "failed"
+-    return "done"
++        return "done"
++
++    return run_claimed(rt, claim, work, transient=(StorageError,), transient_code="storage_error")
+ 
+ 
+ def _run(rt: Runtime, claim: JobClaim) -> None:
+@@ -111,7 +115,20 @@ def _run(rt: Runtime, claim: JobClaim) -> None:
+     max_docs = rt.settings.max_documents_per_chatbot
+     heartbeat(rt, claim, "crawl")
+ 
+-    for page in crawl(rt.fetcher, config, stats, known_hashes={h for h in known if h is not None}):
++    def current() -> bool:
++        return claim_is_current(rt, claim)
++
++    def parse(body: bytes, charset: str, url: str) -> HtmlPage:
++        return rt.parser.html(body, url, charset, cancelled=lambda: not current())
++
++    for page in crawl(
++        rt.fetcher,
++        config,
++        stats,
++        known_hashes={h for h in known if h is not None},
++        should_continue=current,
++        parse=parse,
++    ):
+         seen_uris.add(page.url)
+         prior = existing.get(page.url)
+         if (
+@@ -125,28 +142,17 @@ def _run(rt: Runtime, claim: JobClaim) -> None:
+         if prior is None and (doc_count or 0) >= max_docs:
+             stats.stopped_at_limit = True
+             break
+-        document_id = _upsert_page(rt, claim, page, prior)
+         if prior is None:
+             doc_count = (doc_count or 0) + 1
+-        try:
+-            index_document(
+-                rt,
+-                org_id=claim.org_id,
+-                chatbot_id=claim.chatbot_id,
+-                document_id=document_id,
+-                extracted=ExtractedDocument(blocks=page.blocks, title=page.title),
+-                title=page.title,
+-            )
+-        except IngestionError as exc:
+-            if exc.retryable:
+-                raise
+-            _mark_page_failed(rt, claim, document_id, exc)
++        if not _publish_page(rt, claim, page, prior[0] if prior else None):
+             stats.errors += 1
+         heartbeat(rt, claim, "crawl", pages=stats.indexed, fetched=stats.fetched)
+ 
+     not_seen = sorted(set(existing) - seen_uris)
+     summary = {**stats.as_dict(), "unchanged": unchanged, "not_seen": len(not_seen)}
+     with rt.tenant_tx(claim.org_id) as s:
++        if not lock_claim(s, claim):
++            raise StaleClaimError
+         s.execute(
+             text(
+                 "UPDATE ingestion_jobs SET status = 'succeeded', finished_at = now(), "
+@@ -169,47 +175,93 @@ def _dumps(value: object) -> str:
+     return json.dumps(value)
+ 
+ 
+-def _upsert_page(
++def _publish_page(
++    rt: Runtime, claim: JobClaim, page: CrawledPage, known_id: uuid.UUID | None
++) -> bool:
++    """Store, record and index one page. ``False`` if it was recorded as failed."""
++    document_id = known_id or new_id()
++    key = generation_key(claim.org_id, claim.chatbot_id, document_id, new_id())
++    heartbeat(rt, claim, "crawl")
++    with rt.tenant_tx(claim.org_id) as s:  # on record before the object can exist
++        lock_source(s, claim.source_id)
++        if not lock_claim(s, claim):
++            raise StaleClaimError
++        originals.stage(s, claim.org_id, key, grace_seconds=originals.grace_seconds(rt.settings))
++    rt.store.put(key, page.raw_html, content_type="text/html")  # no transaction open
++    try:
++        pending = _record_page(rt, claim, page, document_id, key, new=known_id is None)
++        try:
++            index_document(
++                rt,
++                org_id=claim.org_id,
++                chatbot_id=claim.chatbot_id,
++                document_id=document_id,
++                extracted=ExtractedDocument(blocks=page.blocks, title=page.title),
++                claim=claim,
++                title=page.title,
++                original=pending,
++                on_stage=lambda _name: heartbeat(rt, claim, "crawl"),
++            )
++        except IngestionError as exc:
++            if exc.retryable:
++                raise
++            _mark_page_failed(rt, claim, document_id, exc)
++            return False
++        return True
++    finally:
++        # The upload has returned, so whatever was not adopted can be reclaimed straight away.
++        originals.release(rt, claim.org_id, key)
++
++
++def _record_page(
+     rt: Runtime,
+     claim: JobClaim,
+     page: CrawledPage,
+-    prior: tuple[uuid.UUID, bytes | None, str, str | None] | None,
+-) -> uuid.UUID:
+-    """Create or reset the document for ``page`` and store its raw HTML privately."""
+-    document_id = prior[0] if prior else new_id()
+-    key = document_key(claim.org_id, claim.chatbot_id, document_id, 0)
+-    rt.store.put(key, page.raw_html, content_type="text/html")
++    document_id: uuid.UUID,
++    key: str,
++    *,
++    new: bool,
++) -> StoredOriginal | None:
++    """Create or reset the page's document. Returns the original still waiting to be published.
++
++    A document that has published a version keeps that version's original until the next version
++    commits. One that never has takes the new original now, so that it can be reprocessed.
++    """
++    stored = StoredOriginal(key, len(page.raw_html), page.etag)
+     with rt.tenant_tx(claim.org_id) as s:
+-        if prior is None:
+-            s.add(
+-                Document(
+-                    id=document_id,
+-                    org_id=claim.org_id,
+-                    chatbot_id=claim.chatbot_id,
+-                    source_id=claim.source_id,
+-                    title=(page.title or page.url)[:300],
+-                    uri=page.url,
+-                    storage_key=key,
+-                    mime_type=HTML,
+-                    size_bytes=len(page.raw_html),
+-                    http_etag=page.etag,
+-                    status="processing",
+-                )
++        lock_source(s, claim.source_id)
++        document = None if new else s.get(Document, document_id, with_for_update=True)
++        if not lock_claim(s, claim):
++            raise StaleClaimError
++        if new:
++            document = Document(
++                id=document_id,
++                org_id=claim.org_id,
++                chatbot_id=claim.chatbot_id,
++                source_id=claim.source_id,
++                title=(page.title or page.url)[:300],
++                uri=page.url,
++                storage_key=key,
++                mime_type=HTML,
+             )
+-        else:
+-            document = s.get(Document, document_id)
+-            if document is not None:
+-                document.storage_key = key
+-                document.size_bytes = len(page.raw_html)
+-                document.http_etag = page.etag
+-                document.status = "processing"
+-    return document_id
++            s.add(document)
++        if document is None:
++            return None  # deleted since the crawl started
++        document.status = "processing"
++        if document.version:
++            return stored
++        originals.adopt(s, document, key, size=stored.size, etag=stored.etag)
++    return None
+ 
+ 
+ def _mark_page_failed(
+     rt: Runtime, claim: JobClaim, document_id: uuid.UUID, exc: IngestionError
+ ) -> None:
+     with rt.tenant_tx(claim.org_id) as s:
++        lock_source(s, claim.source_id)
++        s.execute(text("SELECT 1 FROM documents WHERE id = :id FOR UPDATE"), {"id": document_id})
++        if not lock_claim(s, claim):
++            raise StaleClaimError
+         s.execute(
+             text(
+                 "UPDATE documents SET status = 'failed', error_code = :code, error_message = :msg "
+diff --git a/services/api/app/rag/crawler.py b/services/api/app/rag/crawler.py
+index 1e7f5f5..72bfce0 100644
+--- a/services/api/app/rag/crawler.py
++++ b/services/api/app/rag/crawler.py
+@@ -22,16 +22,24 @@ from dataclasses import dataclass, field
+ from urllib import robotparser
+ from urllib.parse import urlsplit
+ 
++from app.core.config import MAX_CRAWL_DELAY_SECONDS
+ from app.rag.errors import IngestionError, TransientIngestionError
+ from app.rag.extract import Block
+-from app.rag.html_extract import HtmlPage, canonicalize_url, extract_html
++from app.rag.html_extract import HtmlPage, canonicalize_url
++from app.rag.parser_runner import ParserLimits, ParserRunner
+ from app.rag.safe_fetch import BlockedDestinationError, FetchStatusError, SafeFetcher
+ 
+ HTML_TYPES = frozenset({"text/html", "application/xhtml+xml"})
+ MIN_PAGE_CHARS = 200
+-MAX_CRAWL_DELAY = 10.0
+ ROBOTS_MAX_BYTES = 512 * 1024
+ 
++#: ``(body, charset, url) -> page``. Implementations must parse outside this process.
++PageParser = Callable[[bytes, str, str], HtmlPage]
++
++
++def _parse_isolated(body: bytes, charset: str, url: str) -> HtmlPage:
++    return ParserRunner(ParserLimits()).html(body, url, charset)
++
+ 
+ @dataclass(frozen=True)
+ class CrawlConfig:
+@@ -114,6 +122,7 @@ def crawl(
+     known_hashes: set[bytes] | None = None,
+     should_continue: Callable[[], bool] | None = None,
+     sleep: Callable[[float], None] = time.sleep,
++    parse: PageParser = _parse_isolated,
+ ) -> Iterator[CrawledPage]:
+     """Yield each distinct, indexable page. ``stats`` is updated as the crawl proceeds."""
+     start = canonicalize_url(config.start_url)
+@@ -127,7 +136,7 @@ def crawl(
+     delay = config.delay_seconds
+     declared = robots.crawl_delay(agent)
+     if declared is not None:
+-        delay = max(delay, min(float(declared), MAX_CRAWL_DELAY))
++        delay = max(delay, min(float(declared), MAX_CRAWL_DELAY_SECONDS))
+ 
+     queue: deque[tuple[str, int]] = deque([(start, 0)])
+     seen_urls = {start}
+@@ -174,7 +183,14 @@ def crawl(
+             stats.unsupported_type += 1
+             continue
+         final = canonicalize_url(result.url)
+-        page = extract_html(result.body.decode(_charset(result.headers), errors="replace"), final)
++        try:
++            page = parse(result.body, _charset(result.headers), final)
++        except IngestionError as exc:
++            stats.errors += 1
++            _note(stats, exc)
++            if url == start:
++                raise  # nothing can be crawled; the job decides whether to retry
++            continue
+         if page.noindex:
+             stats.noindex += 1
+         if depth < config.max_depth and not page.nofollow:
+diff --git a/services/api/app/rag/errors.py b/services/api/app/rag/errors.py
+index 060a48e..64e3c9d 100644
+--- a/services/api/app/rag/errors.py
++++ b/services/api/app/rag/errors.py
+@@ -24,6 +24,12 @@ USER_MESSAGES: dict[str, str] = {
+     "fetch_failed": "The page couldn't be fetched.",
+     "robots_disallowed": "The site's robots.txt doesn't allow crawling this page.",
+     "low_content": "The page has too little text to be useful.",
++    "parse_timeout": "The file took too long to read. Split or simplify it, then retry.",
++    "parse_resource_limit": (
++        "The file needs more resources to read than are allowed. Split or simplify it, then retry."
++    ),
++    "parse_invalid_output": "The file couldn't be read. Retry, or contact support.",
++    "task_timeout": "Processing took too long. Retry later, or split the document.",
+     "internal_error": "Something went wrong while processing. Retry, or contact support.",
+ }
+ 
+diff --git a/services/api/app/rag/maintenance.py b/services/api/app/rag/maintenance.py
+index 1c6a151..14f80bd 100644
+--- a/services/api/app/rag/maintenance.py
++++ b/services/api/app/rag/maintenance.py
+@@ -1,4 +1,5 @@
+-"""Periodic maintenance: re-queue stuck jobs and finish pending storage deletions.
++"""Periodic maintenance: re-queue stuck jobs and finish pending storage deletions, plus the
++bookkeeping for jobs waiting on their organization's admission limit.
+ 
+ Cross-tenant discovery goes through two narrow SECURITY DEFINER functions (no BYPASSRLS role);
+ each item is then handled inside its own organization's context.
+@@ -13,14 +14,25 @@ from sqlalchemy import text
+ 
+ from app.core.logging import get_logger
+ from app.models.identity import utcnow
++from app.rag.errors import USER_MESSAGES
++from app.rag.pipeline import (
++    REFRESH_SOURCE_SQL,
++    active_jobs,
++    fail_interrupted_pages,
++    lock_source,
++)
+ from app.rag.queue import JobQueue
+ from app.rag.storage import StorageError, key_belongs_to_org
+ 
+ if TYPE_CHECKING:
++    import uuid
++
+     from app.rag.runtime import Runtime
+ 
+ log = get_logger(__name__)
+ 
++_INTERRUPTED = "Processing was interrupted too many times. Retry."
++
+ 
+ def sweep_jobs(rt: Runtime, queue: JobQueue, *, now_offset: timedelta = timedelta(0)) -> int:
+     """Re-publish jobs that are stuck or were never delivered. Returns how many were re-queued.
+@@ -40,29 +52,55 @@ def sweep_jobs(rt: Runtime, queue: JobQueue, *, now_offset: timedelta = timedelt
+     requeued = 0
+     for job_id, org_id, kind, status in rows:
+         with rt.tenant_tx(org_id) as s:
++            job = s.execute(
++                text("SELECT document_id, source_id FROM ingestion_jobs WHERE id = :id"),
++                {"id": job_id},
++            ).first()
++            if job is None:
++                continue
++            document_id, source_id = job
+             if status == "processing":
+-                s.execute(
++                lock_source(s, source_id)
++                if document_id is not None:  # same lock order as publication and deletion
++                    s.execute(
++                        text("SELECT 1 FROM documents WHERE id = :id FOR UPDATE"),
++                        {"id": document_id},
++                    )
++                # Re-checked here: the worker may have heartbeated since the job was listed.
++                reset = s.execute(
+                     text(
+                         "UPDATE ingestion_jobs SET status = CASE WHEN attempt >= max_attempts "
+                         "THEN 'failed' ELSE 'queued' END, queued_at = now(), "
+                         "error_code = CASE WHEN attempt >= max_attempts THEN 'internal_error' "
+                         "ELSE error_code END, finished_at = CASE WHEN attempt >= max_attempts "
+-                        "THEN now() END WHERE id = :id AND status = 'processing'"
++                        "THEN now() END WHERE id = :id AND status = 'processing' "
++                        "AND coalesce(heartbeat_at, started_at) < :stuck RETURNING id"
+                     ),
+-                    {"id": job_id},
+-                )
++                    {"id": job_id, "stuck": stuck_before},
++                ).first()
++                if reset is None:
++                    continue
+             state = s.scalar(
+                 text("SELECT status FROM ingestion_jobs WHERE id = :id"), {"id": job_id}
+             )
+-            if state == "failed":
++            # Only a job this sweep gave up on: an older one may have a newer job behind it.
++            if state == "failed" and status == "processing":
+                 s.execute(
+                     text(
+                         "UPDATE documents SET status = 'failed', error_code = 'internal_error', "
+-                        "error_message = 'Processing was interrupted too many times. Retry.' "
+-                        "WHERE id = (SELECT document_id FROM ingestion_jobs WHERE id = :id) "
+-                        "AND status IN ('queued', 'processing')"
++                        "error_message = :msg WHERE id = :id AND status IN ('queued', 'processing')"
+                     ),
+-                    {"id": job_id},
++                    {"id": document_id, "msg": _INTERRUPTED},
++                )
++                if document_id is None:
++                    fail_interrupted_pages(
++                        s, source_id, "internal_error", USER_MESSAGES["internal_error"]
++                    )
++                s.execute(REFRESH_SOURCE_SQL, {"sid": source_id})
++            elif state == "queued" and status == "processing":
++                s.execute(
++                    text("UPDATE documents SET status = 'queued' WHERE id = :id"),
++                    {"id": document_id},
+                 )
+         if state == "queued":
+             queue.enqueue(org_id=org_id, job_id=job_id, kind=kind)
+@@ -72,8 +110,51 @@ def sweep_jobs(rt: Runtime, queue: JobQueue, *, now_offset: timedelta = timedelt
+     return requeued
+ 
+ 
++def defer_job(rt: Runtime, org_id: uuid.UUID, job_id: uuid.UUID, *, touch: bool) -> None:
++    """Mark a job as waiting for its organization's permit; it uses no attempt.
++
++    ``touch`` refreshes ``queued_at`` while a rescheduled message is outstanding, so the sweeper
++    does not add another. Without it the sweeper republishes the job after its usual delay.
++    """
++    with rt.tenant_tx(org_id) as s:
++        s.execute(
++            text(
++                "UPDATE ingestion_jobs SET stats = stats || jsonb_build_object('deferred', true), "
++                "queued_at = CASE WHEN :touch THEN now() ELSE queued_at END "
++                "WHERE id = :id AND status = 'queued'"
++            ),
++            {"id": job_id, "touch": touch},
++        )
++
++
++def wake_next(rt: Runtime, queue: JobQueue, org_id: uuid.UUID) -> bool:
++    """Publish the organization's oldest deferred job if a permit is free.
++
++    Duplicate messages are harmless: only one delivery can claim the job. Jobs waiting for a
++    retry backoff (they carry an ``error_code``) are left to their own schedule.
++    """
++    with rt.tenant_tx(org_id) as s:
++        if active_jobs(s, rt, org_id) >= rt.settings.ingest_max_active_per_org:
++            return False
++        row = s.execute(
++            text(
++                "SELECT id, kind FROM ingestion_jobs WHERE org_id = :org AND status = 'queued' "
++                "AND error_code IS NULL AND jsonb_exists(stats, 'deferred') ORDER BY id LIMIT 1"
++            ),
++            {"org": org_id},
++        ).first()
++    if row is None:
++        return False
++    queue.enqueue(org_id=org_id, job_id=row[0], kind=row[1])
++    return True
++
++
+ def purge_storage(rt: Runtime, *, limit: int = 100) -> int:
+-    """Delete originals whose documents were removed. Returns the number of objects deleted."""
++    """Delete originals that are no longer wanted. Returns the number of objects deleted.
++
++    Covers originals of removed or re-published documents and uploads that were never published.
++    The latter carry a time before which they are left alone (see ``originals``).
++    """
+     with rt.session_factory() as session, session.begin():
+         rows = session.execute(
+             text(
+@@ -84,16 +165,26 @@ def purge_storage(rt: Runtime, *, limit: int = 100) -> int:
+         ).all()
+     deleted = 0
+     for deletion_id, org_id, key in rows:
+-        if key_belongs_to_org(key, org_id):  # a key outside the org's prefix is never touched
++        # Claim first and commit: a claimed key can no longer be adopted by a publisher, so the
++        # object can then be deleted with no transaction open.
++        with rt.tenant_tx(org_id) as s:
++            claimed = s.execute(
++                text(
++                    "UPDATE storage_deletions SET attempts = attempts + 1 "
++                    "WHERE id = :id AND created_at <= now() "
++                    "RETURNING EXISTS (SELECT 1 FROM documents d "
++                    "WHERE d.storage_key = storage_deletions.storage_key) AS in_use"
++                ),
++                {"id": deletion_id},
++            ).first()
++        if claimed is None:
++            continue  # not due yet
++        # A key outside the org's prefix, or one a document points at, is never touched.
++        if key_belongs_to_org(key, org_id) and not claimed.in_use:
+             try:
+                 rt.store.delete(key)
+             except StorageError:
+-                with rt.tenant_tx(org_id) as s:
+-                    s.execute(
+-                        text("UPDATE storage_deletions SET attempts = attempts + 1 WHERE id = :id"),
+-                        {"id": deletion_id},
+-                    )
+-                continue
++                continue  # the record stays, to be retried
+             deleted += 1
+         with rt.tenant_tx(org_id) as s:
+             s.execute(text("DELETE FROM storage_deletions WHERE id = :id"), {"id": deletion_id})
+diff --git a/services/api/app/rag/pipeline.py b/services/api/app/rag/pipeline.py
+index 610354e..5a39cfd 100644
+--- a/services/api/app/rag/pipeline.py
++++ b/services/api/app/rag/pipeline.py
+@@ -6,6 +6,15 @@ Reliability rules:
+   ``processing``);
+   a second delivery of the same message claims nothing and exits. A partial unique index also
+   forbids two active jobs for one document.
++* **Attempt fencing.** ``attempt`` only ever grows, on claim. Every later transition (heartbeat,
++  publish, fail, requeue) requires ``status = 'processing' AND attempt = <mine>``, so a worker
++  that was reset by the sweeper, superseded or whose document was deleted changes nothing.
++* **Per-organization admission.** At most ``ingest_max_active_per_org`` heavy jobs of one
++  organization run at once, counted from the job rows themselves; there is no separate permit to
++  leak, and a dead worker's row stops counting after the stuck threshold.
++* **Isolated parsing.** Originals are parsed in a supervised child (``parser_runner``).
++* **Originals are never overwritten.** A re-fetched original gets a new key, published together
++  with its chunks (``originals``); a job never publishes from an original that was replaced.
+ * **Atomic publish.** Chunks are written in one transaction together with the document's new
+   ``version``, ``ready`` status and the job's ``succeeded`` state, and older versions' chunks are
+   deleted in the same transaction. Readers never see half-indexed or duplicated content, and a
+@@ -24,21 +33,25 @@ import uuid
+ from dataclasses import dataclass
+ from typing import TYPE_CHECKING, Any
+ 
++from celery.exceptions import SoftTimeLimitExceeded
+ from sqlalchemy import delete, insert, select, text
+ from sqlalchemy.exc import DBAPIError, OperationalError
+ 
+ from app.core.ids import new_id
+ from app.core.logging import get_logger
+-from app.models.knowledge import Document, DocumentChunk
++from app.models.knowledge import Document, DocumentChunk, KnowledgeSource
++from app.rag import originals
+ from app.rag.chunking import chunk_blocks
+ from app.rag.errors import IngestionError, TransientIngestionError
+-from app.rag.extract import ExtractedDocument, extract_document
+-from app.rag.html_extract import extract_html
++from app.rag.extract import ExtractedDocument
++from app.rag.parser_runner import ParseCancelledError
+ from app.rag.storage import ObjectNotFoundError, StorageError, key_belongs_to_org
+ 
+ if TYPE_CHECKING:
+     from collections.abc import Callable
+ 
++    from sqlalchemy.orm import Session
++
+     from app.rag.runtime import Runtime
+ 
+ log = get_logger(__name__)
+@@ -97,9 +110,51 @@ def backoff_seconds(attempt: int, base: int, cap: int) -> int:
+ # ---------------------------------------------------------------------------- job state
+ 
+ 
++class JobDeferredError(Exception):
++    """The organization already runs its permitted heavy ingestion work."""
++
++
++class StaleClaimError(Exception):
++    """This attempt no longer owns the job (deleted, reset or superseded)."""
++
++
++def _owner(claim: JobClaim) -> dict[str, Any]:
++    return {"id": claim.job_id, "attempt": claim.attempt}
++
++
++def active_jobs(s: Session, rt: Runtime, org_id: uuid.UUID) -> int:
++    """Heavy jobs of ``org_id`` that are running and have not gone silent."""
++    return int(
++        s.execute(
++            text(
++                "SELECT count(*) FROM ingestion_jobs WHERE org_id = :org "
++                "AND status = 'processing' "
++                "AND coalesce(heartbeat_at, started_at) > now() - make_interval(secs => :stuck)"
++            ),
++            {"org": org_id, "stuck": rt.settings.ingest_stuck_after_seconds},
++        ).scalar_one()
++    )
++
++
+ def claim_job(rt: Runtime, org_id: uuid.UUID, job_id: uuid.UUID) -> JobClaim | None:
+-    """Atomically move a ``queued`` job to ``processing``; ``None`` if someone else has it."""
++    """Atomically move a ``queued`` job to ``processing``; ``None`` if someone else has it.
++
++    Raises ``JobDeferredError``, leaving the job untouched, when the organization is at its limit.
++    """
+     with rt.tenant_tx(org_id) as s:
++        # Serializes admission for this organization across every worker process.
++        s.execute(
++            text("SELECT pg_advisory_xact_lock(hashtextextended(:key, 0))"),
++            {"key": f"ingest-admission:{org_id}"},
++        )
++        state = s.execute(
++            text("SELECT status FROM ingestion_jobs WHERE id = :id AND org_id = :org"),
++            {"id": job_id, "org": org_id},
++        ).scalar_one_or_none()
++        if state != "queued":
++            return None
++        if active_jobs(s, rt, org_id) >= rt.settings.ingest_max_active_per_org:
++            raise JobDeferredError
+         row = s.execute(
+             text(
+                 """
+@@ -118,15 +173,59 @@ def claim_job(rt: Runtime, org_id: uuid.UUID, job_id: uuid.UUID) -> JobClaim | N
+     return JobClaim(job_id, org_id, *row)
+ 
+ 
++def lock_source(s: Session, source_id: uuid.UUID) -> None:
++    """Take first, before document and job: deleting a source locks in that order too."""
++    s.execute(
++        text("SELECT 1 FROM knowledge_sources WHERE id = :id FOR KEY SHARE"), {"id": source_id}
++    )
++
++
++def lock_claim(s: Session, claim: JobClaim) -> bool:
++    """Lock the job row if this attempt still owns it. Lock source and document first."""
++    return (
++        s.execute(
++            text(
++                "SELECT 1 FROM ingestion_jobs "
++                "WHERE id = :id AND status = 'processing' AND attempt = :attempt FOR UPDATE"
++            ),
++            _owner(claim),
++        ).first()
++        is not None
++    )
++
++
++def _lock_document(s: Session, document_id: uuid.UUID | None) -> None:
++    if document_id is not None:
++        s.execute(text("SELECT 1 FROM documents WHERE id = :id FOR UPDATE"), {"id": document_id})
++
++
++def claim_is_current(rt: Runtime, claim: JobClaim) -> bool:
++    """Refresh the heartbeat if this attempt still owns the job."""
++    with rt.tenant_tx(claim.org_id) as s:
++        return (
++            s.execute(
++                text(
++                    "UPDATE ingestion_jobs SET heartbeat_at = now() WHERE id = :id "
++                    "AND status = 'processing' AND attempt = :attempt RETURNING id"
++                ),
++                _owner(claim),
++            ).first()
++            is not None
++        )
++
++
+ def heartbeat(rt: Runtime, claim: JobClaim, stage: str, **stats: Any) -> None:
+     with rt.tenant_tx(claim.org_id) as s:
+-        s.execute(
++        owned = s.execute(
+             text(
+                 "UPDATE ingestion_jobs SET heartbeat_at = now(), stage = :stage, "
+-                "stats = stats || CAST(:stats AS jsonb) WHERE id = :id"
++                "stats = stats || CAST(:stats AS jsonb) WHERE id = :id "
++                "AND status = 'processing' AND attempt = :attempt RETURNING id"
+             ),
+-            {"id": claim.job_id, "stage": stage, "stats": _json(stats)},
+-        )
++            {**_owner(claim), "stage": stage, "stats": _json(stats)},
++        ).first()
++    if owned is None:
++        raise StaleClaimError
+ 
+ 
+ def _json(value: dict[str, Any]) -> str:
+@@ -135,15 +234,34 @@ def _json(value: dict[str, Any]) -> str:
+     return json.dumps(value)
+ 
+ 
+-def fail_job(rt: Runtime, claim: JobClaim, exc: IngestionError) -> None:
++def fail_interrupted_pages(s: Session, source_id: uuid.UUID, code: str, message: str) -> None:
++    """A crawl that ends for good must not leave pages it was indexing as ``processing``."""
++    s.execute(
++        text(
++            "UPDATE documents d SET status = 'failed', error_code = :code, error_message = :msg "
++            "WHERE d.source_id = :sid AND d.status = 'processing' AND NOT EXISTS ("
++            "SELECT 1 FROM ingestion_jobs j WHERE j.document_id = d.id "
++            "AND j.status IN ('queued', 'processing'))"
++        ),
++        {"sid": source_id, "code": code, "msg": message},
++    )
++
++
++def fail_job(rt: Runtime, claim: JobClaim, exc: IngestionError) -> bool:
++    """Record a final failure. ``False``, changing nothing, if the claim was lost."""
+     with rt.tenant_tx(claim.org_id) as s:
+-        s.execute(
++        lock_source(s, claim.source_id)
++        _lock_document(s, claim.document_id)
++        owned = s.execute(
+             text(
+                 "UPDATE ingestion_jobs SET status = 'failed', finished_at = now(), "
+-                "error_code = :code, error_detail = :detail WHERE id = :id"
++                "error_code = :code, error_detail = :detail WHERE id = :id "
++                "AND status = 'processing' AND attempt = :attempt RETURNING id"
+             ),
+-            {"id": claim.job_id, "code": exc.code, "detail": (exc.detail or "")[:300]},
+-        )
++            {**_owner(claim), "code": exc.code, "detail": (exc.detail or "")[:300]},
++        ).first()
++        if owned is None:
++            return False
+         if claim.document_id is not None:
+             s.execute(
+                 text(
+@@ -152,38 +270,103 @@ def fail_job(rt: Runtime, claim: JobClaim, exc: IngestionError) -> None:
+                 ),
+                 {"id": claim.document_id, "code": exc.code, "msg": exc.user_message},
+             )
++        else:
++            fail_interrupted_pages(s, claim.source_id, exc.code, exc.user_message)
+         s.execute(REFRESH_SOURCE_SQL, {"sid": claim.source_id})
+     log.warning("ingest.job_failed", job_id=str(claim.job_id), code=exc.code, attempt=claim.attempt)
++    return True
++
+ 
++def requeue_job(rt: Runtime, claim: JobClaim, exc: IngestionError) -> bool:
++    """Back to ``queued`` so the next delivery can claim it (attempt count is kept).
+ 
+-def requeue_job(rt: Runtime, claim: JobClaim, exc: IngestionError) -> None:
+-    """Back to ``queued`` so the next delivery can claim it (attempt count is kept)."""
++    ``False``, changing nothing, if the claim was lost.
++    """
+     with rt.tenant_tx(claim.org_id) as s:
+-        s.execute(
++        _lock_document(s, claim.document_id)
++        owned = s.execute(
+             text(
+                 "UPDATE ingestion_jobs SET status = 'queued', queued_at = now(), "
+-                "error_code = :code WHERE id = :id"
++                "error_code = :code WHERE id = :id "
++                "AND status = 'processing' AND attempt = :attempt RETURNING id"
+             ),
+-            {"id": claim.job_id, "code": exc.code},
+-        )
++            {**_owner(claim), "code": exc.code},
++        ).first()
++        if owned is None:
++            return False
+         if claim.document_id is not None:
+             s.execute(
+                 text("UPDATE documents SET status = 'queued' WHERE id = :id"),
+                 {"id": claim.document_id},
+             )
++    return True
++
++
++def _abandoned(rt: Runtime, claim: JobClaim) -> str:
++    """Outcome for an attempt that lost its claim: ``gone`` if deleted, else ``stale``."""
++    with rt.tenant_tx(claim.org_id) as s:
++        if claim.document_id is not None:
++            exists = s.get(Document, claim.document_id) is not None
++        else:
++            exists = s.get(KnowledgeSource, claim.source_id) is not None
++    outcome = "stale" if exists else "gone"
++    log.info("ingest.attempt_abandoned", job_id=str(claim.job_id), outcome=outcome)
++    return outcome
++
++
++def run_claimed(
++    rt: Runtime,
++    claim: JobClaim,
++    work: Callable[[], str],
++    *,
++    transient: tuple[type[Exception], ...],
++    transient_code: str,
++) -> str:
++    """Run ``work`` for a claimed job and record its outcome, only while the claim holds.
++
++    Raises ``TransientIngestionError`` (after re-queueing the job) when Celery should retry.
++    """
++    failure: IngestionError
++    try:
++        return work()
++    except (StaleClaimError, ParseCancelledError):
++        return _abandoned(rt, claim)
++    except IngestionError as exc:
++        failure = exc
++    except SoftTimeLimitExceeded:
++        failure = TransientIngestionError("task_timeout", "task soft time limit")
++    except transient as exc:
++        failure = TransientIngestionError(transient_code, type(exc).__name__)
++    except Exception as exc:  # unexpected bug: record it, don't loop forever
++        log.exception("ingest.unexpected_error", job_id=str(claim.job_id))
++        failure = IngestionError("internal_error", type(exc).__name__)
++    if failure.retryable and claim.attempt < claim.max_attempts:
++        if requeue_job(rt, claim, failure):
++            raise failure
++    elif fail_job(rt, claim, failure):
++        return "failed"
++    return _abandoned(rt, claim)
+ 
+ 
+ # ---------------------------------------------------------------------------- extraction
+ 
+ 
+-def extract_stored(rt: Runtime, data: bytes, mime_type: str, uri: str) -> ExtractedDocument:
++def extract_stored(
++    rt: Runtime,
++    data: bytes,
++    mime_type: str,
++    uri: str,
++    *,
++    cancelled: Callable[[], bool] | None = None,
++) -> ExtractedDocument:
++    """Parse a stored original in the supervised child, never in this process."""
+     if mime_type == HTML:
+-        page = extract_html(data.decode("utf-8", errors="replace"), uri)
++        page = rt.parser.html(data, uri, cancelled=cancelled)
+         doc = ExtractedDocument(blocks=page.blocks, title=page.title)
+         if not doc.text.strip():
+             raise IngestionError("no_text")
+         return doc
+-    return extract_document(data, mime_type, rt.limits)
++    return rt.parser.document(data, mime_type, rt.limits, cancelled=cancelled)
+ 
+ 
+ # --------------------------------------------------------------------------- indexing
+@@ -196,6 +379,15 @@ class IndexResult:
+     version: int
+ 
+ 
++@dataclass(frozen=True)
++class StoredOriginal:
++    """An object written for a document that does not point at it yet."""
++
++    key: str
++    size: int
++    etag: str | None
++
++
+ def index_document(
+     rt: Runtime,
+     *,
+@@ -203,11 +395,20 @@ def index_document(
+     chatbot_id: uuid.UUID,
+     document_id: uuid.UUID,
+     extracted: ExtractedDocument,
++    claim: JobClaim,
+     title: str | None = None,
+-    job_id: uuid.UUID | None = None,
++    completes_job: bool = False,
+     on_stage: Callable[[str], None] | None = None,
++    original: StoredOriginal | None = None,
++    read_from: str | None = None,
+ ) -> IndexResult | None:
+-    """Chunk, embed and atomically publish ``extracted``. ``None`` if the document was deleted."""
++    """Chunk, embed and atomically publish ``extracted``. ``None`` if the document was deleted.
++
++    ``original`` is adopted in the publishing transaction. ``read_from`` is the key
++    ``extracted`` came from: publishing is refused if the document has moved to another one.
++
++    Raises ``StaleClaimError``, publishing nothing, if ``claim`` was lost before the commit.
++    """
+     stage = on_stage or (lambda _name: None)
+     digest = hashlib.sha256(extracted.text.encode()).digest()
+ 
+@@ -247,11 +448,15 @@ def index_document(
+         "overlap_tokens": rt.chunking.overlap_tokens,
+     }
+     with rt.tenant_tx(org_id) as s:
++        lock_source(s, claim.source_id)
+         document = s.execute(
+             select(Document).where(Document.id == document_id).with_for_update()
+         ).scalar_one_or_none()
+         if document is None:
+             return None  # deleted while processing: its job and chunks are already gone
++        if not lock_claim(s, claim):
++            raise StaleClaimError
++        _settle_original(s, document, original, read_from)
+         version = document.version + 1
+         s.execute(
+             insert(DocumentChunk),
+@@ -293,60 +498,65 @@ def index_document(
+         document.error_message = None
+         if title:
+             document.title = title[:300]
+-        if job_id is not None:
++        if completes_job:
+             s.execute(
+                 text(
+                     "UPDATE ingestion_jobs SET status = 'succeeded', finished_at = now(), "
+                     "stage = 'done', heartbeat_at = now(), error_code = NULL, "
+                     "stats = stats || CAST(:stats AS jsonb) WHERE id = :id"
+                 ),
+-                {"id": job_id, "stats": _json({"chunks": len(chunks), "tokens": tokens})},
++                {"id": claim.job_id, "stats": _json({"chunks": len(chunks), "tokens": tokens})},
+             )
+         s.execute(REFRESH_SOURCE_SQL, {"sid": document.source_id})
+     log.info("ingest.document_indexed", document_id=str(document_id), chunks=len(chunks))
+     return IndexResult(len(chunks), tokens, version)
+ 
+ 
++def _settle_original(
++    s: Session, document: Document, original: StoredOriginal | None, read_from: str | None
++) -> None:
++    """In the publishing transaction: the chunks and the original they came from agree."""
++    if read_from is not None and document.storage_key != read_from:
++        raise TransientIngestionError("storage_error", "original was replaced")
++    if original is not None:
++        originals.adopt(s, document, original.key, size=original.size, etag=original.etag)
++
++
+ # ------------------------------------------------------------------- document job runner
+ 
+ 
+ def run_document_job(rt: Runtime, org_id: uuid.UUID, job_id: uuid.UUID) -> str:
+-    """Process one ``process_document`` job. Returns ``done|skipped|failed|gone``.
++    """Process one ``process_document`` job.
+ 
+-    Raises ``TransientIngestionError`` (after re-queueing the job) when Celery should retry.
++    Returns ``done|skipped|deferred|failed|gone|stale``. Raises ``TransientIngestionError``
++    (after re-queueing the job) when Celery should retry.
+     """
+-    claim = claim_job(rt, org_id, job_id)
++    try:
++        claim = claim_job(rt, org_id, job_id)
++    except JobDeferredError:
++        log.info("ingest.job_deferred", job_id=str(job_id))
++        return "deferred"
+     if claim is None or claim.document_id is None:
+         log.info("ingest.job_skipped", job_id=str(job_id))
+         return "skipped"
+-    try:
+-        return _process_document(rt, claim)
+-    except IngestionError as exc:
+-        if exc.retryable and claim.attempt < claim.max_attempts:
+-            requeue_job(rt, claim, exc)
+-            raise
+-        fail_job(rt, claim, exc)
+-        return "failed"
+-    except (OperationalError, DBAPIError, StorageError) as exc:
+-        wrapped = TransientIngestionError("internal_error", type(exc).__name__)
+-        if claim.attempt < claim.max_attempts:
+-            requeue_job(rt, claim, wrapped)
+-            raise wrapped from exc
+-        fail_job(rt, claim, wrapped)
+-        return "failed"
+-    except Exception as exc:  # unexpected bug: record it, don't loop forever
+-        log.exception("ingest.unexpected_error", job_id=str(job_id))
+-        fail_job(rt, claim, IngestionError("internal_error", type(exc).__name__))
+-        return "failed"
++    return run_claimed(
++        rt,
++        claim,
++        lambda: _process_document(rt, claim),
++        transient=(OperationalError, DBAPIError, StorageError),
++        transient_code="internal_error",
++    )
+ 
+ 
+ def _process_document(rt: Runtime, claim: JobClaim) -> str:
+     assert claim.document_id is not None  # noqa: S101
+     document_id = claim.document_id
+     with rt.tenant_tx(claim.org_id) as s:
+-        document = s.get(Document, document_id)
++        document = s.get(Document, document_id, with_for_update=True)
+         if document is None:
+             return "gone"
++        if not lock_claim(s, claim):
++            raise StaleClaimError
+         document.status = "processing"
+         document.error_code = None
+         document.error_message = None
+@@ -362,21 +572,32 @@ def _process_document(rt: Runtime, claim: JobClaim) -> str:
+     try:
+         data = rt.store.get(storage_key, max_bytes=rt.settings.upload_max_bytes + 1024)
+     except ObjectNotFoundError as exc:
++        if _current_key(rt, claim.org_id, document_id) != storage_key:
++            raise TransientIngestionError("storage_error", "original was replaced") from exc
+         raise IngestionError("storage_error", "original is missing") from exc
+     except StorageError as exc:
+         raise TransientIngestionError("storage_error", "storage unavailable") from exc
+     if file_hash is not None and hashlib.sha256(data).digest() != file_hash:
+         raise IngestionError("corrupt", "stored file does not match its recorded hash")
+ 
+-    extracted = extract_stored(rt, data, mime_type, uri)
++    extracted = extract_stored(
++        rt, data, mime_type, uri, cancelled=lambda: not claim_is_current(rt, claim)
++    )
+     result = index_document(
+         rt,
+         org_id=claim.org_id,
+         chatbot_id=claim.chatbot_id,
+         document_id=document_id,
+         extracted=extracted,
++        claim=claim,
+         title=extracted.title if is_web else None,
+-        job_id=claim.job_id,
++        completes_job=True,
+         on_stage=lambda name: heartbeat(rt, claim, name),
++        read_from=storage_key,
+     )
+     return "done" if result is not None else "gone"
++
++
++def _current_key(rt: Runtime, org_id: uuid.UUID, document_id: uuid.UUID) -> str | None:
++    with rt.tenant_tx(org_id) as s:
++        return s.scalar(select(Document.storage_key).where(Document.id == document_id))
+diff --git a/services/api/app/rag/runtime.py b/services/api/app/rag/runtime.py
+index 3522898..8df6dc4 100644
+--- a/services/api/app/rag/runtime.py
++++ b/services/api/app/rag/runtime.py
+@@ -19,6 +19,7 @@ from sqlalchemy.orm import Session, sessionmaker
+ from app.rag.chunking import ChunkingConfig
+ from app.rag.embeddings import Embedder, build_embedder
+ from app.rag.extract import Limits
++from app.rag.parser_runner import ParserLimits, ParserRunner
+ from app.rag.safe_fetch import SafeFetcher
+ from app.rag.storage import ObjectStore, build_object_store
+ 
+@@ -37,6 +38,7 @@ class Runtime:
+     store: ObjectStore
+     embedder: Embedder
+     fetcher: SafeFetcher
++    parser: ParserRunner
+     engine: Engine | None = None
+ 
+     @property
+@@ -73,6 +75,20 @@ def build_fetcher(settings: Settings) -> SafeFetcher:
+     )
+ 
+ 
++def build_parser(settings: Settings) -> ParserRunner:
++    return ParserRunner(
++        ParserLimits(
++            wall_seconds=settings.parser_wall_seconds,
++            cpu_seconds=settings.parser_cpu_seconds,
++            memory_bytes=settings.parser_memory_bytes,
++            # The approved upload and fetch limits; storage reads allow the same headroom.
++            max_input_bytes=max(settings.upload_max_bytes + 1024, settings.fetch_max_bytes),
++            max_result_bytes=settings.parser_max_result_bytes,
++            require_containment=settings.app_env in {"staging", "production"},
++        )
++    )
++
++
+ def build_runtime(settings: Settings) -> Runtime:
+     engine = create_engine(
+         str(settings.database_url),
+@@ -87,6 +103,7 @@ def build_runtime(settings: Settings) -> Runtime:
+         store=build_object_store(settings),
+         embedder=build_embedder(settings),
+         fetcher=build_fetcher(settings),
++        parser=build_parser(settings),
+         engine=engine,
+     )
+ 
+diff --git a/services/api/app/rag/storage.py b/services/api/app/rag/storage.py
+index 2ab4625..d7d53e8 100644
+--- a/services/api/app/rag/storage.py
++++ b/services/api/app/rag/storage.py
+@@ -6,6 +6,7 @@ Access control:
+   handed to a browser. Files leave storage only through the API, after authorization.
+ * Keys are generated by the server from UUIDs (``orgs/{org}/chatbots/{bot}/documents/{doc}/...``);
+   user-supplied filenames never become part of a key, so path tricks are impossible.
++* An object is written once. Content that is fetched again gets a new key (``originals``).
+ * Callers check ``key_belongs_to_org`` before reading or deleting, so a bug that passes another
+   tenant's key fails closed instead of returning their file.
+ """
+@@ -46,6 +47,14 @@ def document_key(
+     return f"orgs/{org_id}/chatbots/{chatbot_id}/documents/{document_id}/v{version}/original"
+ 
+ 
++def generation_key(
++    org_id: uuid.UUID, chatbot_id: uuid.UUID, document_id: uuid.UUID, generation: uuid.UUID
++) -> str:
++    return (
++        f"orgs/{org_id}/chatbots/{chatbot_id}/documents/{document_id}/g-{generation.hex}/original"
++    )
++
++
+ def key_belongs_to_org(key: str, org_id: uuid.UUID) -> bool:
+     return key.startswith(f"orgs/{org_id}/") and ".." not in key
+ 
+diff --git a/services/api/app/services/chat_controls.py b/services/api/app/services/chat_controls.py
+index 4174152..136281e 100644
+--- a/services/api/app/services/chat_controls.py
++++ b/services/api/app/services/chat_controls.py
+@@ -6,6 +6,7 @@ import asyncio
+ import contextlib
+ import time
+ import uuid
++from collections import deque
+ from dataclasses import dataclass
+ from decimal import Decimal
+ from typing import TYPE_CHECKING
+@@ -33,6 +34,15 @@ redis.call('EXPIRE', KEYS[1], ARGV[5])
+ redis.call('SET', KEYS[2], ARGV[3], 'EX', ARGV[5])
+ return 1
+ """
++# Waiters share one event loop with the requests already admitted, so every refused attempt costs
++# them time (PERF-01). A release in this process wakes one waiter at once. Polling is only the
++# fallback, for slots freed by another process or by expiry: prompt at first, then backing off.
++ADMISSION_POLL_MIN_SECONDS = 0.01
++ADMISSION_POLL_MAX_SECONDS = 0.2
++
++#: Requests of this process waiting for a slot, oldest first, per organization key.
++_waiting: dict[str, deque[asyncio.Event]] = {}
++
+ _RELEASE = """
+ redis.call('ZREM', KEYS[1], ARGV[1])
+ if redis.call('GET', KEYS[2]) == ARGV[1] then redis.call('DEL', KEYS[2]) end
+@@ -48,13 +58,26 @@ class Lease:
+ 
+     async def release(self, redis: Redis) -> None:
+         await redis.eval(_RELEASE, 2, self.org_key, self.conversation_key, self.token)
++        wake(self.org_key)
++
++
++def org_key(org_id: uuid.UUID) -> str:
++    return f"chat:{{{org_id}}}:active"
++
++
++def wake(key: str) -> None:
++    """Tell the oldest waiter not yet told that a slot may be free. Only a hint: it still asks."""
++    for signal in _waiting.get(key, ()):
++        if not signal.is_set():
++            signal.set()
++            return
+ 
+ 
+ async def acquire(
+     redis: Redis, org_id: uuid.UUID, conversation_id: uuid.UUID, settings: Settings
+ ) -> Lease:
+     lease = Lease(
+-        f"chat:{{{org_id}}}:active",
++        org_key(org_id),
+         f"chat:{{{org_id}}}:conversation:{conversation_id}",
+         uuid.uuid4().hex,
+     )
+@@ -90,6 +113,45 @@ async def acquire(
+     return lease
+ 
+ 
++async def admit(
++    redis: Redis, org_id: uuid.UUID, conversation_id: uuid.UUID, settings: Settings
++) -> Lease:
++    """`acquire`, waiting up to the admission window while the conversation or workspace is busy."""
++    loop = asyncio.get_running_loop()
++    deadline = loop.time() + settings.chat_admission_wait_seconds
++    delay = ADMISSION_POLL_MIN_SECONDS
++    key = org_key(org_id)
++    signal = asyncio.Event()
++    queued = admitted = False
++    try:
++        while True:
++            signal.clear()
++            try:
++                lease = await acquire(redis, org_id, conversation_id, settings)
++                admitted = True
++                return lease
++            except ApiError as exc:
++                remaining = deadline - loop.time()
++                if exc.code != "chat_busy" or remaining <= 0:
++                    raise
++            if not queued:
++                _waiting.setdefault(key, deque()).append(signal)
++                queued = True
++            # Never sleep past the window: the last attempt happens as it closes.
++            with contextlib.suppress(TimeoutError):
++                async with asyncio.timeout(min(delay, remaining)):
++                    await signal.wait()
++            delay = min(delay * 2, ADMISSION_POLL_MAX_SECONDS)
++    finally:
++        if queued:
++            queue = _waiting[key]
++            queue.remove(signal)
++            if not queue:
++                del _waiting[key]
++            elif signal.is_set() and not admitted:
++                wake(key)  # the hint was not used: pass it on
++
++
+ def cost(input_tokens: int, output_tokens: int, prices: tuple[float, float]) -> Decimal:
+     return (
+         Decimal(input_tokens) * Decimal(str(prices[0]))
+diff --git a/services/api/app/services/conversations.py b/services/api/app/services/conversations.py
+index 2bdf045..a951b41 100644
+--- a/services/api/app/services/conversations.py
++++ b/services/api/app/services/conversations.py
+@@ -28,7 +28,7 @@ from app.models.tenancy import Organization
+ from app.rag.retrieval import RenderedEvidence, authorize_chunks, search
+ from app.schemas.conversations import SendMessage
+ from app.services.chat_access import ChatAccess
+-from app.services.chat_controls import Lease, acquire, cost, reserve
++from app.services.chat_controls import Lease, admit, cost, reserve
+ from app.services.chat_prompt import (
+     CitationStream,
+     assemble,
+@@ -176,6 +176,9 @@ class Turn:
+     reserved_cost: Decimal
+     prices: tuple[float, float]
+     fallback: bool
++    # Set by the stream as each step succeeds; whatever is still unset is cleaned up afterwards.
++    finalized: bool = False
++    released: bool = False
+ 
+ 
+ async def prepare(
+@@ -209,15 +212,7 @@ async def _prepare(  # noqa: PLR0912, PLR0915
+ ) -> Turn:
+     s = services.settings
+     await services.limiter.check(str(org_id), Limit("chat-org", s.chat_requests_per_minute, 60))
+-    deadline = asyncio.get_running_loop().time() + s.chat_admission_wait_seconds
+-    while True:
+-        try:
+-            lease = await acquire(services.redis, org_id, conversation_id, s)
+-            break
+-        except ApiError as exc:
+-            if exc.code != "chat_busy" or asyncio.get_running_loop().time() >= deadline:
+-                raise
+-            await asyncio.sleep(0.01)
++    lease = await admit(services.redis, org_id, conversation_id, s)
+     pending_turn: tuple[uuid.UUID, Decimal] | None = None
+     try:
+         async with services.chat_work.setup():
+@@ -421,14 +416,18 @@ def event(name: str, payload: Any) -> str:
+ 
+ 
+ async def close_pending_turn(services: AppServices, turn: Turn) -> None:
+-    """Covers a socket disappearing before the streaming generator ever starts."""
++    """Covers a socket disappearing before the streaming generator ever starts, and a stream
++    whose finalization or release failed. A turn the stream completed needs nothing more."""
+     try:
+-        await interrupt_pending(services, turn.org_id, turn.message_id, turn.reserved_cost)
++        if not turn.finalized:
++            await interrupt_pending(services, turn.org_id, turn.message_id, turn.reserved_cost)
+     finally:
+-        try:
+-            await turn.lease.release(services.redis)
+-        except RedisError:
+-            log.error("chat.lease_release_failed", message_id=str(turn.message_id))
++        if not turn.released:
++            try:
++                await turn.lease.release(services.redis)
++                turn.released = True
++            except RedisError:
++                log.error("chat.lease_release_failed", message_id=str(turn.message_id))
+ 
+ 
+ async def interrupt_pending(
+@@ -622,12 +621,14 @@ async def stream(services: AppServices, turn: Turn) -> AsyncGenerator[str]:  # n
+                         )
+                     )
+                     await db.commit()
++                    turn.finalized = True
+             except Exception:
+                 # Reservation remains charged if finalization fails. No silent overspend.
+                 log.error("chat.finalization_failed", message_id=str(turn.message_id))
+             finally:
+                 try:
+                     await turn.lease.release(services.redis)
++                    turn.released = True
+                 except RedisError:
+                     log.error("chat.lease_release_failed", message_id=str(turn.message_id))
+     if error:
+diff --git a/services/api/app/services/inbox.py b/services/api/app/services/inbox.py
+index 4802638..0080911 100644
+--- a/services/api/app/services/inbox.py
++++ b/services/api/app/services/inbox.py
+@@ -1,16 +1,26 @@
+-"""Organization-scoped conversation inbox: search, filters, pagination, delete."""
++"""Organization-scoped conversation inbox: search, filters, pagination, delete.
++
++Both lists page by keyset: conversations by latest activity, ``(last_message_at, id)`` descending,
++and a transcript backwards from its newest message, ``(created_at, id)`` descending. A cursor is
++only a position. It names the list it came from (organization, filters, direction) and is refused
++anywhere else, but it grants nothing: every page applies the same tenant predicates and RLS.
++Pages are not a snapshot: a conversation that receives a message moves to the top.
++"""
+ 
+ from __future__ import annotations
+ 
+ import base64
++import hashlib
++import json
+ import uuid
++from collections.abc import Callable
+ from datetime import datetime
+ from typing import Any
+ 
+-from sqlalchemy import and_, delete, exists, func, or_, select
++from sqlalchemy import and_, delete, exists, func, or_, select, tuple_
+ from sqlalchemy.ext.asyncio import AsyncSession
+ 
+-from app.core.errors import not_found
++from app.core.errors import ApiError, not_found
+ from app.core.request_meta import RequestMeta
+ from app.models.chatbots import Chatbot
+ from app.models.conversations import Conversation, ConversationEvent, Message, UnansweredQuestion
+@@ -19,23 +29,43 @@ from app.services.analytics import rebuild_analytics_daily
+ from app.services.conversation_events import chatbot_name, load_conversation
+ from app.services.tenancy.audit import record_audit
+ 
++MessageOut = Callable[[Message], dict[str, Any]]
++
+ PAGE_DEFAULT = 25
+ PAGE_MAX = 100
++MESSAGE_PAGE_DEFAULT = 50
++#: Newest messages returned with a conversation, as before cursors existed.
++DETAIL_MESSAGES = 200
++CURSOR_MAX_LENGTH = 256
+ 
+ 
+-def _decode_cursor(cursor: str | None) -> tuple[datetime, uuid.UUID] | None:
+-    if not cursor:
+-        return None
+-    try:
+-        raw = base64.urlsafe_b64decode(cursor.encode()).decode()
+-        stamp, ident = raw.split("|", 1)
+-        return datetime.fromisoformat(stamp), uuid.UUID(ident)
+-    except (ValueError, OSError):
+-        return None
++def cursor_scope(*parts: object) -> str:
++    """Fingerprint of the list a cursor belongs to (not a signature: it protects no data)."""
++    canonical = json.dumps(parts, default=str, sort_keys=True)
++    return hashlib.sha256(canonical.encode()).hexdigest()[:16]
+ 
+ 
+-def encode_cursor(stamp: datetime, ident: uuid.UUID) -> str:
+-    return base64.urlsafe_b64encode(f"{stamp.isoformat()}|{ident}".encode()).decode()
++def encode_cursor(stamp: datetime, ident: uuid.UUID, scope: str) -> str:
++    return base64.urlsafe_b64encode(f"{stamp.isoformat()}|{ident}|{scope}".encode()).decode()
++
++
++def decode_cursor(cursor: str, scope: str) -> tuple[datetime, uuid.UUID]:
++    """The position named by ``cursor``, or ``400 invalid_cursor``."""
++    invalid = ApiError(400, "invalid_cursor", "Invalid cursor")
++    if len(cursor) > CURSOR_MAX_LENGTH:
++        raise invalid
++    try:
++        stamp, ident, issued_for = (
++            base64.b64decode(cursor.encode("ascii"), altchars=b"-_", validate=True)
++            .decode()
++            .split("|")
++        )
++        position = datetime.fromisoformat(stamp), uuid.UUID(ident)
++    except ValueError as exc:  # covers base64 and Unicode errors
++        raise invalid from exc
++    if position[0].tzinfo is None or issued_for != scope:
++        raise invalid
++    return position
+ 
+ 
+ def _search_pattern(q: str) -> str:
+@@ -159,13 +189,12 @@ async def list_conversations(
+         "grounded": grounded,
+         "q": q,
+     }
++    scope = cursor_scope("conversations:last_message_at.desc", org_id, kwargs)
+     stmt = _base_query(org_id, **kwargs)
+-    decoded = _decode_cursor(cursor)
+-    if decoded is not None:
+-        stamp, ident = decoded
++    if cursor:
+         stmt = stmt.where(
+-            (Conversation.last_message_at < stamp)
+-            | and_(Conversation.last_message_at == stamp, Conversation.id < ident)
++            tuple_(Conversation.last_message_at, Conversation.id)
++            < tuple_(*decode_cursor(cursor, scope))
+         )
+     total = await db.scalar(
+         select(func.count()).select_from(_base_query(org_id, **kwargs).subquery())
+@@ -204,7 +233,7 @@ async def list_conversations(
+     next_cursor = None
+     if has_more and page:
+         last = page[-1][0]
+-        next_cursor = encode_cursor(last.last_message_at, last.id)
++        next_cursor = encode_cursor(last.last_message_at, last.id, scope)
+     return {
+         "data": data,
+         "next_cursor": next_cursor,
+@@ -213,19 +242,67 @@ async def list_conversations(
+     }
+ 
+ 
++def _stored_message(row: Message, message_out: MessageOut) -> dict[str, Any]:
++    return {**message_out(row), "created_at": row.created_at}
++
++
++async def _messages_before(
++    db: AsyncSession,
++    org_id: uuid.UUID,
++    conversation_id: uuid.UUID,
++    *,
++    cursor: str | None,
++    limit: int,
++) -> tuple[list[Message], str | None]:
++    """The ``limit`` messages before ``cursor`` (or the newest), oldest first, plus the cursor
++    that leads further back."""
++    scope = cursor_scope("messages:created_at.desc", org_id, conversation_id)
++    stmt = (
++        select(Message)
++        .where(Message.org_id == org_id, Message.conversation_id == conversation_id)
++        .order_by(Message.created_at.desc(), Message.id.desc())
++        .limit(limit + 1)
++    )
++    if cursor:
++        stmt = stmt.where(
++            tuple_(Message.created_at, Message.id) < tuple_(*decode_cursor(cursor, scope))
++        )
++    rows = list((await db.scalars(stmt)).all())
++    older = None
++    if len(rows) > limit:
++        rows = rows[:limit]
++        older = encode_cursor(rows[-1].created_at, rows[-1].id, scope)
++    return rows[::-1], older
++
++
++async def list_messages(
++    db: AsyncSession,
++    org_id: uuid.UUID,
++    conversation_id: uuid.UUID,
++    message_out: MessageOut,
++    *,
++    cursor: str | None = None,
++    limit: int = MESSAGE_PAGE_DEFAULT,
++) -> dict[str, Any]:
++    await load_conversation(db, org_id, conversation_id)  # 404 before any cursor is looked at
++    rows, older = await _messages_before(
++        db, org_id, conversation_id, cursor=cursor, limit=min(max(limit, 1), PAGE_MAX)
++    )
++    return {
++        "data": [_stored_message(row, message_out) for row in rows],
++        "next_cursor": older,
++        "has_more": older is not None,
++    }
++
++
+ async def get_detail(
+-    db: AsyncSession, org_id: uuid.UUID, conversation_id: uuid.UUID, message_out: Any
++    db: AsyncSession, org_id: uuid.UUID, conversation_id: uuid.UUID, message_out: MessageOut
+ ) -> dict[str, Any]:
+     conversation = await load_conversation(db, org_id, conversation_id)
+     name = await chatbot_name(db, org_id, conversation.chatbot_id)
+-    messages = (
+-        await db.scalars(
+-            select(Message)
+-            .where(Message.org_id == org_id, Message.conversation_id == conversation_id)
+-            .order_by(Message.created_at.desc(), Message.id.desc())
+-            .limit(200)
+-        )
+-    ).all()
++    messages, older = await _messages_before(
++        db, org_id, conversation_id, cursor=None, limit=DETAIL_MESSAGES
++    )
+     events = (
+         await db.scalars(
+             select(ConversationEvent)
+@@ -251,7 +328,8 @@ async def get_detail(
+         "handoff_contact": conversation.handoff_contact,
+         "created_at": conversation.created_at,
+         "last_message_at": conversation.last_message_at,
+-        "messages": [message_out(row) for row in reversed(messages)],
++        "messages": [_stored_message(row, message_out) for row in messages],
++        "older_cursor": older,
+         "events": [
+             {
+                 "id": event.id,
+diff --git a/services/api/app/services/knowledge/service.py b/services/api/app/services/knowledge/service.py
+index fce2827..39857e9 100644
+--- a/services/api/app/services/knowledge/service.py
++++ b/services/api/app/services/knowledge/service.py
+@@ -367,7 +367,11 @@ async def delete_document(
+     """Delete the document, its chunks/vectors and jobs in one transaction; queue the original's
+     removal from storage (an outbox row, so a crash can't orphan the file forever)."""
+     document = await get_document(db, ctx, chatbot_id, document_id)
+-    source_id, key = document.source_id, document.storage_key
++    source_id = document.source_id
++    # Locked and read again: a crawl publishing right now moves the document to a new original.
++    key = await db.scalar(
++        select(Document.storage_key).where(Document.id == document.id).with_for_update()
++    )
+     await db.execute(
+         delete(Document).where(Document.id == document.id, Document.org_id == ctx.org.id)
+     )
+@@ -598,6 +602,10 @@ async def delete_source(
+     meta: RequestMeta,
+ ) -> None:
+     source = await get_source(db, ctx, chatbot_id, source_id)
++    # Waits for a publication in progress and blocks new ones, so the keys read next are final.
++    await db.execute(
++        select(KnowledgeSource.id).where(KnowledgeSource.id == source.id).with_for_update()
++    )
+     keys = (
+         await db.execute(
+             select(Document.storage_key).where(
+diff --git a/services/api/app/workers/celery_app.py b/services/api/app/workers/celery_app.py
+index fb4f82a..c2a5d69 100644
+--- a/services/api/app/workers/celery_app.py
++++ b/services/api/app/workers/celery_app.py
+@@ -12,6 +12,7 @@ from celery import Celery
+ from kombu import Queue
+ 
+ from app.core.config import Settings, get_settings
++from app.rag import parser_process
+ 
+ #: Queues from docs/ARCHITECTURE.md §13.
+ QUEUES = ("default", "ingest", "crawl", "chat_out", "billing")
+@@ -19,6 +20,9 @@ QUEUES = ("default", "ingest", "crawl", "chat_out", "billing")
+ 
+ def create_celery_app(settings: Settings) -> Celery:
+     settings.validate_provider_transport()
++    if settings.app_env in {"staging", "production"} and not parser_process.containment_supported():
++        msg = "Parser containment requires Linux; refusing to start a deployed worker"
++        raise RuntimeError(msg)
+     app = Celery(
+         settings.app_name,
+         broker=settings.broker_url,
+@@ -45,8 +49,22 @@ def create_celery_app(settings: Settings) -> Celery:
+             "analytics.retention": {"queue": "default"},
+             "analytics.rollup": {"queue": "default"},
+         },
++        # Execution limits (prefork pool): soft raises in the task, hard kills the pool process.
++        task_annotations={
++            "ingest.process_document": {
++                "soft_time_limit": settings.ingest_soft_time_limit_seconds,
++                "time_limit": settings.ingest_hard_time_limit_seconds,
++            },
++            "ingest.crawl_source": {
++                "soft_time_limit": settings.crawl_soft_time_limit_seconds,
++                "time_limit": settings.crawl_hard_time_limit_seconds,
++            },
++        },
+         beat_schedule={
+-            "ingest-sweep": {"task": "ingest.sweep", "schedule": 120.0},
++            "ingest-sweep": {
++                "task": "ingest.sweep",
++                "schedule": settings.ingest_sweep_interval_seconds,
++            },
+             "analytics-rollup": {"task": "analytics.rollup", "schedule": 3600.0},
+             "conversation-retention": {"task": "analytics.retention", "schedule": 86400.0},
+         },
+diff --git a/services/api/app/workers/tasks/ingest.py b/services/api/app/workers/tasks/ingest.py
+index b5fc6d0..90564a4 100644
+--- a/services/api/app/workers/tasks/ingest.py
++++ b/services/api/app/workers/tasks/ingest.py
+@@ -3,47 +3,100 @@
+ Retry policy: transient failures re-queue the job row and ask Celery to retry with exponential
+ backoff (``ingest_retry_base_seconds``·2ⁿ, capped, with jitter) up to ``ingest_max_attempts``;
+ permanent failures are recorded on the job/document and never retried automatically.
++
++Admission: a job whose organization is at its limit is not waited for in a worker slot. A new
++message is published with a short countdown (at most ``MAX_DEFERRALS`` of them, after which the
++periodic sweeper takes over), and finishing a job wakes the organization's next one. Deferral is
++not a retry: it consumes no attempt and can never fail a job.
++
++Time limits are set in ``app.workers.celery_app``.
+ """
+ 
+ from __future__ import annotations
+ 
+ import uuid
++from collections.abc import Callable
+ from typing import Any
+ 
+ from app.core.logging import get_logger
+ from app.rag import crawl_job, maintenance, pipeline
+ from app.rag.errors import TransientIngestionError
+ from app.rag.queue import CeleryJobQueue
+-from app.rag.runtime import get_runtime
++from app.rag.runtime import Runtime, get_runtime
+ from app.workers.celery_app import celery_app
+ 
+ log = get_logger(__name__)
+ 
++MAX_DEFERRALS = 40
++MAX_DEFER_SECONDS = 15.0
+ 
+-def _retry_delay(task: Any, exc: TransientIngestionError) -> int:
+-    rt = get_runtime()
++_publisher: CeleryJobQueue | None = None
++
++
++def _retry_delay(task: Any, rt: Runtime) -> int:
+     attempt = task.request.retries + 1
+     return pipeline.backoff_seconds(
+         attempt, rt.settings.ingest_retry_base_seconds, rt.settings.ingest_retry_max_seconds
+     )
+ 
+ 
+-@celery_app.task(name="ingest.process_document", bind=True, max_retries=20, acks_late=True)
+-def process_document(self: Any, org_id: str, job_id: str) -> str:
+-    rt = get_runtime()
++def _wake(rt: Runtime, org_id: uuid.UUID) -> None:
++    global _publisher  # noqa: PLW0603 - one broker connection pool per worker process
+     try:
+-        return pipeline.run_document_job(rt, uuid.UUID(org_id), uuid.UUID(job_id))
+-    except TransientIngestionError as exc:
+-        raise self.retry(exc=exc, countdown=_retry_delay(self, exc)) from exc
++        _publisher = _publisher or CeleryJobQueue(rt.settings)
++        maintenance.wake_next(rt, _publisher, org_id)
++    except Exception:  # only a shortcut: the deferral messages and the sweeper still run
++        log.warning("ingest.wake_failed", exc_info=True)
+ 
+ 
+-@celery_app.task(name="ingest.crawl_source", bind=True, max_retries=20, acks_late=True)
+-def crawl_source(self: Any, org_id: str, job_id: str) -> str:
++def _reschedule(task: Any, rt: Runtime, org_id: str, job_id: str, deferrals: int) -> None:
++    again = deferrals < MAX_DEFERRALS
++    maintenance.defer_job(rt, uuid.UUID(org_id), uuid.UUID(job_id), touch=again)
++    if not again:
++        return
++    countdown = min(MAX_DEFER_SECONDS, rt.settings.ingest_defer_seconds * 2 ** min(deferrals, 10))
++    try:
++        task.apply_async(
++            args=[org_id, job_id],
++            kwargs={"deferrals": deferrals + 1},
++            countdown=countdown,
++            retries=task.request.retries,
++        )
++    except Exception:  # broker trouble: the job stays queued for the sweeper
++        log.warning("queue.publish_failed", job_id=job_id, kind="deferred")
++
++
++def _execute(
++    task: Any,
++    runner: Callable[[Runtime, uuid.UUID, uuid.UUID], str],
++    org_id: str,
++    job_id: str,
++    deferrals: int,
++) -> str:
+     rt = get_runtime()
++    org = uuid.UUID(org_id)
+     try:
+-        return crawl_job.run_crawl_job(rt, uuid.UUID(org_id), uuid.UUID(job_id))
++        outcome = runner(rt, org, uuid.UUID(job_id))
+     except TransientIngestionError as exc:
+-        raise self.retry(exc=exc, countdown=_retry_delay(self, exc)) from exc
++        _wake(rt, org)  # the re-queued job released the organization's permit
++        raise task.retry(
++            exc=exc, countdown=_retry_delay(task, rt), args=[org_id, job_id], kwargs={}
++        ) from exc
++    if outcome == "deferred":
++        _reschedule(task, rt, org_id, job_id, deferrals)
++    elif outcome != "skipped":
++        _wake(rt, org)
++    return outcome
++
++
++@celery_app.task(name="ingest.process_document", bind=True, max_retries=20, acks_late=True)
++def process_document(self: Any, org_id: str, job_id: str, deferrals: int = 0) -> str:
++    return _execute(self, pipeline.run_document_job, org_id, job_id, deferrals)
++
++
++@celery_app.task(name="ingest.crawl_source", bind=True, max_retries=20, acks_late=True)
++def crawl_source(self: Any, org_id: str, job_id: str, deferrals: int = 0) -> str:
++    return _execute(self, crawl_job.run_crawl_job, org_id, job_id, deferrals)
+ 
+ 
+ @celery_app.task(name="ingest.sweep")
+diff --git a/services/api/migrations/versions/20261125_0007_conversation_analytics.py b/services/api/migrations/versions/20261125_0007_conversation_analytics.py
+index 2f171e4..48ea326 100644
+--- a/services/api/migrations/versions/20261125_0007_conversation_analytics.py
++++ b/services/api/migrations/versions/20261125_0007_conversation_analytics.py
+@@ -68,18 +68,22 @@ def upgrade() -> None:
+         """
+     )
+     op.execute(
+-        "CREATE INDEX ix_conversations_inbox ON conversations (org_id, last_message_at DESC, id DESC)"
++        "CREATE INDEX ix_conversations_inbox "
++        "ON conversations (org_id, last_message_at DESC, id DESC)"
+     )
+     op.execute(
+-        "CREATE INDEX ix_conversations_status ON conversations (org_id, status, last_message_at DESC)"
++        "CREATE INDEX ix_conversations_status "
++        "ON conversations (org_id, status, last_message_at DESC)"
+     )
+     op.execute(
+-        "CREATE INDEX ix_conversations_channel ON conversations (org_id, channel, last_message_at DESC)"
++        "CREATE INDEX ix_conversations_channel "
++        "ON conversations (org_id, channel, last_message_at DESC)"
+     )
+ 
+     op.execute("ALTER TABLE messages ADD COLUMN latency_ms integer")
+     op.execute(
+-        "ALTER TABLE messages ADD CONSTRAINT ck_messages_latency_ms CHECK (latency_ms IS NULL OR latency_ms >= 0)"
++        "ALTER TABLE messages ADD CONSTRAINT ck_messages_latency_ms "
++        "CHECK (latency_ms IS NULL OR latency_ms >= 0)"
+     )
+     op.execute("CREATE INDEX ix_messages_content_trgm ON messages USING gin (content gin_trgm_ops)")
+ 
+@@ -225,11 +229,11 @@ def upgrade() -> None:
+     )
+     op.execute("REVOKE ALL ON FUNCTION app.list_orgs_for_conversation_jobs() FROM PUBLIC")
+     op.execute(
+-        f"""
++        """
+         DO $$
+         BEGIN
+-          IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '{APP_ROLE}') THEN
+-            GRANT EXECUTE ON FUNCTION app.list_orgs_for_conversation_jobs() TO {APP_ROLE};
++          IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'platform_app') THEN
++            GRANT EXECUTE ON FUNCTION app.list_orgs_for_conversation_jobs() TO platform_app;
+           END IF;
+         END
+         $$
+diff --git a/services/api/tests/integration/test_chat_migration.py b/services/api/tests/integration/test_chat_migration.py
+index f02241c..9648714 100644
+--- a/services/api/tests/integration/test_chat_migration.py
++++ b/services/api/tests/integration/test_chat_migration.py
+@@ -1,46 +1,306 @@
+-"""Exercise rollback/upgrade only in the fixture's throwaway database, never development data."""
++"""Migrations that change the schema run only on their own throwaway databases (MIG-01).
++
++The round-trip used to downgrade the session's shared database. Whether it passed then depended
++on what earlier tests had left behind: one usage record whose conversation had been deleted (which
++0007 allows and the 0006 schema cannot represent) was enough to fail it. Each test here owns its
++data, and that limitation is asserted explicitly instead of being met by accident.
++"""
+ 
+ from __future__ import annotations
+ 
+ import subprocess
+ import sys
++import uuid
++from collections.abc import Iterator
++from typing import Any
+ 
+ import pytest
+-from sqlalchemy import create_engine, inspect
++from sqlalchemy import Connection, create_engine, inspect, text
+ 
+ from app.services.readiness import ALEMBIC_INI
+-from tests.support.database import TestDatabase
++from tests.support.database import TestDatabase, temporary_database
+ 
+ pytestmark = pytest.mark.integration
+ 
++PHASE7_TABLES = (
++    "conversation_events",
++    "unanswered_questions",
++    "analytics_daily",
++    "conversation_exports",
++)
++# Tables that exist before and after 0007 and must keep every row across it.
++CORE_TABLES = (
++    "organizations",
++    "chatbots",
++    "documents",
++    "document_chunks",
++    "conversations",
++    "messages",
++    "widget_sessions",
++    "chat_usage",
++)
++TENANT_TABLES = ("documents", "document_chunks", "conversations", "messages", "chat_usage")
+ 
+-def test_chat_migration_roundtrip(
+-    test_database: TestDatabase, monkeypatch: pytest.MonkeyPatch
+-) -> None:
+-    assert test_database.name.startswith("chatbot_test_")
+-    monkeypatch.setenv(
+-        "MIGRATION_DATABASE_URL", test_database.owner_url.render_as_string(hide_password=False)
++
++@pytest.fixture
++def database(monkeypatch: pytest.MonkeyPatch) -> Iterator[TestDatabase]:
++    with temporary_database() as scratch:
++        monkeypatch.setenv(
++            "MIGRATION_DATABASE_URL", scratch.owner_url.render_as_string(hide_password=False)
++        )
++        yield scratch
++
++
++def migrate(target: str, direction: str) -> subprocess.CompletedProcess[bytes]:
++    # Run CLI migrations in their own process so Alembic logging cannot disable app loggers.
++    return subprocess.run(  # noqa: S603  # fixed interpreter/CLI; target values are test constants
++        [sys.executable, "-m", "alembic", "-c", str(ALEMBIC_INI), direction, target],
++        check=True,
++        capture_output=True,
+     )
+ 
+-    def migrate(target: str, direction: str) -> None:
+-        # Run CLI migrations in their own process so Alembic logging cannot disable app loggers.
+-        subprocess.run(  # noqa: S603  # fixed interpreter/CLI; target values are test constants
+-            [sys.executable, "-m", "alembic", "-c", str(ALEMBIC_INI), direction, target],
+-            check=True,
+-            capture_output=True,
++
++def query(database: TestDatabase, statement: str, **params: Any) -> list[tuple[Any, ...]]:
++    engine = create_engine(database.owner_url)
++    try:
++        with engine.begin() as conn:
++            result = conn.execute(text(statement), params)
++            return [tuple(row) for row in result] if result.returns_rows else []
++    finally:
++        engine.dispose()
++
++
++def counts(database: TestDatabase, tables: tuple[str, ...]) -> dict[str, int]:
++    return {t: query(database, f"SELECT count(*) FROM {t}")[0][0] for t in tables}  # noqa: S608
++
++
++def seed_tenant(conn: Connection, label: str) -> dict[str, uuid.UUID]:
++    """One organization's history as written before 0007 (columns that exist in 0006 only)."""
++    ids = {
++        name: uuid.uuid4()
++        for name in ("org", "user", "bot", "source", "document", "chunk", "playground", "widget")
++    }
++
++    def run(statement: str, **extra: Any) -> None:
++        conn.execute(text(statement), {**ids, **extra})
++
++    run(
++        "INSERT INTO organizations (id, name, slug) VALUES (:org, :n, :s)",
++        n=label,
++        s=f"org-{label}",
++    )
++    run("INSERT INTO users (id, email, name) VALUES (:user, :e, 'U')", e=f"{label}@example.com")
++    run(
++        "INSERT INTO memberships (id, org_id, user_id, role) VALUES (:m, :org, :user, 'owner')",
++        m=uuid.uuid4(),
++    )
++    run(
++        "INSERT INTO chatbots (id, org_id, name, public_key, model) "
++        "VALUES (:bot, :org, 'Bot', :k, 'gpt-4.1-mini')",
++        k=f"pk_live_{uuid.uuid4().hex[:24]}",
++    )
++    run(
++        "INSERT INTO knowledge_sources (id, org_id, chatbot_id, kind, name) "
++        "VALUES (:source, :org, :bot, 'file', 'policy')"
++    )
++    run(
++        "INSERT INTO documents (id, org_id, chatbot_id, source_id, title, uri) "
++        "VALUES (:document, :org, :bot, :source, 'policy', 'policy.txt')"
++    )
++    run(
++        "INSERT INTO document_chunks (id, org_id, chatbot_id, document_id, document_version, "
++        "ordinal, content, token_count, embedding, embedding_model) VALUES (:chunk, :org, :bot, "
++        ":document, 1, 0, 'synthetic policy', 2, array_fill(0.25, ARRAY[1536])::vector, 'hash-v1')"
++    )
++    for channel, conversation in (("playground", ids["playground"]), ("widget", ids["widget"])):
++        run(
++            "INSERT INTO conversations (id, org_id, chatbot_id, channel, created_at) "
++            "VALUES (:c, :org, :bot, :ch, now() - interval '3 days')",
++            c=conversation,
++            ch=channel,
++        )
++        for role, content, age in (
++            ("user", f"{channel} first question", 2),
++            ("assistant", f"{channel} answer", 1),
++        ):
++            run(
++                "INSERT INTO messages (id, org_id, conversation_id, role, content, status, "
++                "created_at) VALUES (:id, :org, :c, :role, :content, 'complete', "
++                "now() - make_interval(days => :age))",
++                id=uuid.uuid4(),
++                c=conversation,
++                role=role,
++                content=content,
++                age=age,
++            )
++        run(
++            "INSERT INTO chat_usage (id, org_id, conversation_id, model, period, charged_tokens, "
++            "estimated_cost_usd, state) VALUES (:id, :org, :c, 'gpt-4.1-mini', '2026-11', 110, "
++            "0.001, 'settled')",
++            id=uuid.uuid4(),
++            c=conversation,
+         )
++    run(
++        "INSERT INTO widget_sessions (id, org_id, chatbot_id, conversation_id, token_hash, "
++        "public_key, expires_at) VALUES (:id, :org, :bot, :widget, :h, 'pk', "
++        "now() + interval '1 hour')",
++        id=uuid.uuid4(),
++        h=uuid.uuid4().hex,
++    )
++    return ids
++
++
++def seed(database: TestDatabase) -> list[dict[str, uuid.UUID]]:
++    engine = create_engine(database.owner_url)
++    try:
++        with engine.begin() as conn:
++            return [seed_tenant(conn, label) for label in ("alpha", "beta")]
++    finally:
++        engine.dispose()
++
+ 
+-    engine = create_engine(test_database.owner_url)
++def assert_protections(database: TestDatabase, tables: tuple[str, ...]) -> None:
++    for table in tables:
++        assert query(
++            database,
++            "SELECT relrowsecurity, relforcerowsecurity FROM pg_class WHERE relname = :t",
++            t=table,
++        ) == [(True, True)], table
++    assert query(database, "SELECT conname FROM pg_constraint WHERE NOT convalidated") == [], (
++        "an unvalidated constraint would not protect existing rows"
++    )
++
++
++def assert_tenant_isolation(
++    database: TestDatabase, org: uuid.UUID, tables: tuple[str, ...]
++) -> None:
++    engine = create_engine(database.app_url)
++    try:
++        with engine.begin() as conn:
++            for table in tables:
++                visible = f"SELECT count(*) FROM {table}"  # noqa: S608
++                assert conn.execute(text(visible)).scalar() == 0, f"{table} without tenant"
++            conn.execute(text("SELECT set_config('app.current_org_id', :o, true)"), {"o": str(org)})
++            for table in tables:
++                others = f"SELECT count(*) FROM {table} WHERE org_id <> :o"  # noqa: S608
++                own = f"SELECT count(*) FROM {table}"  # noqa: S608
++                assert conn.execute(text(others), {"o": org}).scalar() == 0, table
++                assert conn.execute(text(own)).scalar(), table
++    finally:
++        engine.dispose()
++
++
++def revision(database: TestDatabase) -> str:
++    return str(query(database, "SELECT version_num FROM alembic_version")[0][0])
++
++
++def usage_rows(database: TestDatabase) -> list[tuple[Any, ...]]:
++    return query(
++        database,
++        "SELECT id, org_id, conversation_id, charged_tokens, estimated_cost_usd, state "
++        "FROM chat_usage ORDER BY id",
++    )
++
++
++def test_chat_migration_roundtrip(database: TestDatabase) -> None:
++    assert database.name.startswith("chatbot_test_")
++    engine = create_engine(database.owner_url)
+     try:
+         migrate("0004", "downgrade")
+         assert "conversations" not in inspect(engine).get_table_names()
+     finally:
+         migrate("head", "upgrade")
+         engine.dispose()
+-    engine = create_engine(test_database.owner_url)
++    engine = create_engine(database.owner_url)
+     try:
+         assert {"conversations", "messages", "widget_sessions", "chat_usage"} <= set(
+             inspect(engine).get_table_names()
+         )
+     finally:
+         engine.dispose()
++
++
++def test_upgrade_from_0006_keeps_history_and_backfills_the_inbox(database: TestDatabase) -> None:
++    migrate("0006", "downgrade")
++    alpha, beta = seed(database)
++    before = counts(database, CORE_TABLES)
++    usage = usage_rows(database)
++    vectors = query(database, "SELECT id, embedding::text FROM document_chunks ORDER BY id")
++
++    migrate("head", "upgrade")
++
++    assert revision(database) == "0007"
++    assert counts(database, CORE_TABLES) == before
++    assert usage_rows(database) == usage
++    assert query(database, "SELECT id, embedding::text FROM document_chunks ORDER BY id") == vectors
++    rows = query(
++        database,
++        "SELECT c.channel, c.status, c.preview, c.last_message_at = "
++        "(SELECT max(created_at) FROM messages m WHERE m.conversation_id = c.id) "
++        "FROM conversations c WHERE c.org_id = :o ORDER BY c.channel",
++        o=alpha["org"],
++    )
++    assert rows == [
++        ("playground", "open", "playground first question", True),
++        ("widget", "open", "widget first question", True),
++    ]
++    assert_protections(database, (*TENANT_TABLES, *PHASE7_TABLES, "widget_sessions"))
++    for org in (alpha["org"], beta["org"]):
++        assert_tenant_isolation(database, org, TENANT_TABLES)
++    foreign = query(
++        database,
++        "SELECT conrelid::regclass::text FROM pg_constraint WHERE contype = 'f' "
++        "AND confrelid = 'conversations'::regclass ORDER BY 1",
++    )
++    # chat_usage deliberately has no key to conversations from 0007 on: usage outlives them.
++    assert foreign == [("messages",), ("widget_sessions",)]
++
++
++def test_downgrade_to_0006_and_back_keeps_everything_0006_can_hold(database: TestDatabase) -> None:
++    migrate("0006", "downgrade")
++    seed(database)
++    migrate("head", "upgrade")
++    before = counts(database, CORE_TABLES)
++    usage = usage_rows(database)
++
++    migrate("0006", "downgrade")
++
++    assert revision(database) == "0006"
++    assert counts(database, CORE_TABLES) == before
++    assert usage_rows(database) == usage
++    tables = {r[0] for r in query(database, "SELECT tablename FROM pg_tables")}
++    assert not tables & set(PHASE7_TABLES)  # 0007-only data cannot be kept below 0007
++    assert_protections(database, TENANT_TABLES)
++    migrate("head", "upgrade")
++    assert revision(database) == "0007"
++    assert counts(database, CORE_TABLES) == before
++    assert usage_rows(database) == usage
++
++
++def test_downgrade_is_refused_without_loss_once_a_conversation_was_deleted(
++    database: TestDatabase,
++) -> None:
++    """Known limitation: 0006 requires every usage record to have a conversation. The downgrade
++    must then fail as a whole; recovery is forward, never by deleting usage."""
++    migrate("0006", "downgrade")
++    alpha, _ = seed(database)
++    migrate("head", "upgrade")
++    query(database, "DELETE FROM conversations WHERE id = :c", c=alpha["playground"])
++    query(
++        database,
++        "INSERT INTO analytics_daily (org_id, chatbot_id, day, channel, conversations) "
++        "VALUES (:o, :b, current_date, 'widget', 7)",
++        o=alpha["org"],
++        b=alpha["bot"],
++    )
++    before = counts(database, (*CORE_TABLES, *PHASE7_TABLES))
++    usage = usage_rows(database)
++
++    with pytest.raises(subprocess.CalledProcessError) as failure:
++        migrate("0006", "downgrade")
++
++    assert b"chat_usage_org_id_conversation_id_fkey" in failure.value.stderr
++    assert revision(database) == "0007"
++    assert counts(database, (*CORE_TABLES, *PHASE7_TABLES)) == before
++    assert usage_rows(database) == usage
++    assert_protections(database, (*TENANT_TABLES, *PHASE7_TABLES))
+diff --git a/services/api/tests/support/database.py b/services/api/tests/support/database.py
+index bca3080..ded3adb 100644
+--- a/services/api/tests/support/database.py
++++ b/services/api/tests/support/database.py
+@@ -9,6 +9,7 @@ from __future__ import annotations
+ import os
+ import secrets
+ from collections.abc import Iterator
++from contextlib import contextmanager
+ from dataclasses import dataclass
+ 
+ import pytest
+@@ -37,8 +38,9 @@ def _urls_from_env() -> tuple[URL, URL]:
+     return make_url(owner), make_url(app)
+ 
+ 
+-@pytest.fixture(scope="session")
+-def test_database() -> Iterator[TestDatabase]:
++@contextmanager
++def temporary_database() -> Iterator[TestDatabase]:
++    """A new database at head, dropped on exit. For tests that change the schema or need it clean."""
+     owner_base, app_base = _urls_from_env()
+     name = f"chatbot_test_{secrets.token_hex(4)}"
+     admin = create_engine(owner_base, isolation_level="AUTOCOMMIT")
+@@ -91,3 +93,9 @@ def test_database() -> Iterator[TestDatabase]:
+             )
+             conn.execute(text(f'DROP DATABASE IF EXISTS "{name}"'))
+         admin.dispose()
++
++
++@pytest.fixture(scope="session")
++def test_database() -> Iterator[TestDatabase]:
++    with temporary_database() as database:
++        yield database
+diff --git a/services/api/tests/support/rag.py b/services/api/tests/support/rag.py
+index 13de3c3..5826d76 100644
+--- a/services/api/tests/support/rag.py
++++ b/services/api/tests/support/rag.py
+@@ -12,9 +12,10 @@ from app.core.config import Settings
+ from app.rag.crawl_job import run_crawl_job
+ from app.rag.embeddings import Embedder, HashingEmbedder
+ from app.rag.errors import TransientIngestionError
++from app.rag.parser_runner import ParserRunner
+ from app.rag.pipeline import run_document_job
+ from app.rag.queue import RecordingJobQueue
+-from app.rag.runtime import Runtime, build_fetcher
++from app.rag.runtime import Runtime, build_fetcher, build_parser
+ from app.rag.safe_fetch import SafeFetcher
+ from app.rag.storage import ObjectStore
+ 
+@@ -26,6 +27,7 @@ def make_runtime(
+     *,
+     embedder: Embedder | None = None,
+     fetcher: SafeFetcher | None = None,
++    parser: ParserRunner | None = None,
+ ) -> Runtime:
+     return Runtime(
+         settings=settings,
+@@ -33,6 +35,7 @@ def make_runtime(
+         store=store,
+         embedder=embedder or HashingEmbedder(settings.embedding_model),
+         fetcher=fetcher or build_fetcher(settings),
++        parser=parser or build_parser(settings),
+         engine=engine,
+     )
+ 

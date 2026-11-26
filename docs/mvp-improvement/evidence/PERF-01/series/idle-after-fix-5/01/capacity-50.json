@@ -1,0 +1,1616 @@
+{
+  "concurrency": 50,
+  "requests": 50,
+  "overlap_peak": 50,
+  "provider_peak": 3,
+  "success": 47,
+  "rejected": 3,
+  "failed": 0,
+  "successful_p95_ms": 1076.7343790002997,
+  "rejected_p95_ms": 999.5707710004353,
+  "successful_requests_per_second": 39.70082099886366,
+  "pool": {
+    "checked_out": 0,
+    "peak": 8,
+    "checkouts": 238,
+    "checkins": 238,
+    "samples": [
+      1,
+      2,
+      3,
+      4,
+      4,
+      2,
+      3,
+      4,
+      4,
+      5,
+      3,
+      4,
+      5,
+      5,
+      5,
+      6,
+      6,
+      5,
+      6,
+      7,
+      7,
+      7,
+      4,
+      5,
+      6,
+      7,
+      7,
+      5,
+      6,
+      6,
+      7,
+      4,
+      4,
+      5,
+      6,
+      7,
+      2,
+      3,
+      4,
+      5,
+      6,
+      6,
+      7,
+      2,
+      3,
+      4,
+      5,
+      6,
+      6,
+      7,
+      2,
+      3,
+      4,
+      5,
+      6,
+      6,
+      7,
+      8,
+      4,
+      5,
+      6,
+      7,
+      7,
+      4,
+      5,
+      6,
+      7,
+      4,
+      1,
+      1,
+      2,
+      3,
+      4,
+      2,
+      3,
+      4,
+      3,
+      4,
+      4,
+      3,
+      2,
+      1,
+      2,
+      3,
+      2,
+      2,
+      3,
+      4,
+      3,
+      3,
+      4,
+      3,
+      2,
+      1,
+      2,
+      2,
+      2,
+      2,
+      3,
+      4,
+      2,
+      3,
+      3,
+      2,
+      2,
+      1,
+      2,
+      1,
+      2,
+      3,
+      3,
+      2,
+      3,
+      3,
+      3,
+      3,
+      2,
+      1,
+      2,
+      1,
+      2,
+      3,
+      3,
+      2,
+      3,
+      3,
+      4,
+      3,
+      1,
+      1,
+      2,
+      2,
+      2,
+      1,
+      2,
+      2,
+      3,
+      3,
+      3,
+      3,
+      1,
+      2,
+      2,
+      2,
+      2,
+      3,
+      3,
+      3,
+      4,
+      4,
+      4,
+      3,
+      1,
+      1,
+      2,
+      3,
+      4,
+      3,
+      2,
+      2,
+      3,
+      4,
+      3,
+      3,
+      2,
+      1,
+      2,
+      2,
+      2,
+      3,
+      3,
+      2,
+      3,
+      4,
+      2,
+      3,
+      3,
+      2,
+      1,
+      1,
+      2,
+      2,
+      3,
+      2,
+      2,
+      2,
+      2,
+      2,
+      3,
+      3,
+      1,
+      1,
+      2,
+      3,
+      3,
+      2,
+      2,
+      3,
+      2,
+      2,
+      3,
+      3,
+      1,
+      1,
+      2,
+      1,
+      2,
+      2,
+      2,
+      3,
+      2,
+      3,
+      1,
+      1,
+      2,
+      3,
+      2,
+      1,
+      1,
+      1,
+      2,
+      3,
+      3,
+      3,
+      2,
+      1,
+      1,
+      1,
+      2,
+      1,
+      1,
+      2,
+      2,
+      2,
+      1,
+      1,
+      2,
+      1
+    ]
+  },
+  "setup_peak": 3,
+  "raw": [
+    {
+      "status": 200,
+      "duration_ms": 392.59143300023425,
+      "ttft_ms": 355.227928000204,
+      "done": {
+        "id": "01a21443-e749-7471-b93f-e047e00c790f",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 995.6465309996929,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "07c601a8-5b8f-4b4a-9960-5b0f8bd4bb77"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 647.5520149997465,
+      "ttft_ms": 627.1854010001334,
+      "done": {
+        "id": "01a21443-e857-7202-809e-54b8968b4cdd",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 907.5994380000338,
+      "ttft_ms": 882.0270830001391,
+      "done": {
+        "id": "01a21443-e959-7733-8b31-2dd2b1de654c",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 311.4092010000604,
+      "ttft_ms": 237.3856309995972,
+      "done": {
+        "id": "01a21443-e6af-7260-ae08-72f0cbbf20e3",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 432.17714599995816,
+      "ttft_ms": 405.56548800032033,
+      "done": {
+        "id": "01a21443-e779-72d7-8ecb-d99d453c8405",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 288.9134750002995,
+      "ttft_ms": 215.03292500074167,
+      "done": {
+        "id": "01a21443-e6a6-7780-abb9-26925f67c58b",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 960.7998499996029,
+      "ttft_ms": 934.5376270002816,
+      "done": {
+        "id": "01a21443-e98e-7206-8c8c-2edd41e4dd94",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 545.0681689999328,
+      "ttft_ms": 522.2671030005586,
+      "done": {
+        "id": "01a21443-e7f4-7470-9ba6-fb6f9571b066",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 437.9711880001196,
+      "ttft_ms": 411.19134400014445,
+      "done": {
+        "id": "01a21443-e783-76a5-8606-43fd6cb20ef1",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 811.3533720006672,
+      "ttft_ms": 791.3528230001248,
+      "done": {
+        "id": "01a21443-e900-77b5-b0fd-a3c6037a7dee",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 429,
+      "duration_ms": 999.5707710004353,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "b3c71678-2528-4358-b530-ec563c23ab1a"
+      }
+    },
+    {
+      "status": 429,
+      "duration_ms": 1005.910601999858,
+      "ttft_ms": null,
+      "done": null,
+      "json": {
+        "type": "https://docs.example.com/errors/chat_busy",
+        "title": "A conversation is already running or the workspace is busy",
+        "status": 429,
+        "code": "chat_busy",
+        "request_id": "6f5ec994-7975-4f5f-ba61-6113521ae436"
+      }
+    },
+    {
+      "status": 200,
+      "duration_ms": 494.8968340004285,
+      "ttft_ms": 466.9515030000184,
+      "done": {
+        "id": "01a21443-e7c1-7236-be11-afc99eb1c0be",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 584.4688990000577,
+      "ttft_ms": 565.3490130007413,
+      "done": {
+        "id": "01a21443-e822-715c-a1c3-1f1c4f97ea0b",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 555.8824700001423,
+      "ttft_ms": 530.9101709999595,
+      "done": {
+        "id": "01a21443-e801-741a-bc2c-3bd439e8db2d",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 983.7873420001415,
+      "ttft_ms": 964.0224619997753,
+      "done": {
+        "id": "01a21443-e9ac-72c9-9c7c-213c8fdfc751",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 607.4048820000826,
+      "ttft_ms": 578.2101180002428,
+      "done": {
+        "id": "01a21443-e832-7413-a94c-da6af9362541",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1029.286871000295,
+      "ttft_ms": 1008.8614630003576,
+      "done": {
+        "id": "01a21443-e9dd-728f-ae6c-122ebcfc8b21",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 821.5225609992558,
+      "ttft_ms": 796.0217559993907,
+      "done": {
+        "id": "01a21443-e90b-725b-aba2-068d290b3a0a",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 645.7684010001685,
+      "ttft_ms": 624.9724890003563,
+      "done": {
+        "id": "01a21443-e860-7302-a33a-ee9589493931",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 587.1180220001406,
+      "ttft_ms": 568.6885309996796,
+      "done": {
+        "id": "01a21443-e823-7671-9803-96b8fcacb0fb",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 870.2788929995222,
+      "ttft_ms": 846.3677019999523,
+      "done": {
+        "id": "01a21443-e93e-70da-8920-d0dfd1aa1540",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 827.4321340004462,
+      "ttft_ms": 799.0519150007458,
+      "done": {
+        "id": "01a21443-e90b-725b-aba2-068e900d0892",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 531.6165009999168,
+      "ttft_ms": 510.746263999863,
+      "done": {
+        "id": "01a21443-e7ec-757a-9ac9-09d5aa7b11e1",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1086.254003999784,
+      "ttft_ms": 1068.2162069997503,
+      "done": {
+        "id": "01a21443-ea19-7641-bd78-1fece968bc35",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 362.7829360002579,
+      "ttft_ms": 337.17366800010495,
+      "done": {
+        "id": "01a21443-e737-73ed-930c-0c6aef9ff688",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 633.5421170006157,
+      "ttft_ms": 614.257225000074,
+      "done": {
+        "id": "01a21443-e857-7202-809e-54b7b755705e",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 851.081862000683,
+      "ttft_ms": 831.3146139998935,
+      "done": {
+        "id": "01a21443-e92c-729b-b9bf-3ba7c45297a6",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1130.4899460001252,
+      "ttft_ms": 1110.2329880004618,
+      "done": {
+        "id": "01a21443-ea48-74f6-b0ac-cde149834c3b",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1072.8719680000722,
+      "ttft_ms": 1054.852547000337,
+      "done": {
+        "id": "01a21443-ea0e-7519-bafe-748caddeadcd",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 694.3793939999523,
+      "ttft_ms": 671.3453749998735,
+      "done": {
+        "id": "01a21443-e88e-77fa-b7a7-b81f7f2354cc",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 874.9858219998714,
+      "ttft_ms": 848.620612000559,
+      "done": {
+        "id": "01a21443-e93e-70da-8920-d0e0e76d442d",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 372.8148600002896,
+      "ttft_ms": 340.14241000022594,
+      "done": {
+        "id": "01a21443-e738-738f-b740-1eddcbd8d740",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 500.38832200061734,
+      "ttft_ms": 469.1850790004537,
+      "done": {
+        "id": "01a21443-e7c9-7521-9e4c-c974b10876da",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1030.2418470000703,
+      "ttft_ms": 1012.0591770000829,
+      "done": {
+        "id": "01a21443-e9e3-7715-b0c2-196db233a716",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 972.3791699998401,
+      "ttft_ms": 952.7508940000189,
+      "done": {
+        "id": "01a21443-e9aa-7422-a9cc-0a7b4293b867",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 698.1250540002293,
+      "ttft_ms": 673.6113520000799,
+      "done": {
+        "id": "01a21443-e895-73f2-9019-f55b35cd268b",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 762.1660619997783,
+      "ttft_ms": 734.4302589999643,
+      "done": {
+        "id": "01a21443-e8ce-7403-8f61-bb16f5435f58",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 472.52261899939185,
+      "ttft_ms": 452.01434899991,
+      "done": {
+        "id": "01a21443-e7b4-7770-8eb7-78298fa62e19",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1027.0439899995836,
+      "ttft_ms": 1006.6267530000914,
+      "done": {
+        "id": "01a21443-e9e3-7715-b0c2-196c5f978b17",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 769.0529799992873,
+      "ttft_ms": 738.9865059994918,
+      "done": {
+        "id": "01a21443-e8d1-70b4-a537-b0e4a08d4a71",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 449.5403189994249,
+      "ttft_ms": 410.81675799978257,
+      "done": {
+        "id": "01a21443-e78f-745e-9972-548e194e669c",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 922.0471930002532,
+      "ttft_ms": 896.3093070005925,
+      "done": {
+        "id": "01a21443-e975-7056-acae-14f1f3cea339",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 706.8351050002093,
+      "ttft_ms": 675.903174999803,
+      "done": {
+        "id": "01a21443-e895-73f2-9019-f55c0046c161",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1076.7343790002997,
+      "ttft_ms": 1057.6422110007115,
+      "done": {
+        "id": "01a21443-ea19-7641-bd78-1feb40412f81",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 927.0407009998962,
+      "ttft_ms": 899.7242079994976,
+      "done": {
+        "id": "01a21443-e977-7264-a140-d97f72e77ca6",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 754.4085239997003,
+      "ttft_ms": 726.261613999668,
+      "done": {
+        "id": "01a21443-e8ca-77bc-a854-887b53fc47f6",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 1127.7454850005597,
+      "ttft_ms": 1108.7175180000486,
+      "done": {
+        "id": "01a21443-ea48-74f6-b0ac-cde26baddb8d",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    },
+    {
+      "status": 200,
+      "duration_ms": 298.87953700017533,
+      "ttft_ms": 226.88655100046162,
+      "done": {
+        "id": "01a21443-e68d-7426-b65b-4333f4bc1917",
+        "role": "assistant",
+        "content": "Capacity fixture completed [1].",
+        "status": "complete",
+        "citations": [
+          {
+            "id": 1,
+            "document_id": "01a21443-e548-7692-a350-ca0ff3fca117",
+            "chunk_id": "01a21443-e575-70a3-9996-09be596dc878",
+            "title": "capacity.txt",
+            "uri": "capacity.txt",
+            "page": null
+          }
+        ],
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "estimated_cost_usd": "0.0000560",
+        "usage_estimated": false,
+        "error_code": null,
+        "feedback": null
+      },
+      "json": null
+    }
+  ]
+}

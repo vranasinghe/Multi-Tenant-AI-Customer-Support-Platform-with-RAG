@@ -1,0 +1,6 @@
+{
+ "declared_at": "2026-11-26T14:40:01+0530",
+ "series": [{"name": "unloaded-5", "runs": 5}, {"name": "mixed-crawl-5", "runs": 5, "load": "two tenants re-syncing 12-page sites through a real prefork worker"}],
+ "gates": {"c100_success_p95_ms": 2000, "rejection_p95_ms": 3000, "source": "test_chat_capacity.py, unchanged"},
+ "rule": "every run is kept and reported; no run is repeated to replace a result"
+}

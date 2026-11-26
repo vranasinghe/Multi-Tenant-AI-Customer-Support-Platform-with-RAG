@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="15" skipped="0" tests="15" time="163.601" timestamp="2026-11-26T00:27:05.660082+05:30" hostname="Venuja"><testcase classname="tests.integration.test_runtime_proxy_trust" name="test_direct_peer_cannot_choose_identity_or_scheme[unset]" time="4.854"><failure message="AssertionError: [401, 401, 401, 401, 401, 401, ...]&#10;assert 0 &gt;= 5&#10; +  where 0 = &lt;built-in method count of list object at 0x000002326FC2CA80&gt;(429)&#10; +    where &lt;built-in method count of list object at 0x000002326FC2CA80&gt; = [401, 401, 401, 401, 401, 401, ...].count">tests\integration\test_runtime_proxy_trust.py:212: in test_direct_peer_cannot_choose_identity_or_scheme
+    assert statuses.count(429) &gt;= 5, statuses
+E   AssertionError: [401, 401, 401, 401, 401, 401, ...]
+E   assert 0 &gt;= 5
+E    +  where 0 = &lt;built-in method count of list object at 0x000002326FC2CA80&gt;(429)
+E    +    where &lt;built-in method count of list object at 0x000002326FC2CA80&gt; = [401, 401, 401, 401, 401, 401, ...].count</failure></testcase><testcase classname="tests.integration.test_runtime_proxy_trust" name="test_direct_peer_cannot_choose_identity_or_scheme[empty]" time="4.907"><failure message="AssertionError: [401, 401, 401, 401, 401, 401, ...]&#10;assert 0 &gt;= 5&#10; +  where 0 = &lt;built-in method count of list object at 0x000002326FCC7780&gt;(429)&#10; +    where &lt;built-in method count of list object at 0x000002326FCC7780&gt; = [401, 401, 401, 401, 401, 401, ...].count">tests\integration\test_runtime_proxy_trust.py:212: in test_direct_peer_cannot_choose_identity_or_scheme
+    assert statuses.count(429) &gt;= 5, statuses
+E   AssertionError: [401, 401, 401, 401, 401, 401, ...]
+E   assert 0 &gt;= 5
+E    +  where 0 = &lt;built-in method count of list object at 0x000002326FCC7780&gt;(429)
+E    +    where &lt;built-in method count of list object at 0x000002326FCC7780&gt; = [401, 401, 401, 401, 401, 401, ...].count</failure></testcase><testcase classname="tests.integration.test_runtime_proxy_trust" name="test_direct_peer_cannot_choose_identity_or_scheme[proxy-only]" time="4.680"><failure message="AssertionError: [401, 401, 401, 401, 401, 401, ...]&#10;assert 0 &gt;= 5&#10; +  where 0 = &lt;built-in method count of list object at 0x000002326FCCFC40&gt;(429)&#10; +    where &lt;built-in method count of list object at 0x000002326FCCFC40&gt; = [401, 401, 401, 401, 401, 401, ...].count">tests\integration\test_runtime_proxy_trust.py:212: in test_direct_peer_cannot_choose_identity_or_scheme
+    assert statuses.count(429) &gt;= 5, statuses
+E   AssertionError: [401, 401, 401, 401, 401, 401, ...]
+E   assert 0 &gt;= 5
+E    +  where 0 = &lt;built-in method count of list object at 0x000002326FCCFC40&gt;(429)
+E    +    where &lt;built-in method count of list object at 0x000002326FCCFC40&gt; = [401, 401, 401, 401, 401, 401, ...].count</failure></testcase><testcase classname="tests.integration.test_runtime_proxy_trust" name="test_trusted_proxy_chain_resolves_the_first_untrusted_client" time="5.493"><failure message="AssertionError: assert {'203.0.113.200'} == {'203.0.113.8'}&#10;  &#10;  Extra items in the left set:&#10;  '203.0.113.200'&#10;  Extra items in the right set:&#10;  '203.0.113.8'&#10;  Use -v to get more diff">tests\integration\test_runtime_proxy_trust.py:230: in test_trusted_proxy_chain_resolves_the_first_untrusted_client
+    assert identity("203.0.113.200, 203.0.113.8, 2001:db8:ffff::1, 192.0.2.5") == {"203.0.113.8"}
+E   AssertionError: assert {'203.0.113.200'} == {'203.0.113.8'}
+E     
+E     Extra items in the left set:
+E     '203.0.113.200'
+E     Extra items in the right set:
+E     '203.0.113.8'
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.integration.test_runtime_proxy_trust" name="test_unsafe_deployed_configuration_stops_startup[*-staging]" time="21.288"><failure message="AssertionError: server started with '*'&#10;assert None not in (None, 0)">tests\integration\test_runtime_proxy_trust.py:246: in test_unsafe_deployed_configuration_stops_startup
+    assert code not in (None, 0), f"server started with {value!r}"
+E   AssertionError: server started with '*'
+E   assert None not in (None, 0)</failure></testcase><testcase classname="tests.integration.test_runtime_proxy_trust" name="test_unsafe_deployed_configuration_stops_startup[*-production]" time="3.445"><failure message="AssertionError: ory=self.config.get_loop_factory())&#10;    File &quot;/usr/local/lib/python3.13/asyncio/runners.py&quot;, line 195, in run&#10;      return runner.run(main)&#10;             ~~~~~~~~~~^^^^^^&#10;    File &quot;/usr/local/lib/python3.13/asyncio/runners.py&quot;, line 118, in run&#10;      return self._loop.run_until_complete(task)&#10;             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^&#10;    File &quot;uvloop/loop.pyx&quot;, line 1515, in uvloop.loop.Loop.run_until_complete&#10;[+23 more lines; full report in element text]">tests\integration\test_runtime_proxy_trust.py:247: in test_unsafe_deployed_configuration_stops_startup
+    assert "FORWARDED_ALLOW_IPS" in output or "forwarded_allow_ips" in output, output[-2000:]
+E   AssertionError: ory=self.config.get_loop_factory())
+E       File "/usr/local/lib/python3.13/asyncio/runners.py", line 195, in run
+E         return runner.run(main)
+E                ~~~~~~~~~~^^^^^^
+E       File "/usr/local/lib/python3.13/asyncio/runners.py", line 118, in run
+E         return self._loop.run_until_complete(task)
+E                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+E       File "uvloop/loop.pyx", line 1515, in uvloop.loop.Loop.run_until_complete
+E       File "/opt/venv/lib/python3.13/site-packages/uvicorn/server.py", line 90, in serve
+E         await self._serve(sockets)
+E       File "/opt/venv/lib/python3.13/site-packages/uvicorn/server.py", line 97, in _serve
+E         config.load()
+E         ~~~~~~~~~~~^^
+E       File "/opt/venv/lib/python3.13/site-packages/uvicorn/config.py", line 514, in load
+E         self.loaded_app = self.loaded_app()
+E                           ~~~~~~~~~~~~~~~^^
+E       File "/app/app/main.py", line 51, in create_app
+E         settings = settings or get_settings()
+E                                ~~~~~~~~~~~~^^
+E       File "/app/app/core/config.py", line 351, in get_settings
+E         return Settings()  # values come from the environment
+E       File "/opt/venv/lib/python3.13/site-packages/pydantic_settings/main.py", line 292, in __init__
+E         super().__init__(**__pydantic_self__.__class__._settings_build_values(sources, init_kwargs))
+E         ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       File "/opt/venv/lib/python3.13/site-packages/pydantic/main.py", line 280, in __init__
+E         validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+E     pydantic_core._pydantic_core.ValidationError: 1 validation error for Settings
+E       Value error, EMAIL_BACKEND must be 'smtp' in production (log backend leaks tokens); WEB_BASE_URL must use https in production; EMBEDDING_PROVIDER must not be 'hash' in production; STORAGE_BACKEND must be 's3' in production; CORS origin 'http://localhost:3000' must use https in production [type=value_error]
+E         For further information visit https://errors.pydantic.dev/2.14/v/value_error
+E     
+E   assert ('FORWARDED_ALLOW_IPS' in 'Traceback (most recent call last):\n  File "/opt/venv/bin/uvicorn", line 10, in &lt;module&gt;\n    sys.exit(main())\n     ...s in production [type=value_error]\n    For further information visit https://errors.pydantic.dev/2.14/v/value_error\n' or 'forwarded_allow_ips' in 'Traceback (most recent call last):\n  File "/opt/venv/bin/uvicorn", line 10, in &lt;module&gt;\n    sys.exit(main())\n     ...s in production [type=value_error]\n    For further information visit https://errors.pydantic.dev/2.14/v/value_error\n')</failure></testcase><testcase classname="tests.integration.test_runtime_proxy_trust" name="test_unsafe_deployed_configuration_stops_startup[0.0.0.0/0-staging]" time="21.472"><failure message="AssertionError: server started with '0.0.0.0/0'&#10;assert None not in (None, 0)">tests\integration\test_runtime_proxy_trust.py:246: in test_unsafe_deployed_configuration_stops_startup
+    assert code not in (None, 0), f"server started with {value!r}"
+E   AssertionError: server started with '0.0.0.0/0'
+E   assert None not in (None, 0)</failure></testcase><testcase classname="tests.integration.test_runtime_proxy_trust" name="test_unsafe_deployed_configuration_stops_startup[0.0.0.0/0-production]" time="3.435"><failure message="AssertionError: ory=self.config.get_loop_factory())&#10;    File &quot;/usr/local/lib/python3.13/asyncio/runners.py&quot;, line 195, in run&#10;      return runner.run(main)&#10;             ~~~~~~~~~~^^^^^^&#10;    File &quot;/usr/local/lib/python3.13/asyncio/runners.py&quot;, line 118, in run&#10;      return self._loop.run_until_complete(task)&#10;             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^&#10;    File &quot;uvloop/loop.pyx&quot;, line 1515, in uvloop.loop.Loop.run_until_complete&#10;[+23 more lines; full report in element text]">tests\integration\test_runtime_proxy_trust.py:247: in test_unsafe_deployed_configuration_stops_startup
+    assert "FORWARDED_ALLOW_IPS" in output or "forwarded_allow_ips" in output, output[-2000:]
+E   AssertionError: ory=self.config.get_loop_factory())
+E       File "/usr/local/lib/python3.13/asyncio/runners.py", line 195, in run
+E         return runner.run(main)
+E                ~~~~~~~~~~^^^^^^
+E       File "/usr/local/lib/python3.13/asyncio/runners.py", line 118, in run
+E         return self._loop.run_until_complete(task)
+E                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+E       File "uvloop/loop.pyx", line 1515, in uvloop.loop.Loop.run_until_complete
+E       File "/opt/venv/lib/python3.13/site-packages/uvicorn/server.py", line 90, in serve
+E         await self._serve(sockets)
+E       File "/opt/venv/lib/python3.13/site-packages/uvicorn/server.py", line 97, in _serve
+E         config.load()
+E         ~~~~~~~~~~~^^
+E       File "/opt/venv/lib/python3.13/site-packages/uvicorn/config.py", line 514, in load
+E         self.loaded_app = self.loaded_app()
+E                           ~~~~~~~~~~~~~~~^^
+E       File "/app/app/main.py", line 51, in create_app
+E         settings = settings or get_settings()
+E                                ~~~~~~~~~~~~^^
+E       File "/app/app/core/config.py", line 351, in get_settings
+E         return Settings()  # values come from the environment
+E       File "/opt/venv/lib/python3.13/site-packages/pydantic_settings/main.py", line 292, in __init__
+E         super().__init__(**__pydantic_self__.__class__._settings_build_values(sources, init_kwargs))
+E         ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       File "/opt/venv/lib/python3.13/site-packages/pydantic/main.py", line 280, in __init__
+E         validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+E     pydantic_core._pydantic_core.ValidationError: 1 validation error for Settings
+E       Value error, EMAIL_BACKEND must be 'smtp' in production (log backend leaks tokens); WEB_BASE_URL must use https in production; EMBEDDING_PROVIDER must not be 'hash' in production; STORAGE_BACKEND must be 's3' in production; CORS origin 'http://localhost:3000' must use https in production [type=value_error]
+E         For further information visit https://errors.pydantic.dev/2.14/v/value_error
+E     
+E   assert ('FORWARDED_ALLOW_IPS' in 'Traceback (most recent call last):\n  File "/opt/venv/bin/uvicorn", line 10, in &lt;module&gt;\n    sys.exit(main())\n     ...s in production [type=value_error]\n    For further information visit https://errors.pydantic.dev/2.14/v/value_error\n' or 'forwarded_allow_ips' in 'Traceback (most recent call last):\n  File "/opt/venv/bin/uvicorn", line 10, in &lt;module&gt;\n    sys.exit(main())\n     ...s in production [type=value_error]\n    For further information visit https://errors.pydantic.dev/2.14/v/value_error\n')</failure></testcase><testcase classname="tests.integration.test_runtime_proxy_trust" name="test_unsafe_deployed_configuration_stops_startup[::/0-staging]" time="21.339"><failure message="AssertionError: server started with '::/0'&#10;assert None not in (None, 0)">tests\integration\test_runtime_proxy_trust.py:246: in test_unsafe_deployed_configuration_stops_startup
+    assert code not in (None, 0), f"server started with {value!r}"
+E   AssertionError: server started with '::/0'
+E   assert None not in (None, 0)</failure></testcase><testcase classname="tests.integration.test_runtime_proxy_trust" name="test_unsafe_deployed_configuration_stops_startup[::/0-production]" time="3.430"><failure message="AssertionError: ory=self.config.get_loop_factory())&#10;    File &quot;/usr/local/lib/python3.13/asyncio/runners.py&quot;, line 195, in run&#10;      return runner.run(main)&#10;             ~~~~~~~~~~^^^^^^&#10;    File &quot;/usr/local/lib/python3.13/asyncio/runners.py&quot;, line 118, in run&#10;      return self._loop.run_until_complete(task)&#10;             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^&#10;    File &quot;uvloop/loop.pyx&quot;, line 1515, in uvloop.loop.Loop.run_until_complete&#10;[+23 more lines; full report in element text]">tests\integration\test_runtime_proxy_trust.py:247: in test_unsafe_deployed_configuration_stops_startup
+    assert "FORWARDED_ALLOW_IPS" in output or "forwarded_allow_ips" in output, output[-2000:]
+E   AssertionError: ory=self.config.get_loop_factory())
+E       File "/usr/local/lib/python3.13/asyncio/runners.py", line 195, in run
+E         return runner.run(main)
+E                ~~~~~~~~~~^^^^^^
+E       File "/usr/local/lib/python3.13/asyncio/runners.py", line 118, in run
+E         return self._loop.run_until_complete(task)
+E                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+E       File "uvloop/loop.pyx", line 1515, in uvloop.loop.Loop.run_until_complete
+E       File "/opt/venv/lib/python3.13/site-packages/uvicorn/server.py", line 90, in serve
+E         await self._serve(sockets)
+E       File "/opt/venv/lib/python3.13/site-packages/uvicorn/server.py", line 97, in _serve
+E         config.load()
+E         ~~~~~~~~~~~^^
+E       File "/opt/venv/lib/python3.13/site-packages/uvicorn/config.py", line 514, in load
+E         self.loaded_app = self.loaded_app()
+E                           ~~~~~~~~~~~~~~~^^
+E       File "/app/app/main.py", line 51, in create_app
+E         settings = settings or get_settings()
+E                                ~~~~~~~~~~~~^^
+E       File "/app/app/core/config.py", line 351, in get_settings
+E         return Settings()  # values come from the environment
+E       File "/opt/venv/lib/python3.13/site-packages/pydantic_settings/main.py", line 292, in __init__
+E         super().__init__(**__pydantic_self__.__class__._settings_build_values(sources, init_kwargs))
+E         ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       File "/opt/venv/lib/python3.13/site-packages/pydantic/main.py", line 280, in __init__
+E         validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+E     pydantic_core._pydantic_core.ValidationError: 1 validation error for Settings
+E       Value error, EMAIL_BACKEND must be 'smtp' in production (log backend leaks tokens); WEB_BASE_URL must use https in production; EMBEDDING_PROVIDER must not be 'hash' in production; STORAGE_BACKEND must be 's3' in production; CORS origin 'http://localhost:3000' must use https in production [type=value_error]
+E         For further information visit https://errors.pydantic.dev/2.14/v/value_error
+E     
+E   assert ('FORWARDED_ALLOW_IPS' in 'Traceback (most recent call last):\n  File "/opt/venv/bin/uvicorn", line 10, in &lt;module&gt;\n    sys.exit(main())\n     ...s in production [type=value_error]\n    For further information visit https://errors.pydantic.dev/2.14/v/value_error\n' or 'forwarded_allow_ips' in 'Traceback (most recent call last):\n  File "/opt/venv/bin/uvicorn", line 10, in &lt;module&gt;\n    sys.exit(main())\n     ...s in production [type=value_error]\n    For further information visit https://errors.pydantic.dev/2.14/v/value_error\n')</failure></testcase><testcase classname="tests.integration.test_runtime_proxy_trust" name="test_unsafe_deployed_configuration_stops_startup[not-an-address-staging]" time="21.356"><failure message="AssertionError: server started with 'not-an-address'&#10;assert None not in (None, 0)">tests\integration\test_runtime_proxy_trust.py:246: in test_unsafe_deployed_configuration_stops_startup
+    assert code not in (None, 0), f"server started with {value!r}"
+E   AssertionError: server started with 'not-an-address'
+E   assert None not in (None, 0)</failure></testcase><testcase classname="tests.integration.test_runtime_proxy_trust" name="test_unsafe_deployed_configuration_stops_startup[not-an-address-production]" time="3.436"><failure message="AssertionError: ory=self.config.get_loop_factory())&#10;    File &quot;/usr/local/lib/python3.13/asyncio/runners.py&quot;, line 195, in run&#10;      return runner.run(main)&#10;             ~~~~~~~~~~^^^^^^&#10;    File &quot;/usr/local/lib/python3.13/asyncio/runners.py&quot;, line 118, in run&#10;      return self._loop.run_until_complete(task)&#10;             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^&#10;    File &quot;uvloop/loop.pyx&quot;, line 1515, in uvloop.loop.Loop.run_until_complete&#10;[+23 more lines; full report in element text]">tests\integration\test_runtime_proxy_trust.py:247: in test_unsafe_deployed_configuration_stops_startup
+    assert "FORWARDED_ALLOW_IPS" in output or "forwarded_allow_ips" in output, output[-2000:]
+E   AssertionError: ory=self.config.get_loop_factory())
+E       File "/usr/local/lib/python3.13/asyncio/runners.py", line 195, in run
+E         return runner.run(main)
+E                ~~~~~~~~~~^^^^^^
+E       File "/usr/local/lib/python3.13/asyncio/runners.py", line 118, in run
+E         return self._loop.run_until_complete(task)
+E                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+E       File "uvloop/loop.pyx", line 1515, in uvloop.loop.Loop.run_until_complete
+E       File "/opt/venv/lib/python3.13/site-packages/uvicorn/server.py", line 90, in serve
+E         await self._serve(sockets)
+E       File "/opt/venv/lib/python3.13/site-packages/uvicorn/server.py", line 97, in _serve
+E         config.load()
+E         ~~~~~~~~~~~^^
+E       File "/opt/venv/lib/python3.13/site-packages/uvicorn/config.py", line 514, in load
+E         self.loaded_app = self.loaded_app()
+E                           ~~~~~~~~~~~~~~~^^
+E       File "/app/app/main.py", line 51, in create_app
+E         settings = settings or get_settings()
+E                                ~~~~~~~~~~~~^^
+E       File "/app/app/core/config.py", line 351, in get_settings
+E         return Settings()  # values come from the environment
+E       File "/opt/venv/lib/python3.13/site-packages/pydantic_settings/main.py", line 292, in __init__
+E         super().__init__(**__pydantic_self__.__class__._settings_build_values(sources, init_kwargs))
+E         ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       File "/opt/venv/lib/python3.13/site-packages/pydantic/main.py", line 280, in __init__
+E         validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+E     pydantic_core._pydantic_core.ValidationError: 1 validation error for Settings
+E       Value error, EMAIL_BACKEND must be 'smtp' in production (log backend leaks tokens); WEB_BASE_URL must use https in production; EMBEDDING_PROVIDER must not be 'hash' in production; STORAGE_BACKEND must be 's3' in production; CORS origin 'http://localhost:3000' must use https in production [type=value_error]
+E         For further information visit https://errors.pydantic.dev/2.14/v/value_error
+E     
+E   assert ('FORWARDED_ALLOW_IPS' in 'Traceback (most recent call last):\n  File "/opt/venv/bin/uvicorn", line 10, in &lt;module&gt;\n    sys.exit(main())\n     ...s in production [type=value_error]\n    For further information visit https://errors.pydantic.dev/2.14/v/value_error\n' or 'forwarded_allow_ips' in 'Traceback (most recent call last):\n  File "/opt/venv/bin/uvicorn", line 10, in &lt;module&gt;\n    sys.exit(main())\n     ...s in production [type=value_error]\n    For further information visit https://errors.pydantic.dev/2.14/v/value_error\n')</failure></testcase><testcase classname="tests.integration.test_runtime_proxy_trust" name="test_uvicorn_environment_overrides_stop_startup[uvicorn-trust-variable]" time="21.471"><failure message="AssertionError: server started with a Uvicorn override&#10;assert None not in (None, 0)">tests\integration\test_runtime_proxy_trust.py:258: in test_uvicorn_environment_overrides_stop_startup
+    assert code not in (None, 0), "server started with a Uvicorn override"
+E   AssertionError: server started with a Uvicorn override
+E   assert None not in (None, 0)</failure></testcase><testcase classname="tests.integration.test_runtime_proxy_trust" name="test_uvicorn_environment_overrides_stop_startup[uvicorn-proxy-variable]" time="21.243"><failure message="AssertionError: server started with a Uvicorn override&#10;assert None not in (None, 0)">tests\integration\test_runtime_proxy_trust.py:258: in test_uvicorn_environment_overrides_stop_startup
+    assert code not in (None, 0), "server started with a Uvicorn override"
+E   AssertionError: server started with a Uvicorn override
+E   assert None not in (None, 0)</failure></testcase><testcase classname="tests.integration.test_runtime_proxy_trust" name="test_image_declares_no_proxy_trust" time="1.070"><failure message="AssertionError: assert '*' not in 'uvicorn app...o-access-log'&#10;  &#10;  '*' is contained here:&#10;    allow-ips * --no-access-log&#10;  ?           +">tests\integration\test_runtime_proxy_trust.py:265: in test_image_declares_no_proxy_trust
+    assert "*" not in " ".join(config["Cmd"] or [])
+E   AssertionError: assert '*' not in 'uvicorn app...o-access-log'
+E     
+E     '*' is contained here:
+E       allow-ips * --no-access-log
+E     ?           +</failure></testcase></testsuite></testsuites>

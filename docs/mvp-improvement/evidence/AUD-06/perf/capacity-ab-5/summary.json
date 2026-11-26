@@ -1,0 +1,111 @@
+{
+  "series": "capacity-ab-5",
+  "pairs": 5,
+  "working_files_restored": true,
+  "runs": [
+    {
+      "pair": 1,
+      "variant": "after",
+      "exit_code": 0,
+      "success_p95_ms": 1921.0,
+      "rejected_p95_ms": 1680.7,
+      "success": 48
+    },
+    {
+      "pair": 1,
+      "variant": "before",
+      "exit_code": 0,
+      "success_p95_ms": 1769.9,
+      "rejected_p95_ms": 1657.2,
+      "success": 49
+    },
+    {
+      "pair": 2,
+      "variant": "after",
+      "exit_code": 0,
+      "success_p95_ms": 1785.2,
+      "rejected_p95_ms": 1605.1,
+      "success": 44
+    },
+    {
+      "pair": 2,
+      "variant": "before",
+      "exit_code": 0,
+      "success_p95_ms": 1858.1,
+      "rejected_p95_ms": 1751.6,
+      "success": 46
+    },
+    {
+      "pair": 3,
+      "variant": "after",
+      "exit_code": 0,
+      "success_p95_ms": 1819.0,
+      "rejected_p95_ms": 1657.7,
+      "success": 44
+    },
+    {
+      "pair": 3,
+      "variant": "before",
+      "exit_code": 0,
+      "success_p95_ms": 1805.1,
+      "rejected_p95_ms": 1659.3,
+      "success": 49
+    },
+    {
+      "pair": 4,
+      "variant": "after",
+      "exit_code": 1,
+      "success_p95_ms": 2020.0,
+      "rejected_p95_ms": 1516.1,
+      "success": 54
+    },
+    {
+      "pair": 4,
+      "variant": "before",
+      "exit_code": 1,
+      "success_p95_ms": 2036.0,
+      "rejected_p95_ms": 1800.1,
+      "success": 39
+    },
+    {
+      "pair": 5,
+      "variant": "after",
+      "exit_code": 0,
+      "success_p95_ms": 1750.5,
+      "rejected_p95_ms": 1596.0,
+      "success": 47
+    },
+    {
+      "pair": 5,
+      "variant": "before",
+      "exit_code": 0,
+      "success_p95_ms": 1765.8,
+      "rejected_p95_ms": 1665.7,
+      "success": 51
+    }
+  ],
+  "after": {
+    "values": [
+      1750.5,
+      1785.2,
+      1819.0,
+      1921.0,
+      2020.0
+    ],
+    "median": 1819.0,
+    "over_2000": 1,
+    "failed_runs": 1
+  },
+  "before": {
+    "values": [
+      1765.8,
+      1769.9,
+      1805.1,
+      1858.1,
+      2036.0
+    ],
+    "median": 1805.1,
+    "over_2000": 1,
+    "failed_runs": 1
+  }
+}

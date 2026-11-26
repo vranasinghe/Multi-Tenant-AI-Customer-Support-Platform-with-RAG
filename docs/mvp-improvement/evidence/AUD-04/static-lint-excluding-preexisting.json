@@ -1,0 +1,8 @@
+{
+  "id": "static-lint-excluding-preexisting",
+  "command": "docker compose -p acs-a4-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/fdcd6f6bc2bba37f/23716622-310b-4277-812c-896cbc074d51/scratchpad/qa.env' exec -T api ruff check --no-cache . --extend-exclude migrations/versions/20261125_0007_conversation_analytics.py",
+  "started_at": "2026-11-26T00:34:44+0530",
+  "exit_code": 0,
+  "duration_seconds": 0.637,
+  "log": "static-lint-excluding-preexisting.log"
+}

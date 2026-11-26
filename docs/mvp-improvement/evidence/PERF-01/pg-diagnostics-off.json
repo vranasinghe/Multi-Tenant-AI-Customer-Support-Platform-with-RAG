@@ -1,0 +1,8 @@
+{
+  "id": "pg-diagnostics-off",
+  "command": "docker compose -p acs-a41-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/fdcd6f6bc2bba37f/23716622-310b-4277-812c-896cbc074d51/scratchpad/qa.env' exec -T postgres psql -U platform_owner -d chatbot -v ON_ERROR_STOP=1 -c 'ALTER SYSTEM RESET ALL' && docker restart acs-a41-qa-postgres-1 && python -c 'import time;time.sleep(8)' && docker compose -p acs-a41-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/fdcd6f6bc2bba37f/23716622-310b-4277-812c-896cbc074d51/scratchpad/qa.env' exec -T postgres psql -U platform_owner -d chatbot -v ON_ERROR_STOP=1 -tAc 'SHOW shared_preload_libraries; SHOW deadlock_timeout'",
+  "started_at": "2026-11-26T01:12:24+0530",
+  "exit_code": 0,
+  "duration_seconds": 9.751,
+  "log": "pg-diagnostics-off.log"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "web-2",
+  "command": "unset MSYS_NO_PATHCONV; p='corepack pnpm -r --if-present'; corepack pnpm format:check && $p lint && $p typecheck && $p test 2>&1 | grep -E 'Tests |Test Files' && NEXT_PUBLIC_API_URL=http://localhost:8000 $p build 2>&1 | grep -E 'loader.js:|Compiled|rror' && sha256sum services/api/widget_assets/v1/loader.js",
+  "started_at": "2026-11-26T14:24:41+0530",
+  "exit_code": 0,
+  "duration_seconds": 47.956,
+  "log": "web-2.log"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "red/worker-loss-diagnosis",
+  "command": "docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' exec -T api pytest tests/integration/api/mvp_improvement/test_ingestion_worker.py -q -s -p no:cacheprovider --tb=no -k losing_the_pool 2>&1 | grep -E '^(JOB|PARSERS|PROC|PG|LOG)|passed|failed|ingest' | cut -c1-260 | tail -40",
+  "started_at": "2026-11-26T02:15:14+0530",
+  "exit_code": 2,
+  "duration_seconds": 4.024,
+  "log": "red/worker-loss-diagnosis.log"
+}

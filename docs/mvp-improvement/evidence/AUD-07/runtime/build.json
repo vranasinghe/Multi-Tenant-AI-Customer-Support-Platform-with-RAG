@@ -1,0 +1,8 @@
+{
+  "id": "runtime/build",
+  "command": "docker build --target runtime -t acs-api:mvp-a7-local services/api 2>&1 | tail -3; docker run --rm --network none acs-api:mvp-a7-local sh -c 'cat widget_assets/v1/manifest.json; python -c \"import gzip;d=open(\\\"widget_assets/v1/loader.js\\\",\\\"rb\\\").read();print(\\\"served-bytes\\\",len(d),\\\"has-1.1.0\\\",b\\\"1.1.0\\\" in d)\\\"'",
+  "started_at": "2026-11-26T13:03:15+0530",
+  "exit_code": 2,
+  "duration_seconds": 4.77,
+  "log": "runtime/build.log"
+}

@@ -1,0 +1,299 @@
+{
+  "requests": 100,
+  "burst_wall_ms": 2144.7,
+  "event_loop_thread_cpu_ms": 1998.7,
+  "event_loop_lag_ms": {
+    "n": 224,
+    "p50": 2.5,
+    "p95": 8.5,
+    "max": 103.9
+  },
+  "groups": {
+    "success": {
+      "count": 42,
+      "duration_ms": {
+        "n": 42,
+        "p50": 1619.7,
+        "p95": 2031.2,
+        "max": 2091.8
+      },
+      "segments_ms": {
+        "assemble_prompt": {
+          "n": 42,
+          "p50": 0.0,
+          "p95": 0.0,
+          "max": 0.0
+        },
+        "auth_session_lookup": {
+          "n": 42,
+          "p50": 16.5,
+          "p95": 36.7,
+          "max": 71.9
+        },
+        "auth_slot_wait": {
+          "n": 42,
+          "p50": 749.5,
+          "p95": 1171.7,
+          "max": 1193.7
+        },
+        "authorize_chunks": {
+          "n": 42,
+          "p50": 1.8,
+          "p95": 5.7,
+          "max": 7.6
+        },
+        "db_commit": {
+          "n": 42,
+          "p50": 9.5,
+          "p95": 31.1,
+          "max": 132.3
+        },
+        "pool_checkout": {
+          "n": 42,
+          "p50": 11.5,
+          "p95": 49.4,
+          "max": 128.6
+        },
+        "prepare_total": {
+          "n": 42,
+          "p50": 593.1,
+          "p95": 966.9,
+          "max": 1008.0
+        },
+        "query_embedding": {
+          "n": 42,
+          "p50": 0.1,
+          "p95": 0.1,
+          "max": 0.2
+        },
+        "rate_limit": {
+          "n": 42,
+          "p50": 10.3,
+          "p95": 60.5,
+          "max": 171.5
+        },
+        "redis_admission_calls": {
+          "n": 42,
+          "p50": 85.0,
+          "p95": 232.3,
+          "max": 302.9
+        },
+        "retrieval": {
+          "n": 42,
+          "p50": 7.0,
+          "p95": 25.2,
+          "max": 77.6
+        },
+        "sql_execute": {
+          "n": 42,
+          "p50": 85.6,
+          "p95": 300.9,
+          "max": 375.3
+        },
+        "stream_and_finalize": {
+          "n": 42,
+          "p50": 25.7,
+          "p95": 87.4,
+          "max": 162.1
+        },
+        "usage_reservation": {
+          "n": 42,
+          "p50": 4.2,
+          "p95": 19.2,
+          "max": 37.6
+        }
+      },
+      "calls_per_request": {
+        "assemble_prompt": 1.0,
+        "auth_session_lookup": 1.0,
+        "auth_slot_wait": 1.0,
+        "authorize_chunks": 1.0,
+        "db_commit": 3.0,
+        "pool_checkout": 5.0,
+        "prepare_total": 1.0,
+        "query_embedding": 1.0,
+        "rate_limit": 1.0,
+        "redis_admission_calls": 28.19,
+        "retrieval": 1.0,
+        "sql_execute": 37.0,
+        "stream_and_finalize": 1.0,
+        "usage_reservation": 1.0
+      }
+    },
+    "rejected": {
+      "count": 58,
+      "duration_ms": {
+        "n": 58,
+        "p50": 1354.5,
+        "p95": 1848.2,
+        "max": 1951.9
+      },
+      "segments_ms": {
+        "auth_session_lookup": {
+          "n": 58,
+          "p50": 13.7,
+          "p95": 35.1,
+          "max": 115.2
+        },
+        "auth_slot_wait": {
+          "n": 58,
+          "p50": 336.8,
+          "p95": 713.3,
+          "max": 919.3
+        },
+        "pool_checkout": {
+          "n": 58,
+          "p50": 4.2,
+          "p95": 17.3,
+          "max": 105.0
+        },
+        "prepare_total": {
+          "n": 58,
+          "p50": 917.7,
+          "p95": 964.2,
+          "max": 1050.7
+        },
+        "rate_limit": {
+          "n": 58,
+          "p50": 10.6,
+          "p95": 41.3,
+          "max": 146.9
+        },
+        "redis_admission_calls": {
+          "n": 58,
+          "p50": 256.8,
+          "p95": 368.5,
+          "max": 421.5
+        },
+        "sql_execute": {
+          "n": 58,
+          "p50": 24.3,
+          "p95": 46.2,
+          "max": 52.8
+        }
+      },
+      "calls_per_request": {
+        "auth_session_lookup": 1.0,
+        "auth_slot_wait": 1.0,
+        "pool_checkout": 1.0,
+        "prepare_total": 1.0,
+        "rate_limit": 1.0,
+        "redis_admission_calls": 38.88,
+        "sql_execute": 5.0
+      }
+    }
+  },
+  "sql": [
+    {
+      "statement": "SELECT set_config(%(name)s, %(value)s, true)",
+      "calls": 452,
+      "total_ms": 2126.6
+    },
+    {
+      "statement": "SELECT users.id, users.email, users.email_verified_at, users.password_hash, users.name, us",
+      "calls": 142,
+      "total_ms": 1218.6
+    },
+    {
+      "statement": "SELECT organizations.id, organizations.name, organizations.slug, organizations.status, org",
+      "calls": 226,
+      "total_ms": 853.7
+    },
+    {
+      "statement": "SELECT memberships.id, memberships.org_id, memberships.user_id, memberships.role, membersh",
+      "calls": 142,
+      "total_ms": 525.8
+    },
+    {
+      "statement": "SELECT c.id AS chunk_id, c.document_id, d.source_id, d.title AS document_title, d.uri, c.o",
+      "calls": 84,
+      "total_ms": 277.5
+    },
+    {
+      "statement": "SELECT chatbots.id, chatbots.org_id, chatbots.name, chatbots.description, chatbots.status,",
+      "calls": 84,
+      "total_ms": 264.6
+    },
+    {
+      "statement": "SELECT conversations.id, conversations.org_id, conversations.chatbot_id, conversations.cha",
+      "calls": 84,
+      "total_ms": 190.5
+    },
+    {
+      "statement": "INSERT INTO messages (id, org_id, conversation_id, role, content, status, citations, input",
+      "calls": 84,
+      "total_ms": 185.6
+    },
+    {
+      "statement": "UPDATE messages SET content=%(content)s::VARCHAR, status=%(status)s::VARCHAR, citations=%(",
+      "calls": 42,
+      "total_ms": 184.9
+    },
+    {
+      "statement": "SELECT pg_advisory_xact_lock(hashtextextended(%(key)s, 0))",
+      "calls": 42,
+      "total_ms": 169.9
+    },
+    {
+      "statement": "UPDATE chat_usage SET state=%(state)s::VARCHAR WHERE chat_usage.org_id = %(org_id_1)s::UUI",
+      "calls": 42,
+      "total_ms": 147.2
+    },
+    {
+      "statement": "UPDATE messages SET status=%(status)s::VARCHAR, estimated_cost_usd=%(estimated_cost_usd)s,",
+      "calls": 42,
+      "total_ms": 121.9
+    },
+    {
+      "statement": "UPDATE conversations SET last_message_at=%(last_message_at)s::TIMESTAMP WITH TIME ZONE, up",
+      "calls": 42,
+      "total_ms": 109.4
+    },
+    {
+      "statement": "SELECT messages.id, messages.org_id, messages.conversation_id, messages.role, messages.con",
+      "calls": 42,
+      "total_ms": 106.3
+    },
+    {
+      "statement": "SELECT c.id AS chunk_id,c.document_id,d.source_id,d.title AS document_title,d.uri,c.ordina",
+      "calls": 42,
+      "total_ms": 95.4
+    },
+    {
+      "statement": "UPDATE chat_usage SET charged_tokens=%(charged_tokens)s::INTEGER, estimated_cost_usd=%(est",
+      "calls": 42,
+      "total_ms": 94.7
+    },
+    {
+      "statement": "SET LOCAL hnsw.ef_search = 100",
+      "calls": 42,
+      "total_ms": 94.1
+    },
+    {
+      "statement": "SELECT coalesce(sum(chat_usage.charged_tokens), %(coalesce_2)s::INTEGER) AS coalesce_1, co",
+      "calls": 42,
+      "total_ms": 93.4
+    },
+    {
+      "statement": "INSERT INTO chat_usage (id, org_id, conversation_id, model, period, charged_tokens, estima",
+      "calls": 42,
+      "total_ms": 89.2
+    },
+    {
+      "statement": "SET LOCAL hnsw.iterative_scan = relaxed_order",
+      "calls": 42,
+      "total_ms": 86.2
+    },
+    {
+      "statement": "UPDATE conversations SET preview=%(preview)s::VARCHAR, last_message_at=%(last_message_at)s",
+      "calls": 42,
+      "total_ms": 80.6
+    }
+  ],
+  "redis": {
+    "EVAL": {
+      "calls": 3523,
+      "total_ms": 18973.6
+    }
+  }
+}

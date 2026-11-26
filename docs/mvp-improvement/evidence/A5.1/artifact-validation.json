@@ -1,0 +1,37 @@
+{
+  "inventoried_before": 1296,
+  "unchanged": 1284,
+  "changed": [
+    "docs/DATABASE.md",
+    "docs/INGESTION.md",
+    "docs/SECURITY.md",
+    "docs/mvp-improvement/02_PROGRESS_TRACKER.md",
+    "services/api/app/models/knowledge.py",
+    "services/api/app/rag/crawl_job.py",
+    "services/api/app/rag/maintenance.py",
+    "services/api/app/rag/pipeline.py",
+    "services/api/app/rag/storage.py",
+    "services/api/app/services/knowledge/service.py",
+    "services/api/tests/support/hostile_parser.py",
+    "services/api/tests/support/worker_app.py"
+  ],
+  "added": [
+    "docs/mvp-improvement/A5_1_INGESTION_INTEGRITY_REPORT.md",
+    "docs/mvp-improvement/tools/capture_a51.py",
+    "docs/mvp-improvement/tools/groups_a51.py",
+    "docs/mvp-improvement/tools/load_crawl_a51.py",
+    "docs/mvp-improvement/tools/perf_a51.py",
+    "docs/mvp-improvement/tools/preflight_a51.py",
+    "docs/mvp-improvement/tools/verify_a51.py",
+    "services/api/app/rag/originals.py",
+    "services/api/tests/integration/api/mvp_improvement/test_crawl_worker.py",
+    "services/api/tests/integration/api/mvp_improvement/test_original_ownership.py",
+    "services/api/tests/support/gated_store.py"
+  ],
+  "removed": [],
+  "protected_files_changed": [],
+  "evidence_file_count": 203,
+  "developer_env_secret_values_checked": 3,
+  "secret_findings": [],
+  "secret_scope": "A5.1 changed, added and evidence files; not a history audit"
+}

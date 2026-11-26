@@ -1,0 +1,8 @@
+{
+  "id": "pg-statements",
+  "command": "docker compose -p acs-a41-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/fdcd6f6bc2bba37f/23716622-310b-4277-812c-896cbc074d51/scratchpad/qa.env' exec -T postgres psql -U platform_owner -d chatbot -v ON_ERROR_STOP=1 -c \"SELECT calls, round(total_exec_time::numeric,1) total_ms, round(mean_exec_time::numeric,3) mean_ms, round(max_exec_time::numeric,1) max_ms, rows, left(regexp_replace(query,'\\s+',' ','g'),88) q FROM pg_stat_statements WHERE dbid NOT IN (SELECT oid FROM pg_database WHERE datname IN ('postgres','chatbot','template1')) AND query NOT ILIKE 'CREATE%' AND query NOT ILIKE 'ALTER%' ORDER BY total_exec_time DESC LIMIT 14\" && echo '== lock waits logged' && (docker logs acs-a41-qa-postgres-1 2>&1 | grep -cE 'still waiting for|acquired .*Lock' || true) && (docker logs acs-a41-qa-postgres-1 2>&1 | grep -E 'still waiting for|acquired .*Lock|deadlock' | head -5 || true)",
+  "started_at": "2026-11-26T01:12:23+0530",
+  "exit_code": 0,
+  "duration_seconds": 1.133,
+  "log": "pg-statements.log"
+}

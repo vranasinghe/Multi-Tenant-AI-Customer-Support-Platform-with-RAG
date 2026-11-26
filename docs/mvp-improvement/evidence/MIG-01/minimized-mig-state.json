@@ -1,0 +1,72 @@
+{
+  "state_before_downgrade": {
+    "revision": "0007",
+    "organizations": 1,
+    "conversations": 1,
+    "messages": 0,
+    "chat_usage": 1,
+    "chat_usage_without_conversation": 1,
+    "orgs_with_orphan_usage": 1
+  },
+  "chat_usage_constraints": [
+    [
+      "chat_usage_charged_tokens_check",
+      "CHECK ((charged_tokens >= 0))"
+    ],
+    [
+      "chat_usage_charged_tokens_not_null",
+      "NOT NULL charged_tokens"
+    ],
+    [
+      "chat_usage_conversation_id_not_null",
+      "NOT NULL conversation_id"
+    ],
+    [
+      "chat_usage_created_at_not_null",
+      "NOT NULL created_at"
+    ],
+    [
+      "chat_usage_estimated_cost_usd_check",
+      "CHECK ((estimated_cost_usd >= (0)::numeric))"
+    ],
+    [
+      "chat_usage_estimated_cost_usd_not_null",
+      "NOT NULL estimated_cost_usd"
+    ],
+    [
+      "chat_usage_id_not_null",
+      "NOT NULL id"
+    ],
+    [
+      "chat_usage_model_not_null",
+      "NOT NULL model"
+    ],
+    [
+      "chat_usage_org_id_not_null",
+      "NOT NULL org_id"
+    ],
+    [
+      "chat_usage_period_not_null",
+      "NOT NULL period"
+    ],
+    [
+      "chat_usage_pkey",
+      "PRIMARY KEY (id)"
+    ],
+    [
+      "chat_usage_state_check",
+      "CHECK ((state = ANY (ARRAY['reserved'::text, 'settled'::text])))"
+    ],
+    [
+      "chat_usage_state_not_null",
+      "NOT NULL state"
+    ]
+  ],
+  "alembic_error": [
+    "INFO  [alembic.runtime.migration] Running downgrade 0007 -> 0006, Conversation inbox, first-class events, analytics rollups and retention.",
+    "psycopg.errors.ForeignKeyViolation: insert or update on table \"chat_usage\" violates foreign key constraint \"chat_usage_org_id_conversation_id_fkey\"",
+    "DETAIL:  Key (org_id, conversation_id)=(01a21440-e298-7712-87fc-00f393668501, 01a21440-e31c-767c-9ab9-5fc7273643e6) is not present in table \"conversations\".",
+    "sqlalchemy.exc.IntegrityError: (psycopg.errors.ForeignKeyViolation) insert or update on table \"chat_usage\" violates foreign key constraint \"chat_usage_org_id_conversation_id_fkey\"",
+    "DETAIL:  Key (org_id, conversation_id)=(01a21440-e298-7712-87fc-00f393668501, 01a21440-e31c-767c-9ab9-5fc7273643e6) is not present in table \"conversations\"."
+  ]
+}

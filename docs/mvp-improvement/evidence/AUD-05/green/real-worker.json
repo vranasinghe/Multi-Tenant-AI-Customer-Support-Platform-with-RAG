@@ -1,0 +1,8 @@
+{
+  "id": "green/real-worker",
+  "command": "docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' exec -T -e AUDIT_OUTPUT_DIR=/tmp/a5/worker api pytest tests/integration/api/mvp_improvement/test_ingestion_worker.py -q -p no:cacheprovider --tb=short 2>&1 | grep -vE '\\[(info|debug)' | cut -c1-300 | tail -30; rc=$?; docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' cp api:/tmp/a5/worker docs/mvp-improvement/evidence/AUD-05/green/real-worker-data >/dev/null 2>&1; exit $rc",
+  "started_at": "2026-11-26T02:17:57+0530",
+  "exit_code": 1,
+  "duration_seconds": 144.768,
+  "log": "green/real-worker.log"
+}

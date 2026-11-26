@@ -1,0 +1,8 @@
+{
+  "id": "runtime/proxy-tests",
+  "command": "source 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/runtime5.sh'; cd services/api && RUNTIME_PROXY_IMAGE=acs-api:mvp-a5-local .venv/Scripts/python.exe -m pytest tests/integration/test_runtime_proxy_trust.py -q --tb=short -p no:cacheprovider --junitxml=../../docs/mvp-improvement/evidence/AUD-05/runtime/proxy-tests.xml 2>&1 | tail -6",
+  "started_at": "2026-11-26T02:53:57+0530",
+  "exit_code": 0,
+  "duration_seconds": 55.592,
+  "log": "runtime/proxy-tests.log"
+}

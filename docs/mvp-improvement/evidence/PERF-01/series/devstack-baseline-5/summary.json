@@ -1,0 +1,64 @@
+{
+  "series": "devstack-baseline-5",
+  "planned_runs": 5,
+  "condition": "developer stack ai-chatbot-saas (7 containers) running idle beside acs-a41-qa; unchanged application code",
+  "declared_at": "2026-11-26T01:06:37+0530",
+  "head": "db4d352fdde162ffa38eb2c6522e5805a2a892f4",
+  "app_diff_sha256": "1023e9172dae4be18707f8109c44f408a4facf2234abd2a53a29e3d910293fe0",
+  "app_diff_stat": [
+    " services/api/Dockerfile         |  8 +++++---",
+    " services/api/app/core/config.py | 20 ++++++++++++++++++++",
+    " services/api/app/main.py        |  2 +-",
+    " 3 files changed, 26 insertions(+), 4 deletions(-)"
+  ],
+  "completed_runs": 5,
+  "failed_runs": 1,
+  "successful_p95_ms_c1": {
+    "median": 53.15,
+    "min": 41.01,
+    "max": 57.81,
+    "all": [
+      50.05,
+      41.01,
+      57.81,
+      57.81,
+      53.15
+    ]
+  },
+  "successful_p95_ms_c10": {
+    "median": 280.91,
+    "min": 270.49,
+    "max": 420.86,
+    "all": [
+      280.13,
+      280.91,
+      282.1,
+      270.49,
+      420.86
+    ]
+  },
+  "successful_p95_ms_c50": {
+    "median": 1230.41,
+    "min": 1172.67,
+    "max": 1439.91,
+    "all": [
+      1172.67,
+      1176.68,
+      1326.04,
+      1230.41,
+      1439.91
+    ]
+  },
+  "successful_p95_ms_c100": {
+    "median": 1843.58,
+    "min": 1711.48,
+    "max": 2245.67,
+    "all": [
+      1756.11,
+      1959.84,
+      1843.58,
+      1711.48,
+      2245.67
+    ]
+  }
+}

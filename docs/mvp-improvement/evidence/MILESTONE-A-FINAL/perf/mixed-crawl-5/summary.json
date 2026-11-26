@@ -1,0 +1,548 @@
+{
+  "series": "mixed-crawl-5",
+  "planned_runs": 5,
+  "completed_runs": 5,
+  "failed_runs": 0,
+  "c100_success_p95_ms": {
+    "median": 1772.3,
+    "min": 1679.5,
+    "max": 1975.2,
+    "values": [
+      1679.5,
+      1699.4,
+      1772.3,
+      1775.8,
+      1975.2
+    ]
+  },
+  "c100_success": [
+    54,
+    64,
+    63,
+    58,
+    60
+  ],
+  "crawl_load": {
+    "exit_code": 0,
+    "seconds": 105.3,
+    "crawls_finished": 34,
+    "outcomes": {
+      "succeeded": 34
+    },
+    "pages_indexed": 408,
+    "page_failures": 0,
+    "worker_errors": 0
+  },
+  "runs": [
+    {
+      "run": 1,
+      "exit_code": 0,
+      "duration_seconds": 15.9,
+      "host_cpu_percent_before": 31.0,
+      "calibration_ms": 38.3,
+      "load_still_running": true,
+      "containers_before": [
+        "acs-mf-qa-web-1 0.01% 53.29MiB / 15.49GiB",
+        "acs-mf-qa-api-1 149.55% 589.8MiB / 15.49GiB",
+        "acs-mf-qa-maintenance-1 0.16% 148.6MiB / 512MiB",
+        "acs-mf-qa-worker-1 0.18% 212.5MiB / 2GiB",
+        "acs-mf-qa-beat-1 0.00% 91.49MiB / 15.49GiB",
+        "acs-mf-qa-mailpit-1 0.00% 11.93MiB / 15.49GiB",
+        "acs-mf-qa-redis-1 0.36% 8.855MiB / 15.49GiB",
+        "acs-mf-qa-postgres-1 8.45% 92MiB / 15.49GiB",
+        "acs-mf-qa-storage-1 8.13% 50.52MiB / 15.49GiB",
+        "ai-chatbot-saas-api-1 7.35% 164.9MiB / 15.49GiB",
+        "ai-chatbot-saas-worker-1 0.05% 230MiB / 15.49GiB",
+        "ai-chatbot-saas-postgres-1 0.00% 32.53MiB / 15.49GiB",
+        "ai-chatbot-saas-storage-1 0.04% 39.5MiB / 15.49GiB",
+        "ai-chatbot-saas-redis-1 0.12% 7.363MiB / 15.49GiB",
+        "ai-chatbot-saas-mailpit-1 0.04% 11.2MiB / 15.49GiB"
+      ],
+      "summary": "5 passed in 11.46s",
+      "c1": {
+        "concurrency": 1,
+        "requests": 10,
+        "overlap_peak": 1,
+        "provider_peak": 1,
+        "success": 10,
+        "rejected": 0,
+        "failed": 0,
+        "successful_p95_ms": 80.79543700296199,
+        "rejected_p95_ms": 0,
+        "successful_requests_per_second": 16.773832726948356,
+        "pool": {
+          "checked_out": 0,
+          "peak": 1,
+          "checkouts": 40,
+          "checkins": 40
+        },
+        "setup_peak": 1
+      },
+      "c10": {
+        "concurrency": 10,
+        "requests": 10,
+        "overlap_peak": 10,
+        "provider_peak": 2,
+        "success": 10,
+        "rejected": 0,
+        "failed": 0,
+        "successful_p95_ms": 326.9469080041745,
+        "rejected_p95_ms": 0,
+        "successful_requests_per_second": 26.026063567086066,
+        "pool": {
+          "checked_out": 0,
+          "peak": 5,
+          "checkouts": 40,
+          "checkins": 40
+        },
+        "setup_peak": 3
+      },
+      "c50": {
+        "concurrency": 50,
+        "requests": 50,
+        "overlap_peak": 50,
+        "provider_peak": 2,
+        "success": 50,
+        "rejected": 0,
+        "failed": 0,
+        "successful_p95_ms": 1361.4476709990413,
+        "rejected_p95_ms": 0,
+        "successful_requests_per_second": 34.13379969967025,
+        "pool": {
+          "checked_out": 0,
+          "peak": 7,
+          "checkouts": 200,
+          "checkins": 200
+        },
+        "setup_peak": 3
+      },
+      "c100": {
+        "concurrency": 100,
+        "requests": 100,
+        "overlap_peak": 100,
+        "provider_peak": 2,
+        "success": 54,
+        "rejected": 46,
+        "failed": 0,
+        "successful_p95_ms": 1975.1735469981213,
+        "rejected_p95_ms": 1928.2157280031242,
+        "successful_requests_per_second": 25.707823061439555,
+        "pool": {
+          "checked_out": 0,
+          "peak": 7,
+          "checkouts": 262,
+          "checkins": 262
+        },
+        "setup_peak": 3
+      }
+    },
+    {
+      "run": 2,
+      "exit_code": 0,
+      "duration_seconds": 14.7,
+      "host_cpu_percent_before": 20.0,
+      "calibration_ms": 39.7,
+      "load_still_running": true,
+      "containers_before": [
+        "acs-mf-qa-web-1 0.00% 51.81MiB / 15.49GiB",
+        "acs-mf-qa-api-1 165.30% 597.9MiB / 15.49GiB",
+        "acs-mf-qa-maintenance-1 0.05% 148.8MiB / 512MiB",
+        "acs-mf-qa-worker-1 0.05% 212.2MiB / 2GiB",
+        "acs-mf-qa-beat-1 0.00% 91.64MiB / 15.49GiB",
+        "acs-mf-qa-mailpit-1 0.00% 10.79MiB / 15.49GiB",
+        "acs-mf-qa-redis-1 0.16% 9.816MiB / 15.49GiB",
+        "acs-mf-qa-postgres-1 6.88% 95.13MiB / 15.49GiB",
+        "acs-mf-qa-storage-1 4.41% 50.06MiB / 15.49GiB",
+        "ai-chatbot-saas-api-1 7.15% 164MiB / 15.49GiB",
+        "ai-chatbot-saas-worker-1 0.05% 229.3MiB / 15.49GiB",
+        "ai-chatbot-saas-postgres-1 0.00% 31.9MiB / 15.49GiB",
+        "ai-chatbot-saas-storage-1 0.03% 39.02MiB / 15.49GiB",
+        "ai-chatbot-saas-redis-1 2.42% 8.352MiB / 15.49GiB",
+        "ai-chatbot-saas-mailpit-1 0.00% 10.9MiB / 15.49GiB"
+      ],
+      "summary": "5 passed in 10.25s",
+      "c1": {
+        "concurrency": 1,
+        "requests": 10,
+        "overlap_peak": 1,
+        "provider_peak": 1,
+        "success": 10,
+        "rejected": 0,
+        "failed": 0,
+        "successful_p95_ms": 44.748540996806696,
+        "rejected_p95_ms": 0,
+        "successful_requests_per_second": 20.268267792922906,
+        "pool": {
+          "checked_out": 0,
+          "peak": 1,
+          "checkouts": 40,
+          "checkins": 40
+        },
+        "setup_peak": 1
+      },
+      "c10": {
+        "concurrency": 10,
+        "requests": 10,
+        "overlap_peak": 10,
+        "provider_peak": 2,
+        "success": 10,
+        "rejected": 0,
+        "failed": 0,
+        "successful_p95_ms": 328.2118300048751,
+        "rejected_p95_ms": 0,
+        "successful_requests_per_second": 25.744394997646836,
+        "pool": {
+          "checked_out": 0,
+          "peak": 5,
+          "checkouts": 40,
+          "checkins": 40
+        },
+        "setup_peak": 3
+      },
+      "c50": {
+        "concurrency": 50,
+        "requests": 50,
+        "overlap_peak": 50,
+        "provider_peak": 2,
+        "success": 50,
+        "rejected": 0,
+        "failed": 0,
+        "successful_p95_ms": 1123.1063020022702,
+        "rejected_p95_ms": 0,
+        "successful_requests_per_second": 41.04976097251889,
+        "pool": {
+          "checked_out": 0,
+          "peak": 7,
+          "checkouts": 200,
+          "checkins": 200
+        },
+        "setup_peak": 3
+      },
+      "c100": {
+        "concurrency": 100,
+        "requests": 100,
+        "overlap_peak": 100,
+        "provider_peak": 2,
+        "success": 64,
+        "rejected": 36,
+        "failed": 0,
+        "successful_p95_ms": 1679.5366949954769,
+        "rejected_p95_ms": 1682.8255450018332,
+        "successful_requests_per_second": 35.46189413267018,
+        "pool": {
+          "checked_out": 0,
+          "peak": 7,
+          "checkouts": 292,
+          "checkins": 292
+        },
+        "setup_peak": 3
+      }
+    },
+    {
+      "run": 3,
+      "exit_code": 0,
+      "duration_seconds": 14.0,
+      "host_cpu_percent_before": 12.0,
+      "calibration_ms": 37.8,
+      "load_still_running": true,
+      "containers_before": [
+        "acs-mf-qa-web-1 0.00% 51.18MiB / 15.49GiB",
+        "acs-mf-qa-api-1 164.94% 566.5MiB / 15.49GiB",
+        "acs-mf-qa-maintenance-1 0.18% 149.3MiB / 512MiB",
+        "acs-mf-qa-worker-1 62.41% 247.5MiB / 2GiB",
+        "acs-mf-qa-beat-1 0.00% 91.38MiB / 15.49GiB",
+        "acs-mf-qa-mailpit-1 0.00% 12.07MiB / 15.49GiB",
+        "acs-mf-qa-redis-1 0.36% 8.383MiB / 15.49GiB",
+        "acs-mf-qa-postgres-1 6.78% 108.1MiB / 15.49GiB",
+        "acs-mf-qa-storage-1 3.93% 50.43MiB / 15.49GiB",
+        "ai-chatbot-saas-api-1 6.66% 164.3MiB / 15.49GiB",
+        "ai-chatbot-saas-worker-1 1.17% 234.2MiB / 15.49GiB",
+        "ai-chatbot-saas-postgres-1 0.00% 32.42MiB / 15.49GiB",
+        "ai-chatbot-saas-storage-1 0.03% 38.78MiB / 15.49GiB",
+        "ai-chatbot-saas-redis-1 0.13% 7.07MiB / 15.49GiB",
+        "ai-chatbot-saas-mailpit-1 0.00% 10.8MiB / 15.49GiB"
+      ],
+      "summary": "5 passed in 9.92s",
+      "c1": {
+        "concurrency": 1,
+        "requests": 10,
+        "overlap_peak": 1,
+        "provider_peak": 1,
+        "success": 10,
+        "rejected": 0,
+        "failed": 0,
+        "successful_p95_ms": 46.757596006500535,
+        "rejected_p95_ms": 0,
+        "successful_requests_per_second": 20.480442005388895,
+        "pool": {
+          "checked_out": 0,
+          "peak": 1,
+          "checkouts": 40,
+          "checkins": 40
+        },
+        "setup_peak": 1
+      },
+      "c10": {
+        "concurrency": 10,
+        "requests": 10,
+        "overlap_peak": 10,
+        "provider_peak": 2,
+        "success": 10,
+        "rejected": 0,
+        "failed": 0,
+        "successful_p95_ms": 257.5557439995464,
+        "rejected_p95_ms": 0,
+        "successful_requests_per_second": 31.6593534614996,
+        "pool": {
+          "checked_out": 0,
+          "peak": 5,
+          "checkouts": 40,
+          "checkins": 40
+        },
+        "setup_peak": 3
+      },
+      "c50": {
+        "concurrency": 50,
+        "requests": 50,
+        "overlap_peak": 50,
+        "provider_peak": 2,
+        "success": 50,
+        "rejected": 0,
+        "failed": 0,
+        "successful_p95_ms": 1175.4159069969319,
+        "rejected_p95_ms": 0,
+        "successful_requests_per_second": 39.54328636756134,
+        "pool": {
+          "checked_out": 0,
+          "peak": 7,
+          "checkouts": 200,
+          "checkins": 200
+        },
+        "setup_peak": 3
+      },
+      "c100": {
+        "concurrency": 100,
+        "requests": 100,
+        "overlap_peak": 100,
+        "provider_peak": 2,
+        "success": 63,
+        "rejected": 37,
+        "failed": 0,
+        "successful_p95_ms": 1699.4068770000013,
+        "rejected_p95_ms": 1684.4766810027068,
+        "successful_requests_per_second": 34.58530541416063,
+        "pool": {
+          "checked_out": 0,
+          "peak": 7,
+          "checkouts": 289,
+          "checkins": 289
+        },
+        "setup_peak": 3
+      }
+    },
+    {
+      "run": 4,
+      "exit_code": 0,
+      "duration_seconds": 14.0,
+      "host_cpu_percent_before": 6.0,
+      "calibration_ms": 35.5,
+      "load_still_running": true,
+      "containers_before": [
+        "acs-mf-qa-web-1 10.95% 53.32MiB / 15.49GiB",
+        "acs-mf-qa-api-1 165.93% 584.7MiB / 15.49GiB",
+        "acs-mf-qa-maintenance-1 0.05% 149MiB / 512MiB",
+        "acs-mf-qa-worker-1 0.17% 212.2MiB / 2GiB",
+        "acs-mf-qa-beat-1 0.00% 91.38MiB / 15.49GiB",
+        "acs-mf-qa-mailpit-1 0.00% 11.61MiB / 15.49GiB",
+        "acs-mf-qa-redis-1 0.15% 9.297MiB / 15.49GiB",
+        "acs-mf-qa-postgres-1 6.66% 126.4MiB / 15.49GiB",
+        "acs-mf-qa-storage-1 3.00% 50.21MiB / 15.49GiB",
+        "ai-chatbot-saas-api-1 6.94% 164.3MiB / 15.49GiB",
+        "ai-chatbot-saas-worker-1 0.04% 229.2MiB / 15.49GiB",
+        "ai-chatbot-saas-postgres-1 4.56% 33.52MiB / 15.49GiB",
+        "ai-chatbot-saas-storage-1 0.54% 39.83MiB / 15.49GiB",
+        "ai-chatbot-saas-redis-1 0.13% 7.285MiB / 15.49GiB",
+        "ai-chatbot-saas-mailpit-1 0.00% 9.586MiB / 15.49GiB"
+      ],
+      "summary": "5 passed in 10.02s",
+      "c1": {
+        "concurrency": 1,
+        "requests": 10,
+        "overlap_peak": 1,
+        "provider_peak": 1,
+        "success": 10,
+        "rejected": 0,
+        "failed": 0,
+        "successful_p95_ms": 61.583946997416206,
+        "rejected_p95_ms": 0,
+        "successful_requests_per_second": 20.078634639745967,
+        "pool": {
+          "checked_out": 0,
+          "peak": 1,
+          "checkouts": 40,
+          "checkins": 40
+        },
+        "setup_peak": 1
+      },
+      "c10": {
+        "concurrency": 10,
+        "requests": 10,
+        "overlap_peak": 10,
+        "provider_peak": 2,
+        "success": 10,
+        "rejected": 0,
+        "failed": 0,
+        "successful_p95_ms": 256.27343399537494,
+        "rejected_p95_ms": 0,
+        "successful_requests_per_second": 31.673024318679506,
+        "pool": {
+          "checked_out": 0,
+          "peak": 5,
+          "checkouts": 40,
+          "checkins": 40
+        },
+        "setup_peak": 3
+      },
+      "c50": {
+        "concurrency": 50,
+        "requests": 50,
+        "overlap_peak": 50,
+        "provider_peak": 2,
+        "success": 50,
+        "rejected": 0,
+        "failed": 0,
+        "successful_p95_ms": 1157.1545929982676,
+        "rejected_p95_ms": 0,
+        "successful_requests_per_second": 39.90266654269391,
+        "pool": {
+          "checked_out": 0,
+          "peak": 7,
+          "checkouts": 200,
+          "checkins": 200
+        },
+        "setup_peak": 3
+      },
+      "c100": {
+        "concurrency": 100,
+        "requests": 100,
+        "overlap_peak": 100,
+        "provider_peak": 2,
+        "success": 58,
+        "rejected": 42,
+        "failed": 0,
+        "successful_p95_ms": 1772.3478320040158,
+        "rejected_p95_ms": 1732.8554289997555,
+        "successful_requests_per_second": 30.953595788297008,
+        "pool": {
+          "checked_out": 0,
+          "peak": 7,
+          "checkouts": 274,
+          "checkins": 274
+        },
+        "setup_peak": 3
+      }
+    },
+    {
+      "run": 5,
+      "exit_code": 0,
+      "duration_seconds": 14.2,
+      "host_cpu_percent_before": 6.0,
+      "calibration_ms": 35.6,
+      "load_still_running": true,
+      "containers_before": [
+        "acs-mf-qa-web-1 0.00% 51.87MiB / 15.49GiB",
+        "acs-mf-qa-api-1 184.42% 573.8MiB / 15.49GiB",
+        "acs-mf-qa-maintenance-1 0.06% 149.1MiB / 512MiB",
+        "acs-mf-qa-worker-1 0.07% 212.2MiB / 2GiB",
+        "acs-mf-qa-beat-1 16.76% 92.18MiB / 15.49GiB",
+        "acs-mf-qa-mailpit-1 3.07% 12.6MiB / 15.49GiB",
+        "acs-mf-qa-redis-1 0.15% 8.387MiB / 15.49GiB",
+        "acs-mf-qa-postgres-1 9.91% 145.7MiB / 15.49GiB",
+        "acs-mf-qa-storage-1 3.55% 51.38MiB / 15.49GiB",
+        "ai-chatbot-saas-api-1 6.37% 164.7MiB / 15.49GiB",
+        "ai-chatbot-saas-worker-1 0.15% 229.5MiB / 15.49GiB",
+        "ai-chatbot-saas-postgres-1 0.00% 32.02MiB / 15.49GiB",
+        "ai-chatbot-saas-storage-1 0.03% 38.22MiB / 15.49GiB",
+        "ai-chatbot-saas-redis-1 0.12% 8.273MiB / 15.49GiB",
+        "ai-chatbot-saas-mailpit-1 0.00% 10.64MiB / 15.49GiB"
+      ],
+      "summary": "5 passed in 9.97s",
+      "c1": {
+        "concurrency": 1,
+        "requests": 10,
+        "overlap_peak": 1,
+        "provider_peak": 1,
+        "success": 10,
+        "rejected": 0,
+        "failed": 0,
+        "successful_p95_ms": 43.682188996172044,
+        "rejected_p95_ms": 0,
+        "successful_requests_per_second": 21.07119823243413,
+        "pool": {
+          "checked_out": 0,
+          "peak": 1,
+          "checkouts": 40,
+          "checkins": 40
+        },
+        "setup_peak": 1
+      },
+      "c10": {
+        "concurrency": 10,
+        "requests": 10,
+        "overlap_peak": 10,
+        "provider_peak": 2,
+        "success": 10,
+        "rejected": 0,
+        "failed": 0,
+        "successful_p95_ms": 282.6069410002674,
+        "rejected_p95_ms": 0,
+        "successful_requests_per_second": 31.75065544783545,
+        "pool": {
+          "checked_out": 0,
+          "peak": 5,
+          "checkouts": 40,
+          "checkins": 40
+        },
+        "setup_peak": 3
+      },
+      "c50": {
+        "concurrency": 50,
+        "requests": 50,
+        "overlap_peak": 50,
+        "provider_peak": 2,
+        "success": 50,
+        "rejected": 0,
+        "failed": 0,
+        "successful_p95_ms": 1106.988512998214,
+        "rejected_p95_ms": 0,
+        "successful_requests_per_second": 41.71877508546562,
+        "pool": {
+          "checked_out": 0,
+          "peak": 7,
+          "checkouts": 200,
+          "checkins": 200
+        },
+        "setup_peak": 3
+      },
+      "c100": {
+        "concurrency": 100,
+        "requests": 100,
+        "overlap_peak": 100,
+        "provider_peak": 2,
+        "success": 60,
+        "rejected": 40,
+        "failed": 0,
+        "successful_p95_ms": 1775.8287660035421,
+        "rejected_p95_ms": 1695.9745190033573,
+        "successful_requests_per_second": 31.88375058703356,
+        "pool": {
+          "checked_out": 0,
+          "peak": 7,
+          "checkouts": 280,
+          "checkins": 280
+        },
+        "setup_peak": 3
+      }
+    }
+  ]
+}

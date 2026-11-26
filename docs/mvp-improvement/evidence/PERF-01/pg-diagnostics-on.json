@@ -1,0 +1,8 @@
+{
+  "id": "pg-diagnostics-on",
+  "command": "docker compose -p acs-a41-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/fdcd6f6bc2bba37f/23716622-310b-4277-812c-896cbc074d51/scratchpad/qa.env' exec -T postgres psql -U platform_owner -d chatbot -v ON_ERROR_STOP=1 -c \"ALTER SYSTEM SET shared_preload_libraries='pg_stat_statements'\" -c 'ALTER SYSTEM SET log_lock_waits=on' -c \"ALTER SYSTEM SET deadlock_timeout='100ms'\" && docker restart acs-a41-qa-postgres-1 && python -c 'import time;time.sleep(8)' && docker compose -p acs-a41-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/fdcd6f6bc2bba37f/23716622-310b-4277-812c-896cbc074d51/scratchpad/qa.env' exec -T postgres psql -U platform_owner -d chatbot -v ON_ERROR_STOP=1 -c 'CREATE EXTENSION IF NOT EXISTS pg_stat_statements' -c 'SELECT pg_stat_statements_reset()' | tail -3",
+  "started_at": "2026-11-26T01:12:06+0530",
+  "exit_code": 0,
+  "duration_seconds": 9.762,
+  "log": "pg-diagnostics-on.log"
+}

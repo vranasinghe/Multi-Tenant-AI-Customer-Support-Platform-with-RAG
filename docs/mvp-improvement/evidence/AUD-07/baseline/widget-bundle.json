@@ -1,0 +1,8 @@
+{
+  "id": "baseline/widget-bundle",
+  "command": "unset MSYS_NO_PATHCONV; corepack pnpm --filter @acs/widget test 2>&1 | grep -E 'Tests |Test Files'; corepack pnpm --filter @acs/widget build 2>&1 | tail -4; cd apps/widget; wc -c src/*.ts dist/loader.js; node -e \"const z=require('zlib'),f=require('fs');console.log('gzip',z.gzipSync(f.readFileSync('dist/loader.js')).length)\"",
+  "started_at": "2026-11-26T12:38:24+0530",
+  "exit_code": 0,
+  "duration_seconds": 2.103,
+  "log": "baseline/widget-bundle.log"
+}

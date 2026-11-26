@@ -1,0 +1,218 @@
+{
+  "preservation": "PASS",
+  "inventoried_before": 699,
+  "unchanged": 685,
+  "changed_existing_files": {
+    ".env.example": {
+      "before": "cb13fa0e2e30af178fa36bf0c3cb329c852c3fe92a2b8bd313c4b82bee447d6d",
+      "after": "044767eae1db22326dc362a9d0403675c30e9e8526869984722919ae64a11aea"
+    },
+    ".env.production.example": {
+      "before": "0edc7110c067492b60f6e84273c55645dd25c4fbe9e6e539ef6854f3c30d37a1",
+      "after": "212e62464df7d7b026335db100abcb70d26d893c948a85bde72ef07255f34289"
+    },
+    "deploy/deploy.sh": {
+      "before": "6640619de40ef56d8a5d13767a8d031c3f6863599c20595dbcab4eca2e1ef239",
+      "after": "6902fbfdf4dbfedb0895194b1390f3b8ba38e10f648e5d25159cdad3b7569baa"
+    },
+    "docker-compose.prod.yml": {
+      "before": "cf63e703c0f6326f769e6c0e101c52a1f6b4d6a0f581730f910aaa36c4d2ccb1",
+      "after": "6b0fa4f27ced14fd0abf4f92826137a6b9ffc3d27cced2fd12804be232e70081"
+    },
+    "docker-compose.yml": {
+      "before": "daaa7c6e2232acd9b186e8741fbc7783ae0df8c587c306c7f2e2c1cceb94e573",
+      "after": "b330f312d1be102f6eb47f976f3c2892892fc1d9abd06f375b11c267940f3a67"
+    },
+    "docs/DEPLOY_CONTABO.md": {
+      "before": "6729cf47772643c69ce99b0050e9536d5f84a18b1a74c76fdb3bf2b42cc4f048",
+      "after": "058911092eed86304cd6086c3bd5da72af8276c8a0a4eb2f02229c34db3bf4e4"
+    },
+    "docs/DEVELOPMENT.md": {
+      "before": "5c8c3c0676fab47fca31a8005d428248d9a5a9524ccf180b26328ba7c893c0ab",
+      "after": "29f905d1225f8f9698e4031ce6b3d49733c673c6b428ca8a56bc2c72af4b2984"
+    },
+    "docs/PHASE2_SECURITY_REVIEW.md": {
+      "before": "44fb326ca23ece933536e4ab8807392f2dfbcf124de774f045da0821edfc12e0",
+      "after": "0719f07312de093d432fc29c7a7feaebe8d30e28d9e7886b35f9e7935dc17e15"
+    },
+    "docs/WIDGET_DEPLOYMENT.md": {
+      "before": "0e6b1eacf0610f693a0dfcf29f97e94e6cd2fa81797aaa3e984f41b7832270c0",
+      "after": "437cdf0bd05b7d53677e38ade657b18e4cff5a648bf5977a4e66a5cc2266da85"
+    },
+    "docs/mvp-improvement/02_PROGRESS_TRACKER.md": {
+      "before": "f9f94bdfcd2bcdb8602f1c0eac395e4a82a4233612574bc842204f577b7f908b",
+      "after": "8051a86689ece3d80ef7ba1c9633380bfb2ca23f192d31c72f04a445fc4f36a7"
+    },
+    "package.json": {
+      "before": "997e55b0de68cb87824094bdb1d0385c8e5d54926130465a66247a1d449a8a59",
+      "after": "2e5a31c4edf8ea6e958435069e053b99152d3f45e11fda5659e2628a071db5dd"
+    },
+    "services/api/Dockerfile": {
+      "before": "582ce2901d06b6de3e27723801f44b138d74f4ae77539bb1f7fd468ee52b65a2",
+      "after": "d0595f5ed4e2182b1c608956d085bbe7b759e2d460f013e6788023ad7a8f332f"
+    },
+    "services/api/app/core/config.py": {
+      "before": "537ef3c6e5fc2145a3dd44965d61efa9e72864ca1b4500bbe0a5d40340e1073d",
+      "after": "29106cc976e1dd0fc3cc78a782ac03591ae3672ca13f8239f51488a5fe55e951"
+    },
+    "services/api/app/main.py": {
+      "before": "a2aec77d21469901cfd676cb3b024275229e4d3abbba006a7fc6efce857606ef",
+      "after": "33fbaafd47858b2f43502ec9b477a0660a1735ee9d4d62174c018106676cd334"
+    }
+  },
+  "new_files": {
+    "docs/mvp-improvement/AUD-04_IMPLEMENTATION_REPORT.md": "efda06081f7e9c5435acb10d9130439e98e7786ecf87142eaedc6211a728222b",
+    "docs/mvp-improvement/tools/capture_a4.py": "46e4e62a31de3c56c96745bf355517af9bbee928711cfe636ab2ccfa5613e949",
+    "docs/mvp-improvement/tools/verify_a4.py": "b0a04aa183540e7824a48187d4cc6c617a3e0ead4f6aa6cb193bbf28dd4990f1",
+    "services/api/app/core/proxy_trust.py": "346da770107dba70695bcd7fff9982cfb0183d1cd9b33de8ec02e734d79ed231",
+    "services/api/app/server.py": "00109d2126e9ae4bc9ccc34d4eb90b6ae5585feeb7212d21bb9c6ce3c650b52a",
+    "services/api/tests/integration/test_runtime_proxy_trust.py": "4342d7f56d9468d9867283bd134328fcc2e023bfa683fd5ef59273a586a60e85",
+    "services/api/tests/unit/mvp_improvement/test_proxy_trust.py": "56dc326f0be26763df9583aed3ec68e6d0543a5f1a79bac3859d0b580e9d040f"
+  },
+  "evidence_files": {
+    "backend-full.json": "0013520e156b0b22f2368651985beba55d520e82a62ff90ed8ed1a0857aaa5d3",
+    "backend-full.log": "ee9d6bd0cbfa2a24379a3b3af870c6831b18f83fb8d3e44243a9171545a448e6",
+    "backend-full.xml": "1481e3348a810ad565a1199bdcf9cc8c7b7f6b0f0f93027570e935d6f1c9aa81",
+    "baseline-backend-full.json": "b11aa984717422921db4ef2a3fcc0cf894940623d0d7df7039605ca040e4e9d6",
+    "baseline-backend-full.log": "b6679a0d82cec9632b7843b7b750ae87af951023fe7986da03d8b0d829b92bc9",
+    "baseline-backend-full.xml": "9bf2b0f62fe6ea53228e1a532df69998b6e3d136a739b89f98b7b72fc61f4af6",
+    "baseline-capacity/bounded-pool-wait.json": "7cf1c59a1ae6253d1cefa254fdbe90c0fa96b99ec869b08a3dcb26f70462da80",
+    "baseline-capacity/business_workflow.json": "1ab13a6d4f50fca69d7cf70138c078e3fbaf9e7f6ace09aff2d619f63e4e7e84",
+    "baseline-capacity/capacity-1.json": "f5ffd3ad2d25c437ecab560512d8e6d2b9d3eac07947bf0dcb3ede7368c82cfa",
+    "baseline-capacity/capacity-10.json": "96d8308ada1941602a47ab6a30925c537045ad6ca8c5a3647d087f88f5afff73",
+    "baseline-capacity/capacity-100.json": "421b56c5d6ac7d053c76642e899c07562576e731056a72453983fe607b856648",
+    "baseline-capacity/capacity-50.json": "8f6f4cea0dac6a7c57e4b9c138a3dcbd0d2bdeebaa67224c8692c3d2afadeed7",
+    "baseline-capacity/fairness.json": "0ffb6a5a90e5d398c2725a9633d54bcb67959e52710e4c96e5c9e76e622ea16f",
+    "baseline-capacity/performance.json": "c4866c6d2e919906d0eddf8db2d85ebfb7cedc0176600bbb9362bf6e2f2a057c",
+    "baseline-capacity/pool-one.json": "1cb3c0d062b770b673b4cb8be7a42f15ae0e9bacbe34c46923dd4b7edc8d5983",
+    "baseline-capacity/query-cancellation.json": "62ac33fe3f241323af070c9ebbceecdbc03fea6e81be5d6a70a286af8f5e2572",
+    "baseline-capacity/rag_metrics.json": "417925234ca046b63466e64ff6602ed6110f5e84548f345a0646d0a42b9f8d27",
+    "baseline-capacity/rag_results.json": "8d2aaeec0482cae45951dee247bb84ddb2bfca88b0d0e0055fa72946e1e6deb2",
+    "baseline-migration-detail.json": "1971457953942e876ad8298240d695c879d8d57c721e57efd3b5aa9962cfacc7",
+    "baseline-migration-detail.log": "618fe0e6866f6044251244c93f9fc6bda80f367cb73dfdefb7686bc5743e3ceb",
+    "baseline-runtime-build.json": "e51108898e6257bff48e3f51a918dc35842171a7c711763b7541f5827545a9bd",
+    "baseline-runtime-build.log": "050bf40b5fb1bee3aabe877f1cfa88a5f83c486d730884cc47d104161729139a",
+    "baseline-runtime-http.json": "1231a5d2c7bff0175e46ca768fa8bb6d1218d0361d0aea8015ccb255d2ba8c68",
+    "baseline-runtime-http.log": "144ee248c776247974b923424a1ab473cbeec6ed37975c9b5177295b34218710",
+    "baseline-runtime-http.xml": "8304e50fc9abff79777e9f39465ccd8bd1a2760c9d266199ac95dba103a37502",
+    "baseline-runtime-scheme-host-fixed.json": "a8666dfe5adef42db473782d518ed1c2543682b5743f660b36cd0b9bc267d8e9",
+    "baseline-runtime-scheme-host-fixed.log": "694cb31a4d7aa162db77b81c4a54e83eb2538f4237ebe2eaa5817d373046828d",
+    "baseline-runtime-scheme-host-fixed.xml": "1dbeedd984f5867dd0e72eb5386c346a0ea4a22604fa6d3514541d5936932663",
+    "baseline-runtime-scheme.json": "acaa1535d7d2f5a4b7dcde40a8f5e8bb139bed43b4155776131f19bf5d4c1887",
+    "baseline-runtime-scheme.log": "917628ced082a45f377eb382d1a539a00cc6af4b7cf2b95c4f8aa9d447fc915a",
+    "baseline-runtime-scheme.xml": "1b067be92097142e46aab455c40d6694607f4bbc84989600fb943cac6442aafc",
+    "before_hashes.json": "aa249996efc98d4ac00ffebd73712d3e548d2c470fdaea80bc1e2c4eb768683f",
+    "browser-resolution.json": "918e47afe480fec8a0af3e3d08a356e4bf9a2974b19c56557b91681965950da3",
+    "browser-resolution.log": "0576bef1661e9d93fe73b2e1ac96927a18d8616376390142cae05afe5c286444",
+    "browser-run.json": "6c4731ff10f03328641286112da8257727454d6ce9f8c6079b7ac275f96ab868",
+    "browser-run.log": "85d25928b28aab3938f8991a40a80d303e49bb5317f84a9b03c3982452fd622c",
+    "browser.json": "d6a5938ebd62ff6e6ac36d6182ad592e40f6191b7a1f5f3f8271a212b2d7823f",
+    "browser.log": "80026913069691c3491475ed83723bc8906a291c01107cd1e797adf1559daf63",
+    "compose-config.json": "77c11ec6a5e1e61d2620c8c6e7d8b2a875b45d0477445698eb74c4c192faf84d",
+    "compose-config.log": "31b7ffcc592236366e06e208a9a85273219afe7a2579fb49ba0b9c2c7fe76834",
+    "final-qa-removed.json": "c581fd55142a657554b11e50102433a0320a9c4804d9f813042c50ec90c4c911",
+    "final-qa-removed.log": "6e45c1ed5b8e939a98575369b3b18187a022df32cd85eef15ce96d7ca2889ed5",
+    "final-qa-up.json": "0995549e3185533296bcc90d1c101c94554c00b9ffcaaaab76608e4838f7309e",
+    "final-qa-up.log": "6c933b2403968a8ca4e1b60ff437ecd53fb87016098edf8c600a95e55e146028",
+    "final-runtime-build.json": "4bac89a886a261c72afd91d3448c8c517e0f1194f7698d5b59c26551c61b804e",
+    "final-runtime-build.log": "e91742364bf2f920c3273394b4272a792c679f33834e5572efee20840806e8de",
+    "final-runtime-http.json": "4d496e1db9f1a83aff1ce9414fcf1fbc4ee6add054b3dabbfe4559dd6db39acd",
+    "final-runtime-http.log": "1e5db37eda339d8d5b035a6b6ac6a833ae75ca11b3ebf51c86e7f9e619b64471",
+    "final-runtime-http.xml": "0bcf9420a8ae3d02666c887dfa5c5fb154e1402689534733c0f7c4d93b54205d",
+    "final-unit.json": "6eb59056e4d0bb310e0f090b53b582371aea1da9d340532068c4ea23bf7ce372",
+    "final-unit.log": "4b6ce7f9b4d24a8859cb66dd7b0fe680a03a51f0439a295328b30fd8e4e5a998",
+    "format-and-syntax.json": "54cff2b3ed1272e392dd88bc1f0361deb8b68b20f6edd1370d937930b9d95105",
+    "format-and-syntax.log": "3c1ac075acd2d8c64327e9003e72fb0b77946fe80cc7845b566649da4813c64d",
+    "full-capacity/bounded-pool-wait.json": "bbd845da048eec9bdd32edec4299df02dcc828a568fc93528a1e64be8c45019d",
+    "full-capacity/business_workflow.json": "d68c128778fe6323e17169b6518ca914971d12f4de05fc149fd099d4890b7055",
+    "full-capacity/capacity-1.json": "3624563d69c3028e435a64a2381a71f93ef8cd9761ba2d30d11539b021723f96",
+    "full-capacity/capacity-10.json": "718d7743098752a9a64923616f7d0654e52f24214c5eef23d5b4db0bf813486f",
+    "full-capacity/capacity-100.json": "02150da73723f7889352cc12c44a3886adccafb667811bf0c51d0ea9a4ad133c",
+    "full-capacity/capacity-50.json": "7b6ec819db6c516992ae7521075c1561527740a64bbad8c1cfdff0e0150e6235",
+    "full-capacity/fairness.json": "37b8a11c7eb0e5d2e364ba57057ba05596a606460edb63531fb779ec379619b4",
+    "full-capacity/performance.json": "90ac901fbb0ab55e76f040cb2bfff556af8a963bbc523e91a85b5d3bae26df95",
+    "full-capacity/pool-one.json": "1cb3c0d062b770b673b4cb8be7a42f15ae0e9bacbe34c46923dd4b7edc8d5983",
+    "full-capacity/query-cancellation.json": "724ebc21ebcc651f52a6029d5453d779c26ef663cf97e03ecc44cad863271d89",
+    "full-capacity/rag_metrics.json": "417925234ca046b63466e64ff6602ed6110f5e84548f345a0646d0a42b9f8d27",
+    "full-capacity/rag_results.json": "f97a3a5c2830937d3e9d2b65dc88ed9480ce697259f7abbb89051ebc7ec91a59",
+    "pre_existing_uncommitted.patch": "fd512d83604cf63087b4b6e79425a5b79aac0e71245fed372a2fa48c191fcf10",
+    "preflight.json": "2ddd2114cd5488beddad55ea9fcd0f9d1a048462e2910cca4a78df298fc6b016",
+    "preservation-capacity/bounded-pool-wait.json": "828f573fd267b0d8234b254695e6a69e36c0436235bc706988e39fbeff08bc0c",
+    "preservation-capacity/capacity-1.json": "1bbb0ed04e06d0f1c9e7855a608f1d8b00418a8372386afd8f3cb7e709ff94cc",
+    "preservation-capacity/capacity-10.json": "4258d67048f5b3e5757804cd688f18d449c3225179bfd112e3da5a1f139f889f",
+    "preservation-capacity/capacity-100.json": "0037a1a33f4b4766f1ec4a1e21730ff0aa61815049e896f6e072df84f4db9418",
+    "preservation-capacity/capacity-50.json": "470af2f89167c55b75724237803401ff2240281c484c1f6edcfbbbe658f63e79",
+    "preservation-capacity/fairness.json": "e22d0faabee2a262c2a4be13e3a93c23806f8eebcf71bb91a677fa161f95284b",
+    "preservation-capacity/pool-one.json": "1cb3c0d062b770b673b4cb8be7a42f15ae0e9bacbe34c46923dd4b7edc8d5983",
+    "preservation-capacity/query-cancellation.json": "88e280ca42c0fe48c2cac487b45954a3475881b36b1eccce5474b5cd82f1867a",
+    "preservation.json": "29397f44bebd52d4eb01fbe3ee1ad625edb804b9c44fd34f96006e4098c59bcb",
+    "preservation.log": "d5c43ae584ad67087170ec8f89a551c5985f943d71d83a2600173fff2c921ca0",
+    "preservation.xml": "9352a4ab2af4563a6d77d662f1c001d3f3db85b056f84a67fb51de72d9ed3fc6",
+    "qa-stack-rebuild.json": "6b84ddf177ccd15343dcc08d98a770385b930735dd2a4827c436c7faf1a37af2",
+    "qa-stack-rebuild.log": "32ea69ff479f335256fa2c797dba520e15c76c5d7628dfb54881a330b8eff794",
+    "qa-stack-removed.json": "c20c9d1017d79d2f72c1e44c9f7a905eb51104eff1ca564914cc805f4eedf7c9",
+    "qa-stack-removed.log": "8e7d62f73bca59a9727ccf7ae9e1735542b549a8e010eb882fdbbe774cf68daf",
+    "qa-stack-standard-ports.json": "890ce27892f445ac599d58e4de728bf054891e30164afa89eee7b8a61bfa8938",
+    "qa-stack-standard-ports.log": "e7348c141550192d917b9a233c850e2933f762b377a4a3b6277b5e88b5c24d1e",
+    "qa-stack-up.json": "e7401f7d1e47ed9c2190b7be341ecd2782c84560d9383e551fe116b53189a3b4",
+    "qa-stack-up.log": "137b4752fedcd9d1ebabb4414d52398ba64be28353a1a18cfde1316f54d6bd1c",
+    "rls.json": "6ad0dc4b3a64d610d6fc9a215a022d45d51dc9cb3cbb19b6315436ebdb72f7c3",
+    "rls.log": "51488aa0213b743bfced01c4c3fdc74005c424e7c7d4d2825f1b461000e61355",
+    "runtime-build.json": "23fcd7e0f964b9ca743d2e96f4b193dd7b4b0e30d3e530228e0465b3c2e25ac1",
+    "runtime-build.log": "16f22f9630ead2dc4b3a9bdefd42e82f416aca8c3d05306b457d7fc9cf33c853",
+    "runtime-http.json": "5361ec2d26666bd69c729badb8dd74ff5809b41c8b95364c2a9c85f0ef2b7f96",
+    "runtime-http.log": "98cdfcb3e60b5d49468f35651cc8708e19d5c180fde47e7cc55310dd628fece1",
+    "runtime-http.xml": "1b3e6a5527bba626491e6c87f4753b8852158a1abe5c21cafe578d35088e7370",
+    "smoke.json": "ad21042b9085ba7210d542147979ae87333b4b2ca6a07d31e6037aecadd07b97",
+    "smoke.log": "9222e0141c83b0f12115f210b94422fa122aa776cccd608102c4e8974713377c",
+    "static-final.json": "0d98185b72056f45e2f0e5f2f1b1956a7e130b2d80e639325e4fc310da06278a",
+    "static-final.log": "f7b3eb295b30c3650f5bac46d0276ce0cacc8d4787c713757908d67a03ba3da3",
+    "static-first.json": "85d9864b0b5b2001bfd7f05fbc31b8a6beef8898a23f4e57d0af434874698e18",
+    "static-first.log": "45ab65497cd68154f516e6f3cd76a3eeed0a557026b1e0eb4d10931233a6d441",
+    "static-lint-default.json": "41814f357aeef6675a92e2f3ec349a9d688597c3d89fc36fedfd9f56059ecc1e",
+    "static-lint-default.log": "a9cb60e2d29f52debd39fa10d2ded86797da1a82576f70aee0c9522882401b10",
+    "static-lint-excluding-preexisting.json": "45b08f12d21ba2a7fb26ece80df3835282faf61a15a33d1d076363387c4db765",
+    "static-lint-excluding-preexisting.log": "881513cd027e0334026cfcbad052e34fecb3f2c1fef5ab000c86973bc0196cd7",
+    "unit-green-first.json": "5aa93ec468a10ca598d4da78d4cfc07793ce52eab9b881da24f99e1e37b6ff98",
+    "unit-green-first.log": "e3d69a1658b4c0610a6e323a6063e3960c1e0247f26e4eb135e797eb3eaa1c42",
+    "unit-red.json": "2d803c29c6aa381684573b931ce95105fc40d313ea008d8b770b8bc6c415e425",
+    "unit-red.log": "d3b454c6b2a4514fe00b19f1ca8fffa721390f1b31e7b7945871f54c8a47a7e6"
+  },
+  "baseline": {
+    "tests": 810,
+    "passed": 808,
+    "failed": [
+      "test_strict_capacity[100]",
+      "test_chat_migration_roundtrip"
+    ],
+    "skipped": 0
+  },
+  "final": {
+    "tests": 1024,
+    "passed": 1005,
+    "failed": [
+      "test_strict_capacity[100]",
+      "test_chat_migration_roundtrip"
+    ],
+    "skipped": 17
+  },
+  "runtime": {
+    "tests": 17,
+    "passed": 17,
+    "failed": [],
+    "skipped": 0
+  },
+  "preservation_run": {
+    "tests": 742,
+    "passed": 741,
+    "failed": [
+      "test_strict_capacity[100]"
+    ],
+    "skipped": 0
+  },
+  "secret_scan": {
+    "env_values_checked": 3,
+    "findings": [],
+    "scope": "A4 files and evidence only; not a repository-history audit"
+  }
+}

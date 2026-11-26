@@ -1,0 +1,8 @@
+{
+  "id": "red/review-races",
+  "command": "docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' exec -T api pytest tests/integration/api/mvp_improvement/test_ingestion_isolation.py -q -p no:cacheprovider --tb=line -k 'newer_job or deadlock' 2>&1 | grep -vE '\\[(info|warning|debug|error)' | grep -E 'passed|failed|assert|Deadlock|deadlock|FAILED|Error' | cut -c1-250 | tail -14",
+  "started_at": "2026-11-26T02:29:52+0530",
+  "exit_code": 1,
+  "duration_seconds": 8.058,
+  "log": "red/review-races.log"
+}

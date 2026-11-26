@@ -1,0 +1,8 @@
+{
+  "id": "runtime/prod-stack-up",
+  "command": "docker compose -p acs-a5-prod --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/prod.env' -f docker-compose.prod.yml up -d --build --wait --wait-timeout 240 postgres redis storage storage-init migrate worker beat 2>&1 | tail -8",
+  "started_at": "2026-11-26T02:52:38+0530",
+  "exit_code": 1,
+  "duration_seconds": 57.233,
+  "log": "runtime/prod-stack-up.log"
+}

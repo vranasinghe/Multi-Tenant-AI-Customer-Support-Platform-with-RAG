@@ -1,0 +1,8 @@
+{
+  "id": "runtime/prod-effective",
+  "command": "docker inspect acs-a5-prod-worker-1 --format 'Memory={{.HostConfig.Memory}} MemorySwap={{.HostConfig.MemorySwap}} NanoCpus={{.HostConfig.NanoCpus}} PidsLimit={{.HostConfig.PidsLimit}} Init={{.HostConfig.Init}} restarts={{.RestartCount}} image={{.Config.Image}}'; docker compose -p acs-a5-prod --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/prod.env' -f docker-compose.prod.yml exec -T worker sh -c 'cat /sys/fs/cgroup/memory.max /sys/fs/cgroup/memory.swap.max /sys/fs/cgroup/cpu.max /sys/fs/cgroup/pids.max; tr \"\\0\" \" \" < /proc/1/cmdline; echo; echo APP_ENV=$APP_ENV; cat /sys/fs/cgroup/memory.current /sys/fs/cgroup/pids.current; python -c \"from app.core.config import get_settings; from app.workers.celery_app import celery_app; s=get_settings(); celery_app.loader.import_default_modules(); print({n:(celery_app.tasks[n].soft_time_limit, celery_app.tasks[n].time_limit) for n in (\\\"ingest.process_document\\\",\\\"ingest.crawl_source\\\")}, s.parser_wall_seconds, s.parser_cpu_seconds, s.parser_memory_bytes, s.ingest_max_active_per_org)\"'; docker compose -p acs-a5-prod --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/prod.env' -f docker-compose.prod.yml exec -T worker python - < 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/runtime_parse.py' | tail -1",
+  "started_at": "2026-11-26T02:53:35+0530",
+  "exit_code": 0,
+  "duration_seconds": 3.058,
+  "log": "runtime/prod-effective.log"
+}

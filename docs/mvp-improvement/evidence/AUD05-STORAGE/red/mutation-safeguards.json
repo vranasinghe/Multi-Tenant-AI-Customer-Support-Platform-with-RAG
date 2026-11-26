@@ -1,0 +1,8 @@
+{
+  "id": "red/mutation-safeguards",
+  "command": "for m in deletion-locks claimed-record-adoptable no-source-compare; do echo \"== mutation: $m\"; (cd services/api && PYTHONPATH='C:/Users/LENOVO/AppData/Local/Temp/claude/d2b7d2600a5d9399/dace9c57-ab8b-412a-ad71-f4a0330f6eb6/scratchpad' python -B 'C:/Users/LENOVO/AppData/Local/Temp/claude/d2b7d2600a5d9399/dace9c57-ab8b-412a-ad71-f4a0330f6eb6/scratchpad/mutate.py' apply $m); case $m in deletion-locks) k='deleting_while' ;; claimed-record-adoptable) k='claims_a_staged' ;; *) k='was_replaced' ;; esac; docker compose -p acs-a51-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/d2b7d2600a5d9399/dace9c57-ab8b-412a-ad71-f4a0330f6eb6/scratchpad/qa51.env' exec -T api pytest tests/integration/api/mvp_improvement/test_original_ownership.py -k $k -q --tb=line -p no:cacheprovider --show-capture=no 2>&1 | grep -E 'passed|failed|AssertionError|Failed:' ; (cd services/api && PYTHONPATH='C:/Users/LENOVO/AppData/Local/Temp/claude/d2b7d2600a5d9399/dace9c57-ab8b-412a-ad71-f4a0330f6eb6/scratchpad' python -B 'C:/Users/LENOVO/AppData/Local/Temp/claude/d2b7d2600a5d9399/dace9c57-ab8b-412a-ad71-f4a0330f6eb6/scratchpad/mutate.py' restore); done; true",
+  "started_at": "2026-11-26T10:22:35+0530",
+  "exit_code": 0,
+  "duration_seconds": 21.529,
+  "log": "red/mutation-safeguards.log"
+}

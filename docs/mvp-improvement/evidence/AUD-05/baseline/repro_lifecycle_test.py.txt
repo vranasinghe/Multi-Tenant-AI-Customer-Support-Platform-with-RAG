@@ -1,0 +1,91 @@
+"""Temporary AUD-05 baseline reproduction; copied to the evidence folder, then removed.
+
+Each test asserts the *current, defective* behaviour, so passing means the gap is confirmed.
+"""
+
+from __future__ import annotations
+
+import uuid
+
+import pytest
+
+from app.rag.embeddings import HashingEmbedder
+from app.rag.errors import IngestionError
+from app.rag.maintenance import sweep_jobs
+from app.rag.pipeline import claim_job, run_document_job
+from app.rag.queue import RecordingJobQueue
+from app.rag.runtime import Runtime
+from tests.integration.api.conftest import Api
+from tests.integration.api.test_knowledge_documents import RETURNS, SHIPPING, get_doc, new_bot, upload
+from tests.support.rag import rows
+
+pytestmark = pytest.mark.integration
+
+
+def queued(owner, queue, data, bot=None, name="a.txt"):
+    bot = bot or new_bot(owner)
+    response = upload(owner, bot, name, data.encode(), "text/plain")
+    org_id, job_id, _ = queue.jobs.pop(0)
+    return bot, response.json()["id"], org_id, job_id
+
+
+class TakenOver(HashingEmbedder):
+    def __init__(self, api, runtime, job_id, org_id, then=None):
+        super().__init__()
+        self.args, self.then, self.second = (api, runtime, job_id, org_id), then, None
+
+    def embed_documents(self, texts):
+        api, runtime, job_id, org_id = self.args
+        if self.second is None:
+            api.sql(
+                "UPDATE ingestion_jobs SET heartbeat_at = now() - interval '2 hours' WHERE id = :j",
+                j=job_id,
+            )
+            sweep_jobs(runtime, RecordingJobQueue())
+            newer = Runtime(**{**vars(runtime), "embedder": HashingEmbedder()})
+            self.second = run_document_job(newer, org_id, job_id)
+            if self.then:
+                raise self.then
+        return super().embed_documents(texts)
+
+
+def test_BASELINE_a_stale_attempt_publishes_a_second_version(
+    api: Api, runtime: Runtime, job_queue: RecordingJobQueue
+) -> None:
+    owner = api.signup()
+    bot, doc_id, org_id, job_id = queued(owner, job_queue, SHIPPING)
+    runtime.embedder = TakenOver(api, runtime, job_id, org_id)
+
+    first = run_document_job(runtime, org_id, job_id)
+
+    doc = get_doc(owner, bot, doc_id)
+    print(f"attempt1={first} attempt2={runtime.embedder.second} version={doc['version']}")
+    assert (first, doc["version"]) == ("done", 2)  # defect: the superseded attempt published
+
+
+def test_BASELINE_a_stale_attempt_marks_a_successful_document_failed(
+    api: Api, runtime: Runtime, job_queue: RecordingJobQueue
+) -> None:
+    owner = api.signup()
+    bot, doc_id, org_id, job_id = queued(owner, job_queue, SHIPPING)
+    runtime.embedder = TakenOver(api, runtime, job_id, org_id, IngestionError("corrupt", "late"))
+
+    first = run_document_job(runtime, org_id, job_id)
+
+    doc = get_doc(owner, bot, doc_id)
+    [row] = rows(api.owner_engine, "SELECT status FROM ingestion_jobs WHERE id = :j", j=job_id)
+    print(f"attempt1={first} document={doc['status']}/{doc['error_code']} job={row[0]}")
+    assert (doc["status"], row[0]) == ("failed", "failed")  # defect
+
+
+def test_BASELINE_one_organization_can_hold_every_worker_slot(
+    api: Api, runtime: Runtime, job_queue: RecordingJobQueue
+) -> None:
+    owner = api.signup()
+    bot, _, org_id, first = queued(owner, job_queue, SHIPPING)
+    _, _, _, second = queued(owner, job_queue, RETURNS, bot=bot, name="b.txt")
+
+    claims = [claim_job(runtime, org_id, first), claim_job(runtime, org_id, second)]
+
+    assert all(claims)  # defect: both heavy jobs of one tenant are admitted at once
+    assert isinstance(org_id, uuid.UUID)

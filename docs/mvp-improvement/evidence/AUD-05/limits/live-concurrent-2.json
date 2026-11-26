@@ -1,0 +1,8 @@
+{
+  "id": "limits/live-concurrent-2",
+  "command": "docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' exec -T worker sh -c 'echo before_current=$(cat /sys/fs/cgroup/memory.current)'; docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' exec -T api python - < docs/mvp-improvement/tools/live_a5.py; docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' exec -T worker sh -c 'echo peak=$(cat /sys/fs/cgroup/memory.peak) pids_peak=$(cat /sys/fs/cgroup/pids.peak 2>/dev/null); grep oom /sys/fs/cgroup/memory.events'; docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' logs worker --since 3m 2>&1 | grep -E 'parser.finished|job_deferred|succeeded in|Error' | grep -v sweep | cut -c1-330",
+  "started_at": "2026-11-26T02:26:35+0530",
+  "exit_code": 0,
+  "duration_seconds": 12.758,
+  "log": "limits/live-concurrent-2.log"
+}

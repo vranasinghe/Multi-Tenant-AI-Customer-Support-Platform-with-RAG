@@ -1,0 +1,105 @@
+{
+  "fixture": {
+    "conversations": 10000,
+    "messages": 61994,
+    "tenants": {
+      "a": 7000,
+      "b": 2000,
+      "c": 1000
+    }
+  },
+  "reads_per_query": 20,
+  "limit_p95_ms": 300,
+  "environment": {
+    "logical_cpus": 32,
+    "platform": "Linux-6.18.58.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+    "server": "18.7 (Debian 18.7-1.pgdg12+2)",
+    "client": "in-process TestClient inside the QA api container"
+  },
+  "indexes": [
+    "CREATE UNIQUE INDEX conversations_org_id_id_key ON public.conversations USING btree (org_id, id)",
+    "CREATE UNIQUE INDEX conversations_pkey ON public.conversations USING btree (id)",
+    "CREATE INDEX ix_conversations_channel ON public.conversations USING btree (org_id, channel, last_message_at DESC)",
+    "CREATE INDEX ix_conversations_inbox ON public.conversations USING btree (org_id, last_message_at DESC, id DESC)",
+    "CREATE INDEX ix_conversations_org ON public.conversations USING btree (org_id, chatbot_id, created_at DESC)",
+    "CREATE INDEX ix_conversations_status ON public.conversations USING btree (org_id, status, last_message_at DESC)",
+    "CREATE INDEX ix_messages_content_trgm ON public.messages USING gin (content gin_trgm_ops)",
+    "CREATE INDEX ix_messages_conversation ON public.messages USING btree (org_id, conversation_id, created_at, id)",
+    "CREATE UNIQUE INDEX messages_org_id_id_key ON public.messages USING btree (org_id, id)",
+    "CREATE UNIQUE INDEX messages_pkey ON public.messages USING btree (id)"
+  ],
+  "results": {
+    "list, first page of 25": {
+      "p50_ms": 14.7,
+      "p95_ms": 17.0,
+      "max_ms": 17.3,
+      "statements": 8,
+      "payload_bytes": 9344,
+      "rows": 25
+    },
+    "list, first page of 100": {
+      "p50_ms": 15.2,
+      "p95_ms": 16.6,
+      "max_ms": 16.7,
+      "statements": 8,
+      "payload_bytes": 36922,
+      "rows": 100
+    },
+    "list, page after 2,100 rows": {
+      "p50_ms": 16.1,
+      "p95_ms": 17.7,
+      "max_ms": 18.1,
+      "statements": 8,
+      "payload_bytes": 37140,
+      "rows": 100
+    },
+    "list, one chatbot": {
+      "p50_ms": 12.4,
+      "p95_ms": 13.8,
+      "max_ms": 14.1,
+      "statements": 8,
+      "payload_bytes": 9353,
+      "rows": 25
+    },
+    "list, widget channel": {
+      "p50_ms": 13.6,
+      "p95_ms": 14.9,
+      "max_ms": 15.4,
+      "statements": 8,
+      "payload_bytes": 9318,
+      "rows": 25
+    },
+    "list, resolved": {
+      "p50_ms": 12.0,
+      "p95_ms": 13.1,
+      "max_ms": 14.0,
+      "statements": 8,
+      "payload_bytes": 9460,
+      "rows": 25
+    },
+    "list, message search": {
+      "p50_ms": 126.6,
+      "p95_ms": 132.7,
+      "max_ms": 134.0,
+      "statements": 8,
+      "payload_bytes": 9344,
+      "rows": 25
+    },
+    "transcript, newest 200 of 2,000": {
+      "p50_ms": 15.1,
+      "p95_ms": 17.5,
+      "max_ms": 92.6,
+      "statements": 10,
+      "payload_bytes": 113520,
+      "rows": 200
+    },
+    "messages, older page of 50": {
+      "p50_ms": 12.5,
+      "p95_ms": 13.5,
+      "max_ms": 13.6,
+      "statements": 8,
+      "payload_bytes": 28651,
+      "rows": 50
+    }
+  }
+}

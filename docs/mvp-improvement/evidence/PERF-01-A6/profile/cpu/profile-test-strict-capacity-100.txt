@@ -1,0 +1,111 @@
+         3270356 function calls (3171012 primitive calls) in 2.781 seconds
+
+   Ordered by: internal time
+   List reduced from 2486 to 35 due to restriction <35>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     1733    0.075    0.000    0.075    0.000 /opt/venv/lib/python3.13/site-packages/psycopg/_cursor_base.py:416(_execute_send)
+ 11034/84    0.060    0.000    1.769    0.021 {method 'switch' of 'greenlet.greenlet' objects}
+   430550    0.058    0.000    0.061    0.000 {built-in method builtins.isinstance}
+     1679    0.048    0.000    0.048    0.000 {method 'sendmsg' of '_socket.socket' objects}
+      143    0.039    0.000    0.039    0.000 {built-in method posix.stat}
+    11283    0.038    0.000    0.096    0.000 /opt/venv/lib/python3.13/site-packages/sqlalchemy/sql/coercions.py:323(expect)
+   143770    0.035    0.000    0.037    0.000 {method 'get' of 'dict' objects}
+     1979    0.032    0.000    0.082    0.000 /opt/venv/lib/python3.13/site-packages/redis/asyncio/connection.py:1340(pack_command)
+      985    0.032    0.000    0.061    0.000 /opt/venv/lib/python3.13/site-packages/sqlalchemy/sql/cache_key.py:209(_generate_cache_key)
+     3652    0.030    0.000    0.150    0.000 /opt/venv/lib/python3.13/site-packages/psycopg/_cursor_base.py:275(_maybe_prepare_gen)
+     1631    0.030    0.000    0.030    0.000 {method 'poll' of 'select.epoll' objects}
+5471/1639    0.028    0.000    0.304    0.000 /opt/venv/lib/python3.13/site-packages/fastapi/dependencies/utils.py:671(solve_dependencies)
+      970    0.025    0.000    0.027    0.000 /opt/venv/lib/python3.13/site-packages/psycopg/_connection_base.py:443(_exec_command)
+       56    0.020    0.000    0.020    0.000 /opt/venv/lib/python3.13/site-packages/psycopg/_connection_base.py:436(_connect_gen)
+     5074    0.020    0.000    0.379    0.000 /opt/venv/lib/python3.13/site-packages/psycopg/waiting.py:187(wait_async)
+14619/14232    0.019    0.000   20.227    0.001 {method 'run' of '_contextvars.Context' objects}
+12422/6211    0.019    0.000    1.826    0.000 /opt/venv/lib/python3.13/site-packages/fastapi/routing.py:1918(_handle_selected)
+     4276    0.017    0.000    0.019    0.000 {method 'sub' of 're.Pattern' objects}
+    15830    0.017    0.000    0.032    0.000 /opt/venv/lib/python3.13/site-packages/redis/_parsers/encoders.py:14(encode)
+ 1900/500    0.017    0.000    0.171    0.000 /opt/venv/lib/python3.13/site-packages/fastapi/routing.py:1863(_match)
+12422/6211    0.017    0.000    1.864    0.000 /opt/venv/lib/python3.13/site-packages/fastapi/routing.py:3009(handle)
+1633/1631    0.016    0.000   16.809    0.010 /usr/local/lib/python3.13/asyncio/base_events.py:1981(_run_once)
+     1816    0.016    0.000    0.029    0.000 /opt/venv/lib/python3.13/site-packages/psycopg/_queries.py:94(dump)
+    18866    0.016    0.000    0.021    0.000 /usr/local/lib/python3.13/asyncio/events.py:36(__init__)
+14219/14179    0.016    0.000   22.219    0.002 /usr/local/lib/python3.13/asyncio/events.py:87(_run)
+    45492    0.015    0.000    0.017    0.000 {built-in method builtins.getattr}
+     1588    0.015    0.000    0.075    0.000 /opt/venv/lib/python3.13/site-packages/sqlalchemy/engine/default.py:1564(_init_compiled)
+105424/105328    0.015    0.000    0.015    0.000 {built-in method builtins.len}
+     9922    0.014    0.000    0.033    0.000 /opt/venv/lib/python3.13/site-packages/psycopg/_column.py:20(__init__)
+     1816    0.014    0.000    0.020    0.000 /opt/venv/lib/python3.13/site-packages/psycopg/_cursor_base.py:504(_select_current_result)
+     2903    0.014    0.000    0.421    0.000 /app/app/services/chat_controls.py:59(acquire)
+8628/4837    0.013    0.000    1.190    0.000 /tmp/perf_probe.py:52(wrapper)
+     6211    0.012    0.000    1.300    0.000 /opt/venv/lib/python3.13/site-packages/fastapi/routing.py:154(app)
+     8045    0.012    0.000    0.048    0.000 /usr/local/lib/python3.13/asyncio/base_events.py:805(call_at)
+12422/6211    0.012    0.000    1.932    0.000 /opt/venv/lib/python3.13/site-packages/fastapi/routing.py:1913(handle)
+
+
+         3270356 function calls (3171012 primitive calls) in 2.781 seconds
+
+   Ordered by: cumulative time
+   List reduced from 2486 to 60 due to restriction <60>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+14219/14179    0.016    0.000   22.219    0.002 /usr/local/lib/python3.13/asyncio/events.py:87(_run)
+14619/14232    0.019    0.000   20.227    0.001 {method 'run' of '_contextvars.Context' objects}
+6250/6210    0.005    0.000   18.185    0.003 /app/tests/integration/api/mvp_improvement/test_chat_capacity.py:232(one)
+1633/1631    0.016    0.000   16.809    0.010 /usr/local/lib/python3.13/asyncio/base_events.py:1981(_run_once)
+6249/6210    0.007    0.000   16.072    0.003 /tmp/perf_probe.py:164(request)
+6250/6211    0.006    0.000   15.783    0.003 /app/tests/integration/api/mvp_improvement/test_chat_capacity.py:113(request)
+6250/6211    0.005    0.000   14.863    0.002 /opt/venv/lib/python3.13/site-packages/fastapi/applications.py:1205(__call__)
+6213/6211    0.004    0.000   13.013    0.002 /opt/venv/lib/python3.13/site-packages/starlette/applications.py:92(__call__)
+6212/6211    0.003    0.000   10.896    0.002 /opt/venv/lib/python3.13/site-packages/starlette/middleware/errors.py:149(__call__)
+6212/6211    0.003    0.000    9.257    0.001 /opt/venv/lib/python3.13/site-packages/fastapi/telemetry/_asgi.py:149(__call__)
+6212/6211    0.004    0.000    8.711    0.001 /opt/venv/lib/python3.13/site-packages/fastapi/_body_limit.py:78(__call__)
+     6211    0.005    0.000    7.812    0.001 /app/app/core/request_context.py:44(__call__)
+     6211    0.004    0.000    6.184    0.001 /opt/venv/lib/python3.13/site-packages/starlette/middleware/cors.py:77(__call__)
+     4275    0.008    0.000    4.411    0.001 /opt/venv/lib/python3.13/site-packages/sqlalchemy/util/concurrency.py:177(greenlet_spawn)
+     2434    0.005    0.000    3.739    0.002 /opt/venv/lib/python3.13/site-packages/sqlalchemy/ext/asyncio/session.py:627(execute)
+     6211    0.003    0.000    3.594    0.001 /opt/venv/lib/python3.13/site-packages/starlette/middleware/cors.py:147(simple_response)
+     6211    0.004    0.000    2.296    0.000 /app/app/core/chat_body_limit.py:17(__call__)
+     6211    0.004    0.000    2.287    0.000 /app/app/core/csrf.py:38(__call__)
+     6211    0.004    0.000    2.263    0.000 /opt/venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py:47(__call__)
+12422/6211    0.011    0.000    2.244    0.000 /opt/venv/lib/python3.13/site-packages/starlette/_exception_handler.py:31(wrapped_app)
+     6211    0.004    0.000    2.241    0.000 /opt/venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py:15(__call__)
+     6211    0.006    0.000    2.233    0.000 /opt/venv/lib/python3.13/site-packages/starlette/routing.py:679(__call__)
+     6211    0.006    0.000    2.120    0.000 /opt/venv/lib/python3.13/site-packages/fastapi/routing.py:2908(app)
+12422/6211    0.012    0.000    1.932    0.000 /opt/venv/lib/python3.13/site-packages/fastapi/routing.py:1913(handle)
+12422/6211    0.017    0.000    1.864    0.000 /opt/venv/lib/python3.13/site-packages/fastapi/routing.py:3009(handle)
+12422/6211    0.019    0.000    1.826    0.000 /opt/venv/lib/python3.13/site-packages/fastapi/routing.py:1918(_handle_selected)
+ 1148/131    0.001    0.000    1.790    0.014 /opt/venv/lib/python3.13/site-packages/sqlalchemy/orm/session.py:2488(execute)
+ 11034/84    0.060    0.000    1.769    0.021 {method 'switch' of 'greenlet.greenlet' objects}
+     6211    0.010    0.000    1.436    0.000 /opt/venv/lib/python3.13/site-packages/fastapi/routing.py:1359(handle)
+     6211    0.011    0.000    1.381    0.000 /opt/venv/lib/python3.13/site-packages/fastapi/routing.py:151(app)
+     6211    0.012    0.000    1.300    0.000 /opt/venv/lib/python3.13/site-packages/fastapi/routing.py:154(app)
+     5804    0.007    0.000    1.194    0.000 /opt/venv/lib/python3.13/site-packages/fastapi/routing.py:438(app)
+8628/4837    0.013    0.000    1.190    0.000 /tmp/perf_probe.py:52(wrapper)
+     4265    0.006    0.000    0.848    0.000 /opt/venv/lib/python3.13/site-packages/fastapi/routing.py:372(run_endpoint_function)
+     4265    0.003    0.000    0.825    0.000 /app/app/api/conversations.py:153(send_message)
+     4265    0.007    0.000    0.775    0.000 /app/app/services/conversations.py:181(prepare)
+     4265    0.007    0.000    0.730    0.000 /app/app/services/conversations.py:201(_prepare)
+      842    0.003    0.000    0.604    0.001 /app/app/services/tenancy/context.py:31(set_org_context)
+      453    0.001    0.000    0.510    0.001 /opt/venv/lib/python3.13/site-packages/anyio/_core/_tasks.py:322(_run_coro)
+     2903    0.007    0.000    0.448    0.000 /app/app/services/chat_controls.py:99(admit)
+     2903    0.014    0.000    0.421    0.000 /app/app/services/chat_controls.py:59(acquire)
+  170/161    0.001    0.000    0.415    0.003 /opt/venv/lib/python3.13/site-packages/sqlalchemy/orm/bulk_persistence.py:1616(orm_execute_statement)
+      385    0.001    0.000    0.414    0.001 /app/app/api/conversations.py:69(output)
+     3046    0.006    0.000    0.402    0.000 /tmp/perf_probe.py:126(execute_command)
+     3046    0.010    0.000    0.396    0.000 /opt/venv/lib/python3.13/site-packages/redis/asyncio/client.py:924(execute_command)
+      385    0.002    0.000    0.389    0.001 /opt/venv/lib/python3.13/site-packages/starlette/responses.py:253(stream_response)
+     5074    0.006    0.000    0.385    0.000 /opt/venv/lib/python3.13/site-packages/psycopg/connection_async.py:516(wait)
+     3888    0.006    0.000    0.382    0.000 /opt/venv/lib/python3.13/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:624(_execute_async)
+     5074    0.020    0.000    0.379    0.000 /opt/venv/lib/python3.13/site-packages/psycopg/waiting.py:187(wait_async)
+      487    0.002    0.000    0.373    0.001 /tmp/perf_probe.py:114(stream)
+      279    0.001    0.000    0.362    0.001 /opt/venv/lib/python3.13/site-packages/sqlalchemy/ext/asyncio/session.py:1311(close)
+     3888    0.006    0.000    0.360    0.000 /opt/venv/lib/python3.13/site-packages/psycopg/cursor_async.py:100(execute)
+      487    0.002    0.000    0.351    0.001 /app/app/services/conversations.py:460(stream)
+4911/4883    0.005    0.000    0.339    0.000 /opt/venv/lib/python3.13/site-packages/redis/asyncio/retry.py:47(call_with_retry)
+  236/204    0.001    0.000    0.328    0.002 /opt/venv/lib/python3.13/site-packages/sqlalchemy/orm/session.py:2685(close)
+  304/286    0.001    0.000    0.319    0.001 <sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.close>:1(close)
+  236/204    0.000    0.000    0.316    0.002 /opt/venv/lib/python3.13/site-packages/sqlalchemy/orm/session.py:2787(_close_impl)
+5471/1639    0.028    0.000    0.304    0.000 /opt/venv/lib/python3.13/site-packages/fastapi/dependencies/utils.py:671(solve_dependencies)
+      308    0.000    0.000    0.281    0.001 /opt/venv/lib/python3.13/site-packages/sqlalchemy/ext/asyncio/session.py:1301(commit)
+     2990    0.005    0.000    0.262    0.000 /opt/venv/lib/python3.13/site-packages/redis/asyncio/client.py:846(_send_command_parse_response)
+
+

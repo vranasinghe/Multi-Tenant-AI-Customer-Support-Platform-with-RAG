@@ -1,0 +1,14 @@
+{
+  "series": "idle-1",
+  "planned_runs": 5,
+  "condition": "dev stack stopped, other QA stacks stopped, only acs-a41-qa running; unchanged application code",
+  "declared_at": "2026-11-26T01:04:13+0530",
+  "head": "db4d352fdde162ffa38eb2c6522e5805a2a892f4",
+  "app_diff_sha256": "1023e9172dae4be18707f8109c44f408a4facf2234abd2a53a29e3d910293fe0",
+  "app_diff_stat": [
+    " services/api/Dockerfile         |  8 +++++---",
+    " services/api/app/core/config.py | 20 ++++++++++++++++++++",
+    " services/api/app/main.py        |  2 +-",
+    " 3 files changed, 26 insertions(+), 4 deletions(-)"
+  ]
+}

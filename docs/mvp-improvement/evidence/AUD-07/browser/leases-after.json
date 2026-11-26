@@ -1,0 +1,8 @@
+{
+  "id": "browser/leases-after",
+  "command": "docker exec acs-a7-qa-redis-1 sh -c 'for k in $(redis-cli -n 0 --scan --pattern \"chat:*:active\"); do echo \"$k $(redis-cli -n 0 zcard $k)\"; done; echo conversation-locks: $(redis-cli -n 0 --scan --pattern \"chat:*:conversation:*\" | wc -l)'; docker exec acs-a7-qa-postgres-1 sh -c 'psql -U $POSTGRES_USER -d $POSTGRES_DB -tAc \"select state, count(*) from pg_stat_activity where datname=current_database() group by 1\"'",
+  "started_at": "2026-11-26T13:01:31+0530",
+  "exit_code": 0,
+  "duration_seconds": 0.619,
+  "log": "browser/leases-after.log"
+}

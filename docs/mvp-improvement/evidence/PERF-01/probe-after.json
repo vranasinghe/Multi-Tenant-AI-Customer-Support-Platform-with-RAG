@@ -1,0 +1,8 @@
+{
+  "id": "probe-after",
+  "command": "docker compose -p acs-a41-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/fdcd6f6bc2bba37f/23716622-310b-4277-812c-896cbc074d51/scratchpad/qa.env' cp docs/mvp-improvement/tools/perf_probe.py api:/tmp/probe/perf_probe.py >/dev/null 2>&1; docker compose -p acs-a41-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/fdcd6f6bc2bba37f/23716622-310b-4277-812c-896cbc074d51/scratchpad/qa.env' exec -T -e PYTHONPATH=/tmp/probe:/app -e AUDIT_OUTPUT_DIR=/tmp/perf01/probe-after api pytest 'tests/integration/api/mvp_improvement/test_chat_capacity.py::test_strict_capacity[100]' -q --tb=short -p perf_probe -p no:cacheprovider 2>&1 | tail -3; docker compose -p acs-a41-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/fdcd6f6bc2bba37f/23716622-310b-4277-812c-896cbc074d51/scratchpad/qa.env' cp api:/tmp/perf01/probe-after docs/mvp-improvement/evidence/PERF-01/probe-after >/dev/null 2>&1",
+  "started_at": "2026-11-26T01:21:34+0530",
+  "exit_code": 0,
+  "duration_seconds": 6.734,
+  "log": "probe-after.log"
+}

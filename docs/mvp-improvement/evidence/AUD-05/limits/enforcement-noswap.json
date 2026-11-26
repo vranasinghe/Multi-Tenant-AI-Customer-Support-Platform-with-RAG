@@ -1,0 +1,8 @@
+{
+  "id": "limits/enforcement-noswap",
+  "command": "docker inspect acs-a5-qa-worker-1 --format 'Memory={{.HostConfig.Memory}} MemorySwap={{.HostConfig.MemorySwap}} NanoCpus={{.HostConfig.NanoCpus}} PidsLimit={{.HostConfig.PidsLimit}} Init={{.HostConfig.Init}}'; docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' exec -T worker sh -c 'cat /sys/fs/cgroup/memory.max /sys/fs/cgroup/memory.swap.max'; docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' exec -T worker python - < docs/mvp-improvement/tools/limit_probe_a5.py; docker inspect acs-a5-qa-worker-1 --format 'restarts={{.RestartCount}} status={{.State.Status}}'; docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' exec -T worker celery -A app.workers.celery_app inspect ping --timeout 5 | tail -2",
+  "started_at": "2026-11-26T02:24:19+0530",
+  "exit_code": 0,
+  "duration_seconds": 12.578,
+  "log": "limits/enforcement-noswap.log"
+}

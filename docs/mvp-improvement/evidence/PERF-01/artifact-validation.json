@@ -1,0 +1,118 @@
+{
+  "inventoried_before": 782,
+  "unchanged": 775,
+  "changed_existing_files": {
+    "docs/CHAT_ENGINE.md": {
+      "before": "0b216dce293b8649cc0542e1ebde427109426ff5de6445c3d8cd0d984f002ea7",
+      "after": "29bff7e58db184a48831a430fd9d0f79f6636b41bb3c6cbe04634267a4e36e9d"
+    },
+    "docs/mvp-improvement/02_PROGRESS_TRACKER.md": {
+      "before": "8051a86689ece3d80ef7ba1c9633380bfb2ca23f192d31c72f04a445fc4f36a7",
+      "after": "ecb1ba9ba2e5848153bd964a9586cd0ec43138d333d05efa125d694aea9e52a2"
+    },
+    "services/api/app/services/chat_controls.py": {
+      "before": "e0dd912aa7f7d29b78c23bb3835e0b88e8cf1484464b9e2e8f1b89ea1ff09982",
+      "after": "bb9e85b6fcce057f1d53203795392cf3b227fd416f9a4a3e6b46c92886110bde"
+    },
+    "services/api/app/services/conversations.py": {
+      "before": "75aec7eef58de6d0129f5c855cdf80ec11c24df96d9fe62e61f93ab468111a4d",
+      "after": "05ac62df6b111c443d2a84cf14ee30f6e5fe022e946bd03718dd69033cb0f141"
+    },
+    "services/api/migrations/versions/20261125_0007_conversation_analytics.py": {
+      "before": "b6cd34badd1459c04f7b98b03490076a671f6b7b7ad79bab063e15c4d206780d",
+      "after": "126369165e3b87cb2cc75b73c03a6cdc8cbd8ea6f3df3dd77c7cd94f8e06680d"
+    },
+    "services/api/tests/integration/test_chat_migration.py": {
+      "before": "f76ee5f8abe958dcaab94452fbfe15cd85eae871ec8a369b06cf4001092462d7",
+      "after": "72e77b46266199ae271c0c576e70bde9e793b54e7c521c6c584c2da8b89453d2"
+    },
+    "services/api/tests/support/database.py": {
+      "before": "86ff03c375af82de7793d9088226d3e4a254420811a57afb61bcbeccf24487bf",
+      "after": "87f162bd312da9e1be7510376707267aa09e3d6d7e9d897443b427b1e6500c27"
+    }
+  },
+  "new_files": {
+    "docs/mvp-improvement/A4_1_STABILIZATION_REPORT.md": "b733188aec6995e71d0befbfa8b3a6f0e49c67acd55256b6924b923e5a0b335e",
+    "docs/mvp-improvement/tools/capture_a41.py": "cdc6bd407973a02accb98d2fef0859e495c1c97b85fe53cd913d319f84bda20f",
+    "docs/mvp-improvement/tools/perf01_series.py": "121dc3d549c60156b992550014a0fe9cfda6e26fc415138e08916bae3ea138a6",
+    "docs/mvp-improvement/tools/perf_probe.py": "2d71fe99dfb4787731cb7c8aec85d46abbad407a21cca164e4ae741d8eb281ff",
+    "docs/mvp-improvement/tools/mig_probe.py": "4bf26f3e62f4c80046ea776290822fb797c6c91058308c6312242926958c2293",
+    "docs/mvp-improvement/tools/verify_a41.py": "4526f827e9d936e5cb3ddac8e92dcfe0b5684c37fba52b24d58aa43607bda41e",
+    "services/api/tests/unit/mvp_improvement/test_chat_admission.py": "d07ae5a1647bd16ffc49dad3bdd00756bc395d47ed274a4525ee902efbc47157"
+  },
+  "evidence_file_count": 329,
+  "final_suite": {
+    "passed": 1016,
+    "failed": 0,
+    "skipped": 17
+  },
+  "runtime_suite": {
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0
+  },
+  "series": {
+    "idle-baseline-5": {
+      "failed_runs": 0,
+      "c100": {
+        "median": 1883.34,
+        "min": 1699.64,
+        "max": 1976.37,
+        "all": [
+          1917.65,
+          1976.37,
+          1883.34,
+          1880.05,
+          1699.64
+        ]
+      }
+    },
+    "devstack-baseline-5": {
+      "failed_runs": 1,
+      "c100": {
+        "median": 1843.58,
+        "min": 1711.48,
+        "max": 2245.67,
+        "all": [
+          1756.11,
+          1959.84,
+          1843.58,
+          1711.48,
+          2245.67
+        ]
+      }
+    },
+    "idle-after-fix-5": {
+      "failed_runs": 0,
+      "c100": {
+        "median": 1864.79,
+        "min": 1547.02,
+        "max": 1986.81,
+        "all": [
+          1547.02,
+          1986.81,
+          1943.92,
+          1864.79,
+          1625.33
+        ]
+      }
+    },
+    "devstack-after-fix-5": {
+      "failed_runs": 0,
+      "c100": {
+        "median": 1741.05,
+        "min": 1705.61,
+        "max": 1834.16,
+        "all": [
+          1823.84,
+          1726.59,
+          1705.61,
+          1834.16,
+          1741.05
+        ]
+      }
+    }
+  },
+  "secret_findings": [],
+  "secret_scope": "A4.1 files and evidence only; not a history audit"
+}

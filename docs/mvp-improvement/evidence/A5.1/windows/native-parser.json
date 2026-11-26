@@ -1,0 +1,8 @@
+{
+  "id": "windows/native-parser",
+  "command": "unset MSYS_NO_PATHCONV; cd services/api && .venv/Scripts/python.exe -m pytest tests/unit/mvp_improvement/test_parser_runner.py tests/unit/rag -q --tb=short -p no:cacheprovider 2>&1 | tail -6",
+  "started_at": "2026-11-26T10:52:43+0530",
+  "exit_code": 0,
+  "duration_seconds": 30.219,
+  "log": "windows/native-parser.log"
+}

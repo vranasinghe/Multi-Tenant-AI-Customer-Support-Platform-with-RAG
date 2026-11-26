@@ -1,0 +1,8 @@
+{
+  "id": "browser-resolution",
+  "command": "for u in 'http://localhost:3000/signup' 'http://localhost:8000/healthz'; do for v in -4 -6; do echo \"$u $v $(curl $v -s -o /dev/null -m 30 -w '%{http_code}' $u)\"; done; done",
+  "started_at": "2026-11-26T00:39:35+0530",
+  "exit_code": 0,
+  "duration_seconds": 2.497,
+  "log": "browser-resolution.log"
+}

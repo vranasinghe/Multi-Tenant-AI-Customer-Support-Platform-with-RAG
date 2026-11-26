@@ -1,0 +1,4193 @@
+{
+ "objects": {
+  "problems": [],
+  "referenced": 6
+ },
+ "protections": {
+  "constraints": [
+   [
+    "alembic_version",
+    "alembic_version_pkc",
+    true,
+    "PRIMARY KEY (version_num)"
+   ],
+   [
+    "alembic_version",
+    "alembic_version_version_num_not_null",
+    true,
+    "NOT NULL version_num"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_channel_not_null",
+    true,
+    "NOT NULL channel"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_charged_tokens_check",
+    true,
+    "CHECK ((charged_tokens >= 0))"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_charged_tokens_not_null",
+    true,
+    "NOT NULL charged_tokens"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_chatbot_id_not_null",
+    true,
+    "NOT NULL chatbot_id"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_completion_tokens_check",
+    true,
+    "CHECK ((completion_tokens >= 0))"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_completion_tokens_not_null",
+    true,
+    "NOT NULL completion_tokens"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_conversations_check",
+    true,
+    "CHECK ((conversations >= 0))"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_conversations_not_null",
+    true,
+    "NOT NULL conversations"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_cost_usd_check",
+    true,
+    "CHECK ((cost_usd >= (0)::numeric))"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_cost_usd_not_null",
+    true,
+    "NOT NULL cost_usd"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_csat_positive_check",
+    true,
+    "CHECK ((csat_positive >= 0))"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_csat_positive_not_null",
+    true,
+    "NOT NULL csat_positive"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_csat_submitted_check",
+    true,
+    "CHECK ((csat_submitted >= 0))"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_csat_submitted_not_null",
+    true,
+    "NOT NULL csat_submitted"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_day_not_null",
+    true,
+    "NOT NULL day"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_feedback_down_check",
+    true,
+    "CHECK ((feedback_down >= 0))"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_feedback_down_not_null",
+    true,
+    "NOT NULL feedback_down"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_feedback_up_check",
+    true,
+    "CHECK ((feedback_up >= 0))"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_feedback_up_not_null",
+    true,
+    "NOT NULL feedback_up"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_grounded_answers_check",
+    true,
+    "CHECK ((grounded_answers >= 0))"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_grounded_answers_not_null",
+    true,
+    "NOT NULL grounded_answers"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_handed_off_check",
+    true,
+    "CHECK ((handed_off >= 0))"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_handed_off_not_null",
+    true,
+    "NOT NULL handed_off"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_messages_assistant_check",
+    true,
+    "CHECK ((messages_assistant >= 0))"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_messages_assistant_not_null",
+    true,
+    "NOT NULL messages_assistant"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_messages_user_check",
+    true,
+    "CHECK ((messages_user >= 0))"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_messages_user_not_null",
+    true,
+    "NOT NULL messages_user"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_org_id_not_null",
+    true,
+    "NOT NULL org_id"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_pkey",
+    true,
+    "PRIMARY KEY (org_id, chatbot_id, day, channel)"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_prompt_tokens_check",
+    true,
+    "CHECK ((prompt_tokens >= 0))"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_prompt_tokens_not_null",
+    true,
+    "NOT NULL prompt_tokens"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_resolved_check",
+    true,
+    "CHECK ((resolved >= 0))"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_resolved_not_null",
+    true,
+    "NOT NULL resolved"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_unanswered_check",
+    true,
+    "CHECK ((unanswered >= 0))"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_unanswered_not_null",
+    true,
+    "NOT NULL unanswered"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_ungrounded_answers_check",
+    true,
+    "CHECK ((ungrounded_answers >= 0))"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_ungrounded_answers_not_null",
+    true,
+    "NOT NULL ungrounded_answers"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_unresolved_check",
+    true,
+    "CHECK ((unresolved >= 0))"
+   ],
+   [
+    "analytics_daily",
+    "analytics_daily_unresolved_not_null",
+    true,
+    "NOT NULL unresolved"
+   ],
+   [
+    "audit_logs",
+    "audit_logs_action_not_null",
+    true,
+    "NOT NULL action"
+   ],
+   [
+    "audit_logs",
+    "audit_logs_actor_type_not_null",
+    true,
+    "NOT NULL actor_type"
+   ],
+   [
+    "audit_logs",
+    "audit_logs_created_at_not_null",
+    true,
+    "NOT NULL created_at"
+   ],
+   [
+    "audit_logs",
+    "audit_logs_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "audit_logs",
+    "audit_logs_metadata_not_null",
+    true,
+    "NOT NULL metadata"
+   ],
+   [
+    "audit_logs",
+    "audit_logs_org_id_fkey",
+    true,
+    "FOREIGN KEY (org_id) REFERENCES organizations(id)"
+   ],
+   [
+    "audit_logs",
+    "audit_logs_org_id_not_null",
+    true,
+    "NOT NULL org_id"
+   ],
+   [
+    "audit_logs",
+    "audit_logs_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "audit_logs",
+    "ck_audit_logs_actor_type",
+    true,
+    "CHECK ((actor_type = ANY (ARRAY['user'::text, 'system'::text, 'api_key'::text, 'platform_staff'::text])))"
+   ],
+   [
+    "chatbot_domains",
+    "chatbot_domains_chatbot_id_not_null",
+    true,
+    "NOT NULL chatbot_id"
+   ],
+   [
+    "chatbot_domains",
+    "chatbot_domains_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "chatbot_domains",
+    "chatbot_domains_org_id_chatbot_id_fkey",
+    true,
+    "FOREIGN KEY (org_id, chatbot_id) REFERENCES chatbots(org_id, id) ON DELETE CASCADE"
+   ],
+   [
+    "chatbot_domains",
+    "chatbot_domains_org_id_chatbot_id_origin_key",
+    true,
+    "UNIQUE (org_id, chatbot_id, origin)"
+   ],
+   [
+    "chatbot_domains",
+    "chatbot_domains_org_id_not_null",
+    true,
+    "NOT NULL org_id"
+   ],
+   [
+    "chatbot_domains",
+    "chatbot_domains_origin_not_null",
+    true,
+    "NOT NULL origin"
+   ],
+   [
+    "chatbot_domains",
+    "chatbot_domains_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "chatbot_domains",
+    "chatbot_domains_token_not_null",
+    true,
+    "NOT NULL token"
+   ],
+   [
+    "chatbots",
+    "chatbots_created_at_not_null",
+    true,
+    "NOT NULL created_at"
+   ],
+   [
+    "chatbots",
+    "chatbots_created_by_fkey",
+    true,
+    "FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL"
+   ],
+   [
+    "chatbots",
+    "chatbots_description_not_null",
+    true,
+    "NOT NULL description"
+   ],
+   [
+    "chatbots",
+    "chatbots_fallback_message_not_null",
+    true,
+    "NOT NULL fallback_message"
+   ],
+   [
+    "chatbots",
+    "chatbots_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "chatbots",
+    "chatbots_instructions_not_null",
+    true,
+    "NOT NULL instructions"
+   ],
+   [
+    "chatbots",
+    "chatbots_language_mode_not_null",
+    true,
+    "NOT NULL language_mode"
+   ],
+   [
+    "chatbots",
+    "chatbots_max_output_tokens_not_null",
+    true,
+    "NOT NULL max_output_tokens"
+   ],
+   [
+    "chatbots",
+    "chatbots_model_not_null",
+    true,
+    "NOT NULL model"
+   ],
+   [
+    "chatbots",
+    "chatbots_name_not_null",
+    true,
+    "NOT NULL name"
+   ],
+   [
+    "chatbots",
+    "chatbots_org_id_fkey",
+    true,
+    "FOREIGN KEY (org_id) REFERENCES organizations(id) ON DELETE CASCADE"
+   ],
+   [
+    "chatbots",
+    "chatbots_org_id_not_null",
+    true,
+    "NOT NULL org_id"
+   ],
+   [
+    "chatbots",
+    "chatbots_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "chatbots",
+    "chatbots_public_key_not_null",
+    true,
+    "NOT NULL public_key"
+   ],
+   [
+    "chatbots",
+    "chatbots_response_length_not_null",
+    true,
+    "NOT NULL response_length"
+   ],
+   [
+    "chatbots",
+    "chatbots_retrieval_top_k_not_null",
+    true,
+    "NOT NULL retrieval_top_k"
+   ],
+   [
+    "chatbots",
+    "chatbots_show_sources_not_null",
+    true,
+    "NOT NULL show_sources"
+   ],
+   [
+    "chatbots",
+    "chatbots_status_not_null",
+    true,
+    "NOT NULL status"
+   ],
+   [
+    "chatbots",
+    "chatbots_strict_grounding_not_null",
+    true,
+    "NOT NULL strict_grounding"
+   ],
+   [
+    "chatbots",
+    "chatbots_temperature_not_null",
+    true,
+    "NOT NULL temperature"
+   ],
+   [
+    "chatbots",
+    "chatbots_tone_not_null",
+    true,
+    "NOT NULL tone"
+   ],
+   [
+    "chatbots",
+    "chatbots_updated_at_not_null",
+    true,
+    "NOT NULL updated_at"
+   ],
+   [
+    "chatbots",
+    "chatbots_welcome_message_not_null",
+    true,
+    "NOT NULL welcome_message"
+   ],
+   [
+    "chatbots",
+    "chatbots_widget_retention_days_check",
+    true,
+    "CHECK (((widget_retention_days >= 0) AND (widget_retention_days <= 30)))"
+   ],
+   [
+    "chatbots",
+    "chatbots_widget_retention_days_not_null",
+    true,
+    "NOT NULL widget_retention_days"
+   ],
+   [
+    "chatbots",
+    "chatbots_widget_settings_not_null",
+    true,
+    "NOT NULL widget_settings"
+   ],
+   [
+    "chatbots",
+    "ck_chatbots_description_length",
+    true,
+    "CHECK ((char_length(description) <= 500))"
+   ],
+   [
+    "chatbots",
+    "ck_chatbots_fallback_length",
+    true,
+    "CHECK ((char_length(fallback_message) <= 500))"
+   ],
+   [
+    "chatbots",
+    "ck_chatbots_instructions_length",
+    true,
+    "CHECK ((char_length(instructions) <= 4000))"
+   ],
+   [
+    "chatbots",
+    "ck_chatbots_language_mode",
+    true,
+    "CHECK ((language_mode = ANY (ARRAY['auto'::text, 'fixed'::text])))"
+   ],
+   [
+    "chatbots",
+    "ck_chatbots_language_required",
+    true,
+    "CHECK (((language_mode = 'auto'::text) OR (language IS NOT NULL)))"
+   ],
+   [
+    "chatbots",
+    "ck_chatbots_max_output_tokens",
+    true,
+    "CHECK (((max_output_tokens >= 64) AND (max_output_tokens <= 4096)))"
+   ],
+   [
+    "chatbots",
+    "ck_chatbots_name_length",
+    true,
+    "CHECK (((char_length(name) >= 1) AND (char_length(name) <= 80)))"
+   ],
+   [
+    "chatbots",
+    "ck_chatbots_public_key_format",
+    true,
+    "CHECK ((public_key ~ '^pk_live_[A-Za-z0-9]{24}$'::text))"
+   ],
+   [
+    "chatbots",
+    "ck_chatbots_response_length",
+    true,
+    "CHECK ((response_length = ANY (ARRAY['concise'::text, 'balanced'::text, 'detailed'::text])))"
+   ],
+   [
+    "chatbots",
+    "ck_chatbots_retrieval_top_k",
+    true,
+    "CHECK (((retrieval_top_k >= 1) AND (retrieval_top_k <= 12)))"
+   ],
+   [
+    "chatbots",
+    "ck_chatbots_status",
+    true,
+    "CHECK ((status = ANY (ARRAY['draft'::text, 'active'::text, 'paused'::text, 'archived'::text])))"
+   ],
+   [
+    "chatbots",
+    "ck_chatbots_temperature",
+    true,
+    "CHECK (((temperature >= (0)::numeric) AND (temperature <= (1)::numeric)))"
+   ],
+   [
+    "chatbots",
+    "ck_chatbots_tone",
+    true,
+    "CHECK ((tone = ANY (ARRAY['professional'::text, 'friendly'::text, 'concise'::text, 'custom'::text])))"
+   ],
+   [
+    "chatbots",
+    "ck_chatbots_welcome_length",
+    true,
+    "CHECK ((char_length(welcome_message) <= 500))"
+   ],
+   [
+    "chatbots",
+    "uq_chatbots_org_id_id",
+    true,
+    "UNIQUE (org_id, id)"
+   ],
+   [
+    "chatbots",
+    "uq_chatbots_public_key",
+    true,
+    "UNIQUE (public_key)"
+   ],
+   [
+    "chat_usage",
+    "chat_usage_charged_tokens_check",
+    true,
+    "CHECK ((charged_tokens >= 0))"
+   ],
+   [
+    "chat_usage",
+    "chat_usage_charged_tokens_not_null",
+    true,
+    "NOT NULL charged_tokens"
+   ],
+   [
+    "chat_usage",
+    "chat_usage_conversation_id_not_null",
+    true,
+    "NOT NULL conversation_id"
+   ],
+   [
+    "chat_usage",
+    "chat_usage_created_at_not_null",
+    true,
+    "NOT NULL created_at"
+   ],
+   [
+    "chat_usage",
+    "chat_usage_estimated_cost_usd_check",
+    true,
+    "CHECK ((estimated_cost_usd >= (0)::numeric))"
+   ],
+   [
+    "chat_usage",
+    "chat_usage_estimated_cost_usd_not_null",
+    true,
+    "NOT NULL estimated_cost_usd"
+   ],
+   [
+    "chat_usage",
+    "chat_usage_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "chat_usage",
+    "chat_usage_model_not_null",
+    true,
+    "NOT NULL model"
+   ],
+   [
+    "chat_usage",
+    "chat_usage_org_id_not_null",
+    true,
+    "NOT NULL org_id"
+   ],
+   [
+    "chat_usage",
+    "chat_usage_period_not_null",
+    true,
+    "NOT NULL period"
+   ],
+   [
+    "chat_usage",
+    "chat_usage_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "chat_usage",
+    "chat_usage_state_check",
+    true,
+    "CHECK ((state = ANY (ARRAY['reserved'::text, 'settled'::text])))"
+   ],
+   [
+    "chat_usage",
+    "chat_usage_state_not_null",
+    true,
+    "NOT NULL state"
+   ],
+   [
+    "conversation_events",
+    "conversation_events_actor_type_check",
+    true,
+    "CHECK ((actor_type = ANY (ARRAY['user'::text, 'customer'::text, 'system'::text])))"
+   ],
+   [
+    "conversation_events",
+    "conversation_events_actor_type_not_null",
+    true,
+    "NOT NULL actor_type"
+   ],
+   [
+    "conversation_events",
+    "conversation_events_chatbot_id_not_null",
+    true,
+    "NOT NULL chatbot_id"
+   ],
+   [
+    "conversation_events",
+    "conversation_events_created_at_not_null",
+    true,
+    "NOT NULL created_at"
+   ],
+   [
+    "conversation_events",
+    "conversation_events_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "conversation_events",
+    "conversation_events_kind_check",
+    true,
+    "CHECK ((kind = ANY (ARRAY['status_changed'::text, 'satisfaction_submitted'::text, 'handoff_requested'::text, 'handoff_updated'::text, 'unanswered_recorded'::text])))"
+   ],
+   [
+    "conversation_events",
+    "conversation_events_kind_not_null",
+    true,
+    "NOT NULL kind"
+   ],
+   [
+    "conversation_events",
+    "conversation_events_org_id_chatbot_id_fkey",
+    true,
+    "FOREIGN KEY (org_id, chatbot_id) REFERENCES chatbots(org_id, id) ON DELETE CASCADE"
+   ],
+   [
+    "conversation_events",
+    "conversation_events_org_id_id_key",
+    true,
+    "UNIQUE (org_id, id)"
+   ],
+   [
+    "conversation_events",
+    "conversation_events_org_id_not_null",
+    true,
+    "NOT NULL org_id"
+   ],
+   [
+    "conversation_events",
+    "conversation_events_payload_not_null",
+    true,
+    "NOT NULL payload"
+   ],
+   [
+    "conversation_events",
+    "conversation_events_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "conversation_exports",
+    "conversation_exports_created_at_not_null",
+    true,
+    "NOT NULL created_at"
+   ],
+   [
+    "conversation_exports",
+    "conversation_exports_created_by_fkey",
+    true,
+    "FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL"
+   ],
+   [
+    "conversation_exports",
+    "conversation_exports_expires_at_not_null",
+    true,
+    "NOT NULL expires_at"
+   ],
+   [
+    "conversation_exports",
+    "conversation_exports_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "conversation_exports",
+    "conversation_exports_org_id_id_key",
+    true,
+    "UNIQUE (org_id, id)"
+   ],
+   [
+    "conversation_exports",
+    "conversation_exports_org_id_not_null",
+    true,
+    "NOT NULL org_id"
+   ],
+   [
+    "conversation_exports",
+    "conversation_exports_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "conversation_exports",
+    "conversation_exports_row_count_check",
+    true,
+    "CHECK ((row_count >= 0))"
+   ],
+   [
+    "conversation_exports",
+    "conversation_exports_row_count_not_null",
+    true,
+    "NOT NULL row_count"
+   ],
+   [
+    "conversation_exports",
+    "conversation_exports_status_check",
+    true,
+    "CHECK ((status = ANY (ARRAY['pending'::text, 'ready'::text, 'failed'::text])))"
+   ],
+   [
+    "conversation_exports",
+    "conversation_exports_status_not_null",
+    true,
+    "NOT NULL status"
+   ],
+   [
+    "conversation_exports",
+    "conversation_exports_storage_key_not_null",
+    true,
+    "NOT NULL storage_key"
+   ],
+   [
+    "conversations",
+    "ck_conversations_handoff_status",
+    true,
+    "CHECK (((handoff_status IS NULL) OR (handoff_status = ANY (ARRAY['requested'::text, 'acknowledged'::text, 'completed'::text, 'cancelled'::text]))))"
+   ],
+   [
+    "conversations",
+    "ck_conversations_satisfaction_score",
+    true,
+    "CHECK (((satisfaction_score IS NULL) OR ((satisfaction_score >= 1) AND (satisfaction_score <= 5))))"
+   ],
+   [
+    "conversations",
+    "ck_conversations_status",
+    true,
+    "CHECK ((status = ANY (ARRAY['open'::text, 'resolved'::text, 'unresolved'::text, 'handed_off'::text])))"
+   ],
+   [
+    "conversations",
+    "conversations_channel_check",
+    true,
+    "CHECK ((channel = ANY (ARRAY['playground'::text, 'widget'::text])))"
+   ],
+   [
+    "conversations",
+    "conversations_channel_not_null",
+    true,
+    "NOT NULL channel"
+   ],
+   [
+    "conversations",
+    "conversations_chatbot_id_not_null",
+    true,
+    "NOT NULL chatbot_id"
+   ],
+   [
+    "conversations",
+    "conversations_created_at_not_null",
+    true,
+    "NOT NULL created_at"
+   ],
+   [
+    "conversations",
+    "conversations_created_by_fkey",
+    true,
+    "FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL"
+   ],
+   [
+    "conversations",
+    "conversations_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "conversations",
+    "conversations_last_message_at_not_null",
+    true,
+    "NOT NULL last_message_at"
+   ],
+   [
+    "conversations",
+    "conversations_org_id_chatbot_id_fkey",
+    true,
+    "FOREIGN KEY (org_id, chatbot_id) REFERENCES chatbots(org_id, id) ON DELETE CASCADE"
+   ],
+   [
+    "conversations",
+    "conversations_org_id_id_key",
+    true,
+    "UNIQUE (org_id, id)"
+   ],
+   [
+    "conversations",
+    "conversations_org_id_not_null",
+    true,
+    "NOT NULL org_id"
+   ],
+   [
+    "conversations",
+    "conversations_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "conversations",
+    "conversations_preview_not_null",
+    true,
+    "NOT NULL preview"
+   ],
+   [
+    "conversations",
+    "conversations_status_not_null",
+    true,
+    "NOT NULL status"
+   ],
+   [
+    "conversations",
+    "conversations_updated_at_not_null",
+    true,
+    "NOT NULL updated_at"
+   ],
+   [
+    "document_chunks",
+    "ck_document_chunks_ordinal",
+    true,
+    "CHECK ((ordinal >= 0))"
+   ],
+   [
+    "document_chunks",
+    "document_chunks_chatbot_id_not_null",
+    true,
+    "NOT NULL chatbot_id"
+   ],
+   [
+    "document_chunks",
+    "document_chunks_content_not_null",
+    true,
+    "NOT NULL content"
+   ],
+   [
+    "document_chunks",
+    "document_chunks_created_at_not_null",
+    true,
+    "NOT NULL created_at"
+   ],
+   [
+    "document_chunks",
+    "document_chunks_document_id_not_null",
+    true,
+    "NOT NULL document_id"
+   ],
+   [
+    "document_chunks",
+    "document_chunks_document_version_not_null",
+    true,
+    "NOT NULL document_version"
+   ],
+   [
+    "document_chunks",
+    "document_chunks_embedding_model_not_null",
+    true,
+    "NOT NULL embedding_model"
+   ],
+   [
+    "document_chunks",
+    "document_chunks_embedding_not_null",
+    true,
+    "NOT NULL embedding"
+   ],
+   [
+    "document_chunks",
+    "document_chunks_heading_path_not_null",
+    true,
+    "NOT NULL heading_path"
+   ],
+   [
+    "document_chunks",
+    "document_chunks_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "document_chunks",
+    "document_chunks_metadata_not_null",
+    true,
+    "NOT NULL metadata"
+   ],
+   [
+    "document_chunks",
+    "document_chunks_ordinal_not_null",
+    true,
+    "NOT NULL ordinal"
+   ],
+   [
+    "document_chunks",
+    "document_chunks_org_id_not_null",
+    true,
+    "NOT NULL org_id"
+   ],
+   [
+    "document_chunks",
+    "document_chunks_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "document_chunks",
+    "document_chunks_token_count_not_null",
+    true,
+    "NOT NULL token_count"
+   ],
+   [
+    "document_chunks",
+    "fk_document_chunks_chatbot",
+    true,
+    "FOREIGN KEY (org_id, chatbot_id) REFERENCES chatbots(org_id, id) ON DELETE CASCADE"
+   ],
+   [
+    "document_chunks",
+    "fk_document_chunks_document",
+    true,
+    "FOREIGN KEY (org_id, document_id) REFERENCES documents(org_id, id) ON DELETE CASCADE"
+   ],
+   [
+    "document_chunks",
+    "uq_document_chunks_version_ordinal",
+    true,
+    "UNIQUE (document_id, document_version, ordinal)"
+   ],
+   [
+    "documents",
+    "ck_documents_size",
+    true,
+    "CHECK ((size_bytes >= 0))"
+   ],
+   [
+    "documents",
+    "ck_documents_status",
+    true,
+    "CHECK ((status = ANY (ARRAY['queued'::text, 'processing'::text, 'ready'::text, 'failed'::text])))"
+   ],
+   [
+    "documents",
+    "ck_documents_title_length",
+    true,
+    "CHECK (((char_length(title) >= 1) AND (char_length(title) <= 300)))"
+   ],
+   [
+    "documents",
+    "documents_chatbot_id_not_null",
+    true,
+    "NOT NULL chatbot_id"
+   ],
+   [
+    "documents",
+    "documents_chunk_count_not_null",
+    true,
+    "NOT NULL chunk_count"
+   ],
+   [
+    "documents",
+    "documents_created_at_not_null",
+    true,
+    "NOT NULL created_at"
+   ],
+   [
+    "documents",
+    "documents_created_by_fkey",
+    true,
+    "FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL"
+   ],
+   [
+    "documents",
+    "documents_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "documents",
+    "documents_org_id_not_null",
+    true,
+    "NOT NULL org_id"
+   ],
+   [
+    "documents",
+    "documents_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "documents",
+    "documents_size_bytes_not_null",
+    true,
+    "NOT NULL size_bytes"
+   ],
+   [
+    "documents",
+    "documents_source_id_not_null",
+    true,
+    "NOT NULL source_id"
+   ],
+   [
+    "documents",
+    "documents_status_not_null",
+    true,
+    "NOT NULL status"
+   ],
+   [
+    "documents",
+    "documents_title_not_null",
+    true,
+    "NOT NULL title"
+   ],
+   [
+    "documents",
+    "documents_updated_at_not_null",
+    true,
+    "NOT NULL updated_at"
+   ],
+   [
+    "documents",
+    "documents_uri_not_null",
+    true,
+    "NOT NULL uri"
+   ],
+   [
+    "documents",
+    "documents_version_not_null",
+    true,
+    "NOT NULL version"
+   ],
+   [
+    "documents",
+    "fk_documents_chatbot",
+    true,
+    "FOREIGN KEY (org_id, chatbot_id) REFERENCES chatbots(org_id, id) ON DELETE CASCADE"
+   ],
+   [
+    "documents",
+    "fk_documents_source",
+    true,
+    "FOREIGN KEY (org_id, source_id) REFERENCES knowledge_sources(org_id, id) ON DELETE CASCADE"
+   ],
+   [
+    "documents",
+    "uq_documents_org_id_id",
+    true,
+    "UNIQUE (org_id, id)"
+   ],
+   [
+    "documents",
+    "uq_documents_source_uri",
+    true,
+    "UNIQUE (source_id, uri)"
+   ],
+   [
+    "email_tokens",
+    "ck_email_tokens_purpose",
+    true,
+    "CHECK ((purpose = ANY (ARRAY['verify_email'::text, 'reset_password'::text, 'change_email'::text])))"
+   ],
+   [
+    "email_tokens",
+    "email_tokens_created_at_not_null",
+    true,
+    "NOT NULL created_at"
+   ],
+   [
+    "email_tokens",
+    "email_tokens_expires_at_not_null",
+    true,
+    "NOT NULL expires_at"
+   ],
+   [
+    "email_tokens",
+    "email_tokens_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "email_tokens",
+    "email_tokens_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "email_tokens",
+    "email_tokens_purpose_not_null",
+    true,
+    "NOT NULL purpose"
+   ],
+   [
+    "email_tokens",
+    "email_tokens_token_hash_not_null",
+    true,
+    "NOT NULL token_hash"
+   ],
+   [
+    "email_tokens",
+    "email_tokens_user_id_fkey",
+    true,
+    "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+   ],
+   [
+    "email_tokens",
+    "email_tokens_user_id_not_null",
+    true,
+    "NOT NULL user_id"
+   ],
+   [
+    "email_tokens",
+    "uq_email_tokens_token_hash",
+    true,
+    "UNIQUE (token_hash)"
+   ],
+   [
+    "ingestion_jobs",
+    "ck_ingestion_jobs_doc_required",
+    true,
+    "CHECK (((kind <> 'process_document'::text) OR (document_id IS NOT NULL)))"
+   ],
+   [
+    "ingestion_jobs",
+    "ck_ingestion_jobs_kind",
+    true,
+    "CHECK ((kind = ANY (ARRAY['process_document'::text, 'crawl'::text])))"
+   ],
+   [
+    "ingestion_jobs",
+    "ck_ingestion_jobs_status",
+    true,
+    "CHECK ((status = ANY (ARRAY['queued'::text, 'processing'::text, 'succeeded'::text, 'failed'::text])))"
+   ],
+   [
+    "ingestion_jobs",
+    "fk_ingestion_jobs_document",
+    true,
+    "FOREIGN KEY (org_id, document_id) REFERENCES documents(org_id, id) ON DELETE CASCADE"
+   ],
+   [
+    "ingestion_jobs",
+    "fk_ingestion_jobs_source",
+    true,
+    "FOREIGN KEY (org_id, source_id) REFERENCES knowledge_sources(org_id, id) ON DELETE CASCADE"
+   ],
+   [
+    "ingestion_jobs",
+    "ingestion_jobs_attempt_not_null",
+    true,
+    "NOT NULL attempt"
+   ],
+   [
+    "ingestion_jobs",
+    "ingestion_jobs_chatbot_id_not_null",
+    true,
+    "NOT NULL chatbot_id"
+   ],
+   [
+    "ingestion_jobs",
+    "ingestion_jobs_created_by_fkey",
+    true,
+    "FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL"
+   ],
+   [
+    "ingestion_jobs",
+    "ingestion_jobs_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "ingestion_jobs",
+    "ingestion_jobs_kind_not_null",
+    true,
+    "NOT NULL kind"
+   ],
+   [
+    "ingestion_jobs",
+    "ingestion_jobs_max_attempts_not_null",
+    true,
+    "NOT NULL max_attempts"
+   ],
+   [
+    "ingestion_jobs",
+    "ingestion_jobs_org_id_not_null",
+    true,
+    "NOT NULL org_id"
+   ],
+   [
+    "ingestion_jobs",
+    "ingestion_jobs_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "ingestion_jobs",
+    "ingestion_jobs_queued_at_not_null",
+    true,
+    "NOT NULL queued_at"
+   ],
+   [
+    "ingestion_jobs",
+    "ingestion_jobs_source_id_not_null",
+    true,
+    "NOT NULL source_id"
+   ],
+   [
+    "ingestion_jobs",
+    "ingestion_jobs_stats_not_null",
+    true,
+    "NOT NULL stats"
+   ],
+   [
+    "ingestion_jobs",
+    "ingestion_jobs_status_not_null",
+    true,
+    "NOT NULL status"
+   ],
+   [
+    "invitations",
+    "ck_invitations_role",
+    true,
+    "CHECK ((role = ANY (ARRAY['admin'::text, 'agent'::text, 'viewer'::text])))"
+   ],
+   [
+    "invitations",
+    "invitations_created_at_not_null",
+    true,
+    "NOT NULL created_at"
+   ],
+   [
+    "invitations",
+    "invitations_email_not_null",
+    true,
+    "NOT NULL email"
+   ],
+   [
+    "invitations",
+    "invitations_expires_at_not_null",
+    true,
+    "NOT NULL expires_at"
+   ],
+   [
+    "invitations",
+    "invitations_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "invitations",
+    "invitations_invited_by_fkey",
+    true,
+    "FOREIGN KEY (invited_by) REFERENCES users(id) ON DELETE SET NULL"
+   ],
+   [
+    "invitations",
+    "invitations_org_id_fkey",
+    true,
+    "FOREIGN KEY (org_id) REFERENCES organizations(id) ON DELETE CASCADE"
+   ],
+   [
+    "invitations",
+    "invitations_org_id_not_null",
+    true,
+    "NOT NULL org_id"
+   ],
+   [
+    "invitations",
+    "invitations_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "invitations",
+    "invitations_role_not_null",
+    true,
+    "NOT NULL role"
+   ],
+   [
+    "invitations",
+    "invitations_token_hash_not_null",
+    true,
+    "NOT NULL token_hash"
+   ],
+   [
+    "invitations",
+    "uq_invitations_token_hash",
+    true,
+    "UNIQUE (token_hash)"
+   ],
+   [
+    "knowledge_sources",
+    "ck_knowledge_sources_kind",
+    true,
+    "CHECK ((kind = ANY (ARRAY['file'::text, 'website'::text])))"
+   ],
+   [
+    "knowledge_sources",
+    "ck_knowledge_sources_name_length",
+    true,
+    "CHECK (((char_length(name) >= 1) AND (char_length(name) <= 200)))"
+   ],
+   [
+    "knowledge_sources",
+    "ck_knowledge_sources_status",
+    true,
+    "CHECK ((status = ANY (ARRAY['pending'::text, 'syncing'::text, 'ready'::text, 'partial'::text, 'failed'::text])))"
+   ],
+   [
+    "knowledge_sources",
+    "fk_knowledge_sources_chatbot",
+    true,
+    "FOREIGN KEY (org_id, chatbot_id) REFERENCES chatbots(org_id, id) ON DELETE CASCADE"
+   ],
+   [
+    "knowledge_sources",
+    "knowledge_sources_chatbot_id_not_null",
+    true,
+    "NOT NULL chatbot_id"
+   ],
+   [
+    "knowledge_sources",
+    "knowledge_sources_config_not_null",
+    true,
+    "NOT NULL config"
+   ],
+   [
+    "knowledge_sources",
+    "knowledge_sources_created_at_not_null",
+    true,
+    "NOT NULL created_at"
+   ],
+   [
+    "knowledge_sources",
+    "knowledge_sources_created_by_fkey",
+    true,
+    "FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL"
+   ],
+   [
+    "knowledge_sources",
+    "knowledge_sources_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "knowledge_sources",
+    "knowledge_sources_kind_not_null",
+    true,
+    "NOT NULL kind"
+   ],
+   [
+    "knowledge_sources",
+    "knowledge_sources_name_not_null",
+    true,
+    "NOT NULL name"
+   ],
+   [
+    "knowledge_sources",
+    "knowledge_sources_org_id_not_null",
+    true,
+    "NOT NULL org_id"
+   ],
+   [
+    "knowledge_sources",
+    "knowledge_sources_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "knowledge_sources",
+    "knowledge_sources_stats_not_null",
+    true,
+    "NOT NULL stats"
+   ],
+   [
+    "knowledge_sources",
+    "knowledge_sources_status_not_null",
+    true,
+    "NOT NULL status"
+   ],
+   [
+    "knowledge_sources",
+    "knowledge_sources_updated_at_not_null",
+    true,
+    "NOT NULL updated_at"
+   ],
+   [
+    "knowledge_sources",
+    "uq_knowledge_sources_org_id_id",
+    true,
+    "UNIQUE (org_id, id)"
+   ],
+   [
+    "memberships",
+    "ck_memberships_role",
+    true,
+    "CHECK ((role = ANY (ARRAY['owner'::text, 'admin'::text, 'agent'::text, 'viewer'::text])))"
+   ],
+   [
+    "memberships",
+    "memberships_created_at_not_null",
+    true,
+    "NOT NULL created_at"
+   ],
+   [
+    "memberships",
+    "memberships_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "memberships",
+    "memberships_org_id_fkey",
+    true,
+    "FOREIGN KEY (org_id) REFERENCES organizations(id) ON DELETE CASCADE"
+   ],
+   [
+    "memberships",
+    "memberships_org_id_not_null",
+    true,
+    "NOT NULL org_id"
+   ],
+   [
+    "memberships",
+    "memberships_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "memberships",
+    "memberships_role_not_null",
+    true,
+    "NOT NULL role"
+   ],
+   [
+    "memberships",
+    "memberships_updated_at_not_null",
+    true,
+    "NOT NULL updated_at"
+   ],
+   [
+    "memberships",
+    "memberships_user_id_fkey",
+    true,
+    "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+   ],
+   [
+    "memberships",
+    "memberships_user_id_not_null",
+    true,
+    "NOT NULL user_id"
+   ],
+   [
+    "memberships",
+    "uq_memberships_org_user",
+    true,
+    "UNIQUE (org_id, user_id)"
+   ],
+   [
+    "messages",
+    "ck_messages_latency_ms",
+    true,
+    "CHECK (((latency_ms IS NULL) OR (latency_ms >= 0)))"
+   ],
+   [
+    "messages",
+    "messages_citations_not_null",
+    true,
+    "NOT NULL citations"
+   ],
+   [
+    "messages",
+    "messages_content_not_null",
+    true,
+    "NOT NULL content"
+   ],
+   [
+    "messages",
+    "messages_conversation_id_not_null",
+    true,
+    "NOT NULL conversation_id"
+   ],
+   [
+    "messages",
+    "messages_created_at_not_null",
+    true,
+    "NOT NULL created_at"
+   ],
+   [
+    "messages",
+    "messages_estimated_cost_usd_check",
+    true,
+    "CHECK ((estimated_cost_usd >= (0)::numeric))"
+   ],
+   [
+    "messages",
+    "messages_estimated_cost_usd_not_null",
+    true,
+    "NOT NULL estimated_cost_usd"
+   ],
+   [
+    "messages",
+    "messages_feedback_check",
+    true,
+    "CHECK ((feedback = ANY (ARRAY['-1'::integer, 1])))"
+   ],
+   [
+    "messages",
+    "messages_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "messages",
+    "messages_input_tokens_check",
+    true,
+    "CHECK ((input_tokens >= 0))"
+   ],
+   [
+    "messages",
+    "messages_input_tokens_not_null",
+    true,
+    "NOT NULL input_tokens"
+   ],
+   [
+    "messages",
+    "messages_org_id_conversation_id_fkey",
+    true,
+    "FOREIGN KEY (org_id, conversation_id) REFERENCES conversations(org_id, id) ON DELETE CASCADE"
+   ],
+   [
+    "messages",
+    "messages_org_id_id_key",
+    true,
+    "UNIQUE (org_id, id)"
+   ],
+   [
+    "messages",
+    "messages_org_id_not_null",
+    true,
+    "NOT NULL org_id"
+   ],
+   [
+    "messages",
+    "messages_output_tokens_check",
+    true,
+    "CHECK ((output_tokens >= 0))"
+   ],
+   [
+    "messages",
+    "messages_output_tokens_not_null",
+    true,
+    "NOT NULL output_tokens"
+   ],
+   [
+    "messages",
+    "messages_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "messages",
+    "messages_role_check",
+    true,
+    "CHECK ((role = ANY (ARRAY['user'::text, 'assistant'::text])))"
+   ],
+   [
+    "messages",
+    "messages_role_not_null",
+    true,
+    "NOT NULL role"
+   ],
+   [
+    "messages",
+    "messages_status_check",
+    true,
+    "CHECK ((status = ANY (ARRAY['complete'::text, 'streaming'::text, 'interrupted'::text, 'failed'::text, 'fallback'::text])))"
+   ],
+   [
+    "messages",
+    "messages_status_not_null",
+    true,
+    "NOT NULL status"
+   ],
+   [
+    "messages",
+    "messages_usage_estimated_not_null",
+    true,
+    "NOT NULL usage_estimated"
+   ],
+   [
+    "organizations",
+    "ck_organizations_name_length",
+    true,
+    "CHECK (((char_length(name) >= 1) AND (char_length(name) <= 120)))"
+   ],
+   [
+    "organizations",
+    "ck_organizations_status",
+    true,
+    "CHECK ((status = ANY (ARRAY['active'::text, 'restricted'::text, 'suspended'::text, 'pending_deletion'::text])))"
+   ],
+   [
+    "organizations",
+    "organizations_created_at_not_null",
+    true,
+    "NOT NULL created_at"
+   ],
+   [
+    "organizations",
+    "organizations_created_by_fkey",
+    true,
+    "FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL"
+   ],
+   [
+    "organizations",
+    "organizations_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "organizations",
+    "organizations_name_not_null",
+    true,
+    "NOT NULL name"
+   ],
+   [
+    "organizations",
+    "organizations_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "organizations",
+    "organizations_settings_not_null",
+    true,
+    "NOT NULL settings"
+   ],
+   [
+    "organizations",
+    "organizations_slug_not_null",
+    true,
+    "NOT NULL slug"
+   ],
+   [
+    "organizations",
+    "organizations_status_not_null",
+    true,
+    "NOT NULL status"
+   ],
+   [
+    "organizations",
+    "organizations_updated_at_not_null",
+    true,
+    "NOT NULL updated_at"
+   ],
+   [
+    "organizations",
+    "uq_organizations_slug",
+    true,
+    "UNIQUE (slug)"
+   ],
+   [
+    "sessions",
+    "sessions_created_at_not_null",
+    true,
+    "NOT NULL created_at"
+   ],
+   [
+    "sessions",
+    "sessions_expires_at_not_null",
+    true,
+    "NOT NULL expires_at"
+   ],
+   [
+    "sessions",
+    "sessions_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "sessions",
+    "sessions_last_seen_at_not_null",
+    true,
+    "NOT NULL last_seen_at"
+   ],
+   [
+    "sessions",
+    "sessions_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "sessions",
+    "sessions_token_hash_not_null",
+    true,
+    "NOT NULL token_hash"
+   ],
+   [
+    "sessions",
+    "sessions_user_id_fkey",
+    true,
+    "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+   ],
+   [
+    "sessions",
+    "sessions_user_id_not_null",
+    true,
+    "NOT NULL user_id"
+   ],
+   [
+    "sessions",
+    "uq_sessions_token_hash",
+    true,
+    "UNIQUE (token_hash)"
+   ],
+   [
+    "storage_deletions",
+    "storage_deletions_attempts_not_null",
+    true,
+    "NOT NULL attempts"
+   ],
+   [
+    "storage_deletions",
+    "storage_deletions_created_at_not_null",
+    true,
+    "NOT NULL created_at"
+   ],
+   [
+    "storage_deletions",
+    "storage_deletions_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "storage_deletions",
+    "storage_deletions_org_id_fkey",
+    true,
+    "FOREIGN KEY (org_id) REFERENCES organizations(id) ON DELETE CASCADE"
+   ],
+   [
+    "storage_deletions",
+    "storage_deletions_org_id_not_null",
+    true,
+    "NOT NULL org_id"
+   ],
+   [
+    "storage_deletions",
+    "storage_deletions_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "storage_deletions",
+    "storage_deletions_storage_key_not_null",
+    true,
+    "NOT NULL storage_key"
+   ],
+   [
+    "unanswered_questions",
+    "unanswered_questions_channel_not_null",
+    true,
+    "NOT NULL channel"
+   ],
+   [
+    "unanswered_questions",
+    "unanswered_questions_chatbot_id_not_null",
+    true,
+    "NOT NULL chatbot_id"
+   ],
+   [
+    "unanswered_questions",
+    "unanswered_questions_cluster_key_not_null",
+    true,
+    "NOT NULL cluster_key"
+   ],
+   [
+    "unanswered_questions",
+    "unanswered_questions_created_at_not_null",
+    true,
+    "NOT NULL created_at"
+   ],
+   [
+    "unanswered_questions",
+    "unanswered_questions_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "unanswered_questions",
+    "unanswered_questions_normalized_question_not_null",
+    true,
+    "NOT NULL normalized_question"
+   ],
+   [
+    "unanswered_questions",
+    "unanswered_questions_org_id_chatbot_id_fkey",
+    true,
+    "FOREIGN KEY (org_id, chatbot_id) REFERENCES chatbots(org_id, id) ON DELETE CASCADE"
+   ],
+   [
+    "unanswered_questions",
+    "unanswered_questions_org_id_id_key",
+    true,
+    "UNIQUE (org_id, id)"
+   ],
+   [
+    "unanswered_questions",
+    "unanswered_questions_org_id_not_null",
+    true,
+    "NOT NULL org_id"
+   ],
+   [
+    "unanswered_questions",
+    "unanswered_questions_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "unanswered_questions",
+    "unanswered_questions_question_not_null",
+    true,
+    "NOT NULL question"
+   ],
+   [
+    "unanswered_questions",
+    "unanswered_questions_reason_check",
+    true,
+    "CHECK ((reason = ANY (ARRAY['insufficient_evidence'::text, 'marked_unanswered'::text, 'ambiguous_query'::text, 'provider_failure'::text])))"
+   ],
+   [
+    "unanswered_questions",
+    "unanswered_questions_reason_not_null",
+    true,
+    "NOT NULL reason"
+   ],
+   [
+    "users",
+    "ck_users_name_length",
+    true,
+    "CHECK (((char_length(name) >= 1) AND (char_length(name) <= 120)))"
+   ],
+   [
+    "users",
+    "ck_users_status",
+    true,
+    "CHECK ((status = ANY (ARRAY['active'::text, 'disabled'::text])))"
+   ],
+   [
+    "users",
+    "uq_users_email",
+    true,
+    "UNIQUE (email)"
+   ],
+   [
+    "users",
+    "users_created_at_not_null",
+    true,
+    "NOT NULL created_at"
+   ],
+   [
+    "users",
+    "users_email_not_null",
+    true,
+    "NOT NULL email"
+   ],
+   [
+    "users",
+    "users_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "users",
+    "users_locale_not_null",
+    true,
+    "NOT NULL locale"
+   ],
+   [
+    "users",
+    "users_name_not_null",
+    true,
+    "NOT NULL name"
+   ],
+   [
+    "users",
+    "users_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "users",
+    "users_status_not_null",
+    true,
+    "NOT NULL status"
+   ],
+   [
+    "users",
+    "users_updated_at_not_null",
+    true,
+    "NOT NULL updated_at"
+   ],
+   [
+    "widget_sessions",
+    "widget_sessions_chatbot_id_not_null",
+    true,
+    "NOT NULL chatbot_id"
+   ],
+   [
+    "widget_sessions",
+    "widget_sessions_conversation_id_not_null",
+    true,
+    "NOT NULL conversation_id"
+   ],
+   [
+    "widget_sessions",
+    "widget_sessions_expires_at_not_null",
+    true,
+    "NOT NULL expires_at"
+   ],
+   [
+    "widget_sessions",
+    "widget_sessions_id_not_null",
+    true,
+    "NOT NULL id"
+   ],
+   [
+    "widget_sessions",
+    "widget_sessions_message_count_check",
+    true,
+    "CHECK ((message_count >= 0))"
+   ],
+   [
+    "widget_sessions",
+    "widget_sessions_message_count_not_null",
+    true,
+    "NOT NULL message_count"
+   ],
+   [
+    "widget_sessions",
+    "widget_sessions_org_id_chatbot_id_fkey",
+    true,
+    "FOREIGN KEY (org_id, chatbot_id) REFERENCES chatbots(org_id, id) ON DELETE CASCADE"
+   ],
+   [
+    "widget_sessions",
+    "widget_sessions_org_id_conversation_id_fkey",
+    true,
+    "FOREIGN KEY (org_id, conversation_id) REFERENCES conversations(org_id, id) ON DELETE CASCADE"
+   ],
+   [
+    "widget_sessions",
+    "widget_sessions_org_id_not_null",
+    true,
+    "NOT NULL org_id"
+   ],
+   [
+    "widget_sessions",
+    "widget_sessions_pkey",
+    true,
+    "PRIMARY KEY (id)"
+   ],
+   [
+    "widget_sessions",
+    "widget_sessions_public_key_not_null",
+    true,
+    "NOT NULL public_key"
+   ],
+   [
+    "widget_sessions",
+    "widget_sessions_resume_hash_key",
+    true,
+    "UNIQUE (resume_hash)"
+   ],
+   [
+    "widget_sessions",
+    "widget_sessions_token_hash_key",
+    true,
+    "UNIQUE (token_hash)"
+   ],
+   [
+    "widget_sessions",
+    "widget_sessions_token_hash_not_null",
+    true,
+    "NOT NULL token_hash"
+   ]
+  ],
+  "functions": [
+   [
+    "current_org_id",
+    false,
+    "669c85648350e5d4a8827da97c4a7823",
+    "{=X/platform_owner,platform_owner=X/platform_owner,platform_app=X/platform_owner}"
+   ],
+   [
+    "current_user_id",
+    false,
+    "730c1d19b3cb6c2e43d4728887d187f6",
+    "{=X/platform_owner,platform_owner=X/platform_owner,platform_app=X/platform_owner}"
+   ],
+   [
+    "enforce_membership_integrity",
+    true,
+    "9545109c1d490030ce65972534059228",
+    null
+   ],
+   [
+    "list_orgs_for_conversation_jobs",
+    true,
+    "74e6ca693c8ae44032ade489cdfa484b",
+    "{platform_owner=X/platform_owner,platform_app=X/platform_owner}"
+   ],
+   [
+    "list_pending_storage_deletions",
+    true,
+    "f8e43ae1546f306c22f52d5a3732f4bc",
+    "{platform_owner=X/platform_owner,platform_app=X/platform_owner}"
+   ],
+   [
+    "list_stuck_jobs",
+    true,
+    "153ea1beda812e139716c375fae05e7b",
+    "{platform_owner=X/platform_owner,platform_app=X/platform_owner}"
+   ],
+   [
+    "resolve_invitation",
+    true,
+    "8763120234fdcba4c7449708a9f6d9f8",
+    "{platform_owner=X/platform_owner,platform_app=X/platform_owner}"
+   ],
+   [
+    "resolve_widget",
+    true,
+    "77232b9e4cc1022a4542547b7f2853fa",
+    "{platform_owner=X/platform_owner,platform_app=X/platform_owner}"
+   ],
+   [
+    "touch_updated_at",
+    false,
+    "9365539108c4fc51b6c41bef9afaa11b",
+    null
+   ]
+  ],
+  "grants": [
+   [
+    "platform_app",
+    "alembic_version",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "alembic_version",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "alembic_version",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "alembic_version",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "analytics_daily",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "analytics_daily",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "analytics_daily",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "analytics_daily",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "audit_logs",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "audit_logs",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "chat_usage",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "chat_usage",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "chat_usage",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "chatbot_domains",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "chatbot_domains",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "chatbot_domains",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "chatbot_domains",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "chatbots",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "chatbots",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "chatbots",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "conversation_events",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "conversation_events",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "conversation_events",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "conversation_events",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "conversation_exports",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "conversation_exports",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "conversation_exports",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "conversation_exports",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "conversations",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "conversations",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "conversations",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "conversations",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "document_chunks",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "document_chunks",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "document_chunks",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "document_chunks",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "documents",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "documents",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "documents",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "documents",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "email_tokens",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "email_tokens",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "email_tokens",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "email_tokens",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "ingestion_jobs",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "ingestion_jobs",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "ingestion_jobs",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "ingestion_jobs",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "invitations",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "invitations",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "invitations",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "invitations",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "knowledge_sources",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "knowledge_sources",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "knowledge_sources",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "knowledge_sources",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "memberships",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "memberships",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "memberships",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "memberships",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "messages",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "messages",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "messages",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "messages",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "organizations",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "organizations",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "organizations",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "sessions",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "sessions",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "sessions",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "sessions",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "storage_deletions",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "storage_deletions",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "storage_deletions",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "storage_deletions",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "unanswered_questions",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "unanswered_questions",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "unanswered_questions",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "unanswered_questions",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "users",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "users",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "users",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "users",
+    "UPDATE"
+   ],
+   [
+    "platform_app",
+    "widget_sessions",
+    "DELETE"
+   ],
+   [
+    "platform_app",
+    "widget_sessions",
+    "INSERT"
+   ],
+   [
+    "platform_app",
+    "widget_sessions",
+    "SELECT"
+   ],
+   [
+    "platform_app",
+    "widget_sessions",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "alembic_version",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "alembic_version",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "alembic_version",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "alembic_version",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "alembic_version",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "alembic_version",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "alembic_version",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "analytics_daily",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "analytics_daily",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "analytics_daily",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "analytics_daily",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "analytics_daily",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "analytics_daily",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "analytics_daily",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "audit_logs",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "audit_logs",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "audit_logs",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "audit_logs",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "audit_logs",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "audit_logs",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "audit_logs",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "chat_usage",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "chat_usage",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "chat_usage",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "chat_usage",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "chat_usage",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "chat_usage",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "chat_usage",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "chatbot_domains",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "chatbot_domains",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "chatbot_domains",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "chatbot_domains",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "chatbot_domains",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "chatbot_domains",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "chatbot_domains",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "chatbots",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "chatbots",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "chatbots",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "chatbots",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "chatbots",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "chatbots",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "chatbots",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "conversation_events",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "conversation_events",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "conversation_events",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "conversation_events",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "conversation_events",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "conversation_events",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "conversation_events",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "conversation_exports",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "conversation_exports",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "conversation_exports",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "conversation_exports",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "conversation_exports",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "conversation_exports",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "conversation_exports",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "conversations",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "conversations",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "conversations",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "conversations",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "conversations",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "conversations",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "conversations",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "document_chunks",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "document_chunks",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "document_chunks",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "document_chunks",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "document_chunks",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "document_chunks",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "document_chunks",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "documents",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "documents",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "documents",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "documents",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "documents",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "documents",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "documents",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "email_tokens",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "email_tokens",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "email_tokens",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "email_tokens",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "email_tokens",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "email_tokens",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "email_tokens",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "ingestion_jobs",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "ingestion_jobs",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "ingestion_jobs",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "ingestion_jobs",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "ingestion_jobs",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "ingestion_jobs",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "ingestion_jobs",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "invitations",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "invitations",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "invitations",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "invitations",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "invitations",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "invitations",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "invitations",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "knowledge_sources",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "knowledge_sources",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "knowledge_sources",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "knowledge_sources",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "knowledge_sources",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "knowledge_sources",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "knowledge_sources",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "memberships",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "memberships",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "memberships",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "memberships",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "memberships",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "memberships",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "memberships",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "messages",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "messages",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "messages",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "messages",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "messages",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "messages",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "messages",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "organizations",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "organizations",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "organizations",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "organizations",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "organizations",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "organizations",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "organizations",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "sessions",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "sessions",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "sessions",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "sessions",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "sessions",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "sessions",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "sessions",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "storage_deletions",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "storage_deletions",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "storage_deletions",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "storage_deletions",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "storage_deletions",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "storage_deletions",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "storage_deletions",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "unanswered_questions",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "unanswered_questions",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "unanswered_questions",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "unanswered_questions",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "unanswered_questions",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "unanswered_questions",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "unanswered_questions",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "users",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "users",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "users",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "users",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "users",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "users",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "users",
+    "UPDATE"
+   ],
+   [
+    "platform_owner",
+    "widget_sessions",
+    "DELETE"
+   ],
+   [
+    "platform_owner",
+    "widget_sessions",
+    "INSERT"
+   ],
+   [
+    "platform_owner",
+    "widget_sessions",
+    "REFERENCES"
+   ],
+   [
+    "platform_owner",
+    "widget_sessions",
+    "SELECT"
+   ],
+   [
+    "platform_owner",
+    "widget_sessions",
+    "TRIGGER"
+   ],
+   [
+    "platform_owner",
+    "widget_sessions",
+    "TRUNCATE"
+   ],
+   [
+    "platform_owner",
+    "widget_sessions",
+    "UPDATE"
+   ]
+  ],
+  "indexes": [
+   [
+    "alembic_version_pkc",
+    "CREATE UNIQUE INDEX alembic_version_pkc ON public.alembic_version USING btree (version_num)"
+   ],
+   [
+    "analytics_daily_pkey",
+    "CREATE UNIQUE INDEX analytics_daily_pkey ON public.analytics_daily USING btree (org_id, chatbot_id, day, channel)"
+   ],
+   [
+    "audit_logs_pkey",
+    "CREATE UNIQUE INDEX audit_logs_pkey ON public.audit_logs USING btree (id)"
+   ],
+   [
+    "chat_usage_pkey",
+    "CREATE UNIQUE INDEX chat_usage_pkey ON public.chat_usage USING btree (id)"
+   ],
+   [
+    "chatbot_domains_org_id_chatbot_id_origin_key",
+    "CREATE UNIQUE INDEX chatbot_domains_org_id_chatbot_id_origin_key ON public.chatbot_domains USING btree (org_id, chatbot_id, origin)"
+   ],
+   [
+    "chatbot_domains_pkey",
+    "CREATE UNIQUE INDEX chatbot_domains_pkey ON public.chatbot_domains USING btree (id)"
+   ],
+   [
+    "chatbots_pkey",
+    "CREATE UNIQUE INDEX chatbots_pkey ON public.chatbots USING btree (id)"
+   ],
+   [
+    "conversation_events_org_id_id_key",
+    "CREATE UNIQUE INDEX conversation_events_org_id_id_key ON public.conversation_events USING btree (org_id, id)"
+   ],
+   [
+    "conversation_events_pkey",
+    "CREATE UNIQUE INDEX conversation_events_pkey ON public.conversation_events USING btree (id)"
+   ],
+   [
+    "conversation_exports_org_id_id_key",
+    "CREATE UNIQUE INDEX conversation_exports_org_id_id_key ON public.conversation_exports USING btree (org_id, id)"
+   ],
+   [
+    "conversation_exports_pkey",
+    "CREATE UNIQUE INDEX conversation_exports_pkey ON public.conversation_exports USING btree (id)"
+   ],
+   [
+    "conversations_org_id_id_key",
+    "CREATE UNIQUE INDEX conversations_org_id_id_key ON public.conversations USING btree (org_id, id)"
+   ],
+   [
+    "conversations_pkey",
+    "CREATE UNIQUE INDEX conversations_pkey ON public.conversations USING btree (id)"
+   ],
+   [
+    "document_chunks_pkey",
+    "CREATE UNIQUE INDEX document_chunks_pkey ON public.document_chunks USING btree (id)"
+   ],
+   [
+    "documents_pkey",
+    "CREATE UNIQUE INDEX documents_pkey ON public.documents USING btree (id)"
+   ],
+   [
+    "email_tokens_pkey",
+    "CREATE UNIQUE INDEX email_tokens_pkey ON public.email_tokens USING btree (id)"
+   ],
+   [
+    "ingestion_jobs_pkey",
+    "CREATE UNIQUE INDEX ingestion_jobs_pkey ON public.ingestion_jobs USING btree (id)"
+   ],
+   [
+    "invitations_pkey",
+    "CREATE UNIQUE INDEX invitations_pkey ON public.invitations USING btree (id)"
+   ],
+   [
+    "ix_analytics_daily_org_day",
+    "CREATE INDEX ix_analytics_daily_org_day ON public.analytics_daily USING btree (org_id, day)"
+   ],
+   [
+    "ix_audit_logs_org_created",
+    "CREATE INDEX ix_audit_logs_org_created ON public.audit_logs USING btree (org_id, created_at DESC)"
+   ],
+   [
+    "ix_chat_usage_period",
+    "CREATE INDEX ix_chat_usage_period ON public.chat_usage USING btree (org_id, period)"
+   ],
+   [
+    "ix_chatbots_org",
+    "CREATE INDEX ix_chatbots_org ON public.chatbots USING btree (org_id, created_at DESC) WHERE (deleted_at IS NULL)"
+   ],
+   [
+    "ix_conversation_events_org",
+    "CREATE INDEX ix_conversation_events_org ON public.conversation_events USING btree (org_id, created_at DESC)"
+   ],
+   [
+    "ix_conversation_exports_org",
+    "CREATE INDEX ix_conversation_exports_org ON public.conversation_exports USING btree (org_id, created_at DESC)"
+   ],
+   [
+    "ix_conversations_channel",
+    "CREATE INDEX ix_conversations_channel ON public.conversations USING btree (org_id, channel, last_message_at DESC)"
+   ],
+   [
+    "ix_conversations_inbox",
+    "CREATE INDEX ix_conversations_inbox ON public.conversations USING btree (org_id, last_message_at DESC, id DESC)"
+   ],
+   [
+    "ix_conversations_org",
+    "CREATE INDEX ix_conversations_org ON public.conversations USING btree (org_id, chatbot_id, created_at DESC)"
+   ],
+   [
+    "ix_conversations_status",
+    "CREATE INDEX ix_conversations_status ON public.conversations USING btree (org_id, status, last_message_at DESC)"
+   ],
+   [
+    "ix_document_chunks_chatbot",
+    "CREATE INDEX ix_document_chunks_chatbot ON public.document_chunks USING btree (org_id, chatbot_id)"
+   ],
+   [
+    "ix_document_chunks_embedding_hnsw",
+    "CREATE INDEX ix_document_chunks_embedding_hnsw ON public.document_chunks USING hnsw (embedding vector_cosine_ops) WITH (m='16', ef_construction='64')"
+   ],
+   [
+    "ix_document_chunks_fts",
+    "CREATE INDEX ix_document_chunks_fts ON public.document_chunks USING gin (fts)"
+   ],
+   [
+    "ix_documents_chatbot_status",
+    "CREATE INDEX ix_documents_chatbot_status ON public.documents USING btree (org_id, chatbot_id, status)"
+   ],
+   [
+    "ix_documents_source",
+    "CREATE INDEX ix_documents_source ON public.documents USING btree (source_id)"
+   ],
+   [
+    "ix_email_tokens_user_purpose",
+    "CREATE INDEX ix_email_tokens_user_purpose ON public.email_tokens USING btree (user_id, purpose)"
+   ],
+   [
+    "ix_ingestion_jobs_source",
+    "CREATE INDEX ix_ingestion_jobs_source ON public.ingestion_jobs USING btree (org_id, source_id)"
+   ],
+   [
+    "ix_ingestion_jobs_status_queued",
+    "CREATE INDEX ix_ingestion_jobs_status_queued ON public.ingestion_jobs USING btree (status, queued_at)"
+   ],
+   [
+    "ix_knowledge_sources_chatbot",
+    "CREATE INDEX ix_knowledge_sources_chatbot ON public.knowledge_sources USING btree (org_id, chatbot_id)"
+   ],
+   [
+    "ix_memberships_user_id",
+    "CREATE INDEX ix_memberships_user_id ON public.memberships USING btree (user_id)"
+   ],
+   [
+    "ix_messages_content_trgm",
+    "CREATE INDEX ix_messages_content_trgm ON public.messages USING gin (content gin_trgm_ops)"
+   ],
+   [
+    "ix_messages_conversation",
+    "CREATE INDEX ix_messages_conversation ON public.messages USING btree (org_id, conversation_id, created_at, id)"
+   ],
+   [
+    "ix_sessions_user_id",
+    "CREATE INDEX ix_sessions_user_id ON public.sessions USING btree (user_id) WHERE (revoked_at IS NULL)"
+   ],
+   [
+    "ix_unanswered_cluster",
+    "CREATE INDEX ix_unanswered_cluster ON public.unanswered_questions USING btree (org_id, chatbot_id, cluster_key, created_at DESC)"
+   ],
+   [
+    "knowledge_sources_pkey",
+    "CREATE UNIQUE INDEX knowledge_sources_pkey ON public.knowledge_sources USING btree (id)"
+   ],
+   [
+    "memberships_pkey",
+    "CREATE UNIQUE INDEX memberships_pkey ON public.memberships USING btree (id)"
+   ],
+   [
+    "messages_org_id_id_key",
+    "CREATE UNIQUE INDEX messages_org_id_id_key ON public.messages USING btree (org_id, id)"
+   ],
+   [
+    "messages_pkey",
+    "CREATE UNIQUE INDEX messages_pkey ON public.messages USING btree (id)"
+   ],
+   [
+    "organizations_pkey",
+    "CREATE UNIQUE INDEX organizations_pkey ON public.organizations USING btree (id)"
+   ],
+   [
+    "sessions_pkey",
+    "CREATE UNIQUE INDEX sessions_pkey ON public.sessions USING btree (id)"
+   ],
+   [
+    "storage_deletions_pkey",
+    "CREATE UNIQUE INDEX storage_deletions_pkey ON public.storage_deletions USING btree (id)"
+   ],
+   [
+    "unanswered_questions_org_id_id_key",
+    "CREATE UNIQUE INDEX unanswered_questions_org_id_id_key ON public.unanswered_questions USING btree (org_id, id)"
+   ],
+   [
+    "unanswered_questions_pkey",
+    "CREATE UNIQUE INDEX unanswered_questions_pkey ON public.unanswered_questions USING btree (id)"
+   ],
+   [
+    "uq_chatbots_org_id_id",
+    "CREATE UNIQUE INDEX uq_chatbots_org_id_id ON public.chatbots USING btree (org_id, id)"
+   ],
+   [
+    "uq_chatbots_org_name_active",
+    "CREATE UNIQUE INDEX uq_chatbots_org_name_active ON public.chatbots USING btree (org_id, lower(name)) WHERE (deleted_at IS NULL)"
+   ],
+   [
+    "uq_chatbots_public_key",
+    "CREATE UNIQUE INDEX uq_chatbots_public_key ON public.chatbots USING btree (public_key)"
+   ],
+   [
+    "uq_document_chunks_version_ordinal",
+    "CREATE UNIQUE INDEX uq_document_chunks_version_ordinal ON public.document_chunks USING btree (document_id, document_version, ordinal)"
+   ],
+   [
+    "uq_documents_chatbot_file_hash",
+    "CREATE UNIQUE INDEX uq_documents_chatbot_file_hash ON public.documents USING btree (chatbot_id, file_hash) WHERE (file_hash IS NOT NULL)"
+   ],
+   [
+    "uq_documents_org_id_id",
+    "CREATE UNIQUE INDEX uq_documents_org_id_id ON public.documents USING btree (org_id, id)"
+   ],
+   [
+    "uq_documents_source_uri",
+    "CREATE UNIQUE INDEX uq_documents_source_uri ON public.documents USING btree (source_id, uri)"
+   ],
+   [
+    "uq_email_tokens_token_hash",
+    "CREATE UNIQUE INDEX uq_email_tokens_token_hash ON public.email_tokens USING btree (token_hash)"
+   ],
+   [
+    "uq_ingestion_jobs_active_crawl",
+    "CREATE UNIQUE INDEX uq_ingestion_jobs_active_crawl ON public.ingestion_jobs USING btree (source_id) WHERE ((kind = 'crawl'::text) AND (status = ANY (ARRAY['queued'::text, 'processing'::text])))"
+   ],
+   [
+    "uq_ingestion_jobs_active_document",
+    "CREATE UNIQUE INDEX uq_ingestion_jobs_active_document ON public.ingestion_jobs USING btree (document_id) WHERE ((document_id IS NOT NULL) AND (status = ANY (ARRAY['queued'::text, 'processing'::text])))"
+   ],
+   [
+    "uq_invitations_org_email_pending",
+    "CREATE UNIQUE INDEX uq_invitations_org_email_pending ON public.invitations USING btree (org_id, email) WHERE ((accepted_at IS NULL) AND (revoked_at IS NULL))"
+   ],
+   [
+    "uq_invitations_token_hash",
+    "CREATE UNIQUE INDEX uq_invitations_token_hash ON public.invitations USING btree (token_hash)"
+   ],
+   [
+    "uq_knowledge_sources_chatbot_file",
+    "CREATE UNIQUE INDEX uq_knowledge_sources_chatbot_file ON public.knowledge_sources USING btree (chatbot_id) WHERE (kind = 'file'::text)"
+   ],
+   [
+    "uq_knowledge_sources_org_id_id",
+    "CREATE UNIQUE INDEX uq_knowledge_sources_org_id_id ON public.knowledge_sources USING btree (org_id, id)"
+   ],
+   [
+    "uq_memberships_org_user",
+    "CREATE UNIQUE INDEX uq_memberships_org_user ON public.memberships USING btree (org_id, user_id)"
+   ],
+   [
+    "uq_organizations_slug",
+    "CREATE UNIQUE INDEX uq_organizations_slug ON public.organizations USING btree (slug)"
+   ],
+   [
+    "uq_sessions_token_hash",
+    "CREATE UNIQUE INDEX uq_sessions_token_hash ON public.sessions USING btree (token_hash)"
+   ],
+   [
+    "uq_users_email",
+    "CREATE UNIQUE INDEX uq_users_email ON public.users USING btree (email)"
+   ],
+   [
+    "users_pkey",
+    "CREATE UNIQUE INDEX users_pkey ON public.users USING btree (id)"
+   ],
+   [
+    "widget_sessions_pkey",
+    "CREATE UNIQUE INDEX widget_sessions_pkey ON public.widget_sessions USING btree (id)"
+   ],
+   [
+    "widget_sessions_resume_hash_key",
+    "CREATE UNIQUE INDEX widget_sessions_resume_hash_key ON public.widget_sessions USING btree (resume_hash)"
+   ],
+   [
+    "widget_sessions_token_hash_key",
+    "CREATE UNIQUE INDEX widget_sessions_token_hash_key ON public.widget_sessions USING btree (token_hash)"
+   ]
+  ],
+  "policies": [
+   [
+    "analytics_daily",
+    "tenant_isolation",
+    "ALL",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    "(org_id = app.current_org_id())"
+   ],
+   [
+    "audit_logs",
+    "audit_insert",
+    "INSERT",
+    "{public}",
+    null,
+    "(org_id = app.current_org_id())"
+   ],
+   [
+    "audit_logs",
+    "audit_select",
+    "SELECT",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    null
+   ],
+   [
+    "chat_usage",
+    "owner_read",
+    "SELECT",
+    "{platform_owner}",
+    "true",
+    null
+   ],
+   [
+    "chat_usage",
+    "tenant_isolation",
+    "ALL",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    "(org_id = app.current_org_id())"
+   ],
+   [
+    "chatbot_domains",
+    "tenant_isolation",
+    "ALL",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    "(org_id = app.current_org_id())"
+   ],
+   [
+    "chatbot_domains",
+    "widget_owner_read",
+    "SELECT",
+    "{platform_owner}",
+    "true",
+    null
+   ],
+   [
+    "chatbots",
+    "tenant_isolation",
+    "ALL",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    "(org_id = app.current_org_id())"
+   ],
+   [
+    "chatbots",
+    "widget_owner_read",
+    "SELECT",
+    "{platform_owner}",
+    "true",
+    null
+   ],
+   [
+    "conversation_events",
+    "tenant_isolation",
+    "ALL",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    "(org_id = app.current_org_id())"
+   ],
+   [
+    "conversation_exports",
+    "tenant_isolation",
+    "ALL",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    "(org_id = app.current_org_id())"
+   ],
+   [
+    "conversations",
+    "owner_read",
+    "SELECT",
+    "{platform_owner}",
+    "true",
+    null
+   ],
+   [
+    "conversations",
+    "tenant_isolation",
+    "ALL",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    "(org_id = app.current_org_id())"
+   ],
+   [
+    "document_chunks",
+    "tenant_isolation",
+    "ALL",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    "(org_id = app.current_org_id())"
+   ],
+   [
+    "documents",
+    "tenant_isolation",
+    "ALL",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    "(org_id = app.current_org_id())"
+   ],
+   [
+    "ingestion_jobs",
+    "owner_read",
+    "SELECT",
+    "{platform_owner}",
+    "true",
+    null
+   ],
+   [
+    "ingestion_jobs",
+    "tenant_isolation",
+    "ALL",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    "(org_id = app.current_org_id())"
+   ],
+   [
+    "invitations",
+    "owner_read",
+    "SELECT",
+    "{platform_owner}",
+    "true",
+    null
+   ],
+   [
+    "invitations",
+    "tenant_isolation",
+    "ALL",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    "(org_id = app.current_org_id())"
+   ],
+   [
+    "knowledge_sources",
+    "tenant_isolation",
+    "ALL",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    "(org_id = app.current_org_id())"
+   ],
+   [
+    "memberships",
+    "membership_delete",
+    "DELETE",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    null
+   ],
+   [
+    "memberships",
+    "membership_insert",
+    "INSERT",
+    "{public}",
+    null,
+    "((org_id = app.current_org_id()) AND (user_id = app.current_user_id()))"
+   ],
+   [
+    "memberships",
+    "membership_select",
+    "SELECT",
+    "{public}",
+    "((org_id = app.current_org_id()) OR (user_id = app.current_user_id()))",
+    null
+   ],
+   [
+    "memberships",
+    "membership_update",
+    "UPDATE",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    "(org_id = app.current_org_id())"
+   ],
+   [
+    "memberships",
+    "owner_read",
+    "SELECT",
+    "{platform_owner}",
+    "true",
+    null
+   ],
+   [
+    "messages",
+    "owner_read",
+    "SELECT",
+    "{platform_owner}",
+    "true",
+    null
+   ],
+   [
+    "messages",
+    "tenant_isolation",
+    "ALL",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    "(org_id = app.current_org_id())"
+   ],
+   [
+    "organizations",
+    "org_insert",
+    "INSERT",
+    "{public}",
+    null,
+    "(id = app.current_org_id())"
+   ],
+   [
+    "organizations",
+    "org_select",
+    "SELECT",
+    "{public}",
+    "((id = app.current_org_id()) OR (EXISTS ( SELECT 1\n   FROM memberships m\n  WHERE ((m.org_id = organizations.id) AND (m.user_id = app.current_user_id())))))",
+    null
+   ],
+   [
+    "organizations",
+    "org_update",
+    "UPDATE",
+    "{public}",
+    "(id = app.current_org_id())",
+    "(id = app.current_org_id())"
+   ],
+   [
+    "organizations",
+    "owner_read",
+    "SELECT",
+    "{platform_owner}",
+    "true",
+    null
+   ],
+   [
+    "storage_deletions",
+    "owner_read",
+    "SELECT",
+    "{platform_owner}",
+    "true",
+    null
+   ],
+   [
+    "storage_deletions",
+    "tenant_isolation",
+    "ALL",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    "(org_id = app.current_org_id())"
+   ],
+   [
+    "unanswered_questions",
+    "tenant_isolation",
+    "ALL",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    "(org_id = app.current_org_id())"
+   ],
+   [
+    "widget_sessions",
+    "owner_read",
+    "SELECT",
+    "{platform_owner}",
+    "true",
+    null
+   ],
+   [
+    "widget_sessions",
+    "tenant_isolation",
+    "ALL",
+    "{public}",
+    "(org_id = app.current_org_id())",
+    "(org_id = app.current_org_id())"
+   ]
+  ],
+  "row_security": [
+   [
+    "alembic_version",
+    false,
+    false
+   ],
+   [
+    "analytics_daily",
+    true,
+    true
+   ],
+   [
+    "audit_logs",
+    true,
+    true
+   ],
+   [
+    "chat_usage",
+    true,
+    true
+   ],
+   [
+    "chatbot_domains",
+    true,
+    true
+   ],
+   [
+    "chatbots",
+    true,
+    true
+   ],
+   [
+    "conversation_events",
+    true,
+    true
+   ],
+   [
+    "conversation_exports",
+    true,
+    true
+   ],
+   [
+    "conversations",
+    true,
+    true
+   ],
+   [
+    "document_chunks",
+    true,
+    true
+   ],
+   [
+    "documents",
+    true,
+    true
+   ],
+   [
+    "email_tokens",
+    false,
+    false
+   ],
+   [
+    "ingestion_jobs",
+    true,
+    true
+   ],
+   [
+    "invitations",
+    true,
+    true
+   ],
+   [
+    "knowledge_sources",
+    true,
+    true
+   ],
+   [
+    "memberships",
+    true,
+    true
+   ],
+   [
+    "messages",
+    true,
+    true
+   ],
+   [
+    "organizations",
+    true,
+    true
+   ],
+   [
+    "sessions",
+    false,
+    false
+   ],
+   [
+    "storage_deletions",
+    true,
+    true
+   ],
+   [
+    "unanswered_questions",
+    true,
+    true
+   ],
+   [
+    "users",
+    false,
+    false
+   ],
+   [
+    "widget_sessions",
+    true,
+    true
+   ]
+  ]
+ },
+ "revision": "0007",
+ "tables": {
+  "alembic_version": {
+   "digest": "-634474918889343635",
+   "rows": 1
+  },
+  "analytics_daily": {
+   "digest": "1111861253311766518",
+   "rows": 4
+  },
+  "audit_logs": {
+   "digest": "20471220292449393411",
+   "rows": 41
+  },
+  "chat_usage": {
+   "digest": "23220103640809560930",
+   "rows": 17
+  },
+  "chatbot_domains": {
+   "digest": "-6590588331325674981",
+   "rows": 9
+  },
+  "chatbots": {
+   "digest": "10312877128163229398",
+   "rows": 16
+  },
+  "conversation_events": {
+   "digest": "25458344232340885941",
+   "rows": 9
+  },
+  "conversation_exports": {
+   "digest": "0",
+   "rows": 0
+  },
+  "conversations": {
+   "digest": "-16667601664771058985",
+   "rows": 22
+  },
+  "document_chunks": {
+   "digest": "-14810968558348214604",
+   "rows": 6
+  },
+  "documents": {
+   "digest": "-4516083752207538985",
+   "rows": 6
+  },
+  "email_tokens": {
+   "digest": "29075491210087257135",
+   "rows": 10
+  },
+  "ingestion_jobs": {
+   "digest": "7174761708028488165",
+   "rows": 6
+  },
+  "invitations": {
+   "digest": "0",
+   "rows": 0
+  },
+  "knowledge_sources": {
+   "digest": "-24841991118551705582",
+   "rows": 6
+  },
+  "memberships": {
+   "digest": "16368236278947718805",
+   "rows": 15
+  },
+  "messages": {
+   "digest": "-2452122613752134828",
+   "rows": 32
+  },
+  "organizations": {
+   "digest": "2289684465339347002",
+   "rows": 15
+  },
+  "sessions": {
+   "digest": "2128840360554207315",
+   "rows": 10
+  },
+  "storage_deletions": {
+   "digest": "6641779433046402258",
+   "rows": 1
+  },
+  "unanswered_questions": {
+   "digest": "-12267699419526931268",
+   "rows": 8
+  },
+  "users": {
+   "digest": "39212364564388765185",
+   "rows": 10
+  },
+  "widget_sessions": {
+   "digest": "13329942653104383193",
+   "rows": 12
+  }
+ },
+ "unprotected_tables": []
+}

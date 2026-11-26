@@ -1,0 +1,8 @@
+{
+  "id": "persistent-database-revisions",
+  "command": "docker start ai-chatbot-saas-postgres-1 >/dev/null; python -c 'import time;time.sleep(8)'; docker exec ai-chatbot-saas-postgres-1 sh -c 'psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\" -tAc \"SELECT version_num FROM alembic_version\"'; docker stop ai-chatbot-saas-postgres-1 >/dev/null; git branch -r --contains db4d352",
+  "started_at": "2026-11-26T01:18:55+0530",
+  "exit_code": 0,
+  "duration_seconds": 9.298,
+  "log": "persistent-database-revisions.log"
+}

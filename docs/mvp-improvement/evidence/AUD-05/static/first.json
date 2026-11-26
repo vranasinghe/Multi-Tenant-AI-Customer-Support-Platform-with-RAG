@@ -1,0 +1,8 @@
+{
+  "id": "static/first",
+  "command": "docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' exec -T api sh -c 'ruff check --no-cache . ; echo ---FORMAT; ruff format --no-cache --check . ; echo ---MYPY; mypy --no-incremental' 2>&1 | tail -60",
+  "started_at": "2026-11-26T02:26:57+0530",
+  "exit_code": 1,
+  "duration_seconds": 53.546,
+  "log": "static/first.log"
+}

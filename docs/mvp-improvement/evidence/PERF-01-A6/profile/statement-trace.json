@@ -1,0 +1,8 @@
+{
+  "id": "profile/statement-trace",
+  "command": "docker compose -p acs-a61-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/d2b7d2600a5d9399/dace9c57-ab8b-412a-ad71-f4a0330f6eb6/scratchpad/qa61.env' cp docs/mvp-improvement/tools/statement_trace_a61.py api:/tmp/statement_trace_a61.py; docker compose -p acs-a61-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/d2b7d2600a5d9399/dace9c57-ab8b-412a-ad71-f4a0330f6eb6/scratchpad/qa61.env' exec -T -e PYTHONPATH=/tmp -e AUDIT_OUTPUT_DIR=/tmp/a61/trace api pytest tests/integration/api/mvp_improvement/test_chat_capacity.py -k 'strict_capacity and 1]' -p statement_trace_a61 -q -p no:cacheprovider 2>&1 | tail -1; docker compose -p acs-a61-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/d2b7d2600a5d9399/dace9c57-ab8b-412a-ad71-f4a0330f6eb6/scratchpad/qa61.env' exec -T api cat /tmp/a61/trace/statements.txt",
+  "started_at": "2026-11-26T11:55:28+0530",
+  "exit_code": 0,
+  "duration_seconds": 6.938,
+  "log": "profile/statement-trace.log"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "web/checks",
+  "command": "unset MSYS_NO_PATHCONV; corepack pnpm -r --if-present test 2>&1 | grep -E 'Test Files|Tests '; corepack pnpm --filter @acs/web lint 2>&1 | tail -2; echo lint=${PIPESTATUS[0]}; corepack pnpm --filter @acs/web typecheck 2>&1 | tail -2; echo types=${PIPESTATUS[0]}; corepack pnpm format:check 2>&1 | grep warn; true",
+  "started_at": "2026-11-26T12:27:51+0530",
+  "exit_code": 0,
+  "duration_seconds": 42.101,
+  "log": "web/checks.log"
+}

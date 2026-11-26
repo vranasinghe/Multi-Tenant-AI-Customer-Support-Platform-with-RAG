@@ -1,0 +1,64 @@
+{
+  "series": "idle-baseline-5",
+  "planned_runs": 5,
+  "condition": "dev stack stopped, other QA stacks stopped, only acs-a41-qa running; unchanged application code",
+  "declared_at": "2026-11-26T01:04:30+0530",
+  "head": "db4d352fdde162ffa38eb2c6522e5805a2a892f4",
+  "app_diff_sha256": "1023e9172dae4be18707f8109c44f408a4facf2234abd2a53a29e3d910293fe0",
+  "app_diff_stat": [
+    " services/api/Dockerfile         |  8 +++++---",
+    " services/api/app/core/config.py | 20 ++++++++++++++++++++",
+    " services/api/app/main.py        |  2 +-",
+    " 3 files changed, 26 insertions(+), 4 deletions(-)"
+  ],
+  "completed_runs": 5,
+  "failed_runs": 0,
+  "successful_p95_ms_c1": {
+    "median": 49.39,
+    "min": 38.78,
+    "max": 64.0,
+    "all": [
+      42.79,
+      49.39,
+      50.11,
+      64.0,
+      38.78
+    ]
+  },
+  "successful_p95_ms_c10": {
+    "median": 270.51,
+    "min": 226.14,
+    "max": 304.31,
+    "all": [
+      304.31,
+      274.16,
+      270.51,
+      256.11,
+      226.14
+    ]
+  },
+  "successful_p95_ms_c50": {
+    "median": 1241.13,
+    "min": 1125.66,
+    "max": 1373.39,
+    "all": [
+      1200.08,
+      1373.39,
+      1269.68,
+      1241.13,
+      1125.66
+    ]
+  },
+  "successful_p95_ms_c100": {
+    "median": 1883.34,
+    "min": 1699.64,
+    "max": 1976.37,
+    "all": [
+      1917.65,
+      1976.37,
+      1883.34,
+      1880.05,
+      1699.64
+    ]
+  }
+}

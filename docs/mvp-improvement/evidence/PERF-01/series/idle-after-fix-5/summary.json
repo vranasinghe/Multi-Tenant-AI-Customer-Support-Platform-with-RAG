@@ -1,0 +1,68 @@
+{
+  "series": "idle-after-fix-5",
+  "planned_runs": 5,
+  "condition": "same as idle-baseline-5: dev stack stopped, only acs-a41-qa (api, postgres, redis, storage, mailpit); with admission backoff 10-50 ms",
+  "declared_at": "2026-11-26T01:21:53+0530",
+  "head": "db4d352fdde162ffa38eb2c6522e5805a2a892f4",
+  "app_diff_sha256": "d0c9abe9583906d20ef176de95eb7aeb729b873de2ff5336f38b56c81ee0b6cb",
+  "app_diff_stat": [
+    " services/api/Dockerfile                            |   8 +-",
+    " services/api/app/core/config.py                    |  20 ++",
+    " services/api/app/main.py                           |   2 +-",
+    " services/api/app/services/chat_controls.py         |  25 ++",
+    " services/api/app/services/conversations.py         |  12 +-",
+    " .../api/tests/integration/test_chat_migration.py   | 285 +++++++++++++++++++--",
+    " services/api/tests/support/database.py             |  12 +-",
+    " 7 files changed, 331 insertions(+), 33 deletions(-)"
+  ],
+  "completed_runs": 5,
+  "failed_runs": 0,
+  "successful_p95_ms_c1": {
+    "median": 53.49,
+    "min": 38.43,
+    "max": 56.17,
+    "all": [
+      38.43,
+      41.82,
+      56.17,
+      54.47,
+      53.49
+    ]
+  },
+  "successful_p95_ms_c10": {
+    "median": 281.38,
+    "min": 255.6,
+    "max": 337.93,
+    "all": [
+      255.6,
+      276.32,
+      337.93,
+      281.38,
+      283.76
+    ]
+  },
+  "successful_p95_ms_c50": {
+    "median": 1162.24,
+    "min": 1063.54,
+    "max": 1294.74,
+    "all": [
+      1076.73,
+      1286.51,
+      1294.74,
+      1063.54,
+      1162.24
+    ]
+  },
+  "successful_p95_ms_c100": {
+    "median": 1864.79,
+    "min": 1547.02,
+    "max": 1986.81,
+    "all": [
+      1547.02,
+      1986.81,
+      1943.92,
+      1864.79,
+      1625.33
+    ]
+  }
+}

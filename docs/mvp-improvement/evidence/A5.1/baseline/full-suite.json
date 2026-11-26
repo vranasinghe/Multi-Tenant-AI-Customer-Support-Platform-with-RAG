@@ -1,0 +1,8 @@
+{
+  "id": "baseline/full-suite",
+  "command": "docker compose -p acs-a51-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa51.env' exec -T -e LIVE_INGESTION=1 api sh -c 'alembic heads; alembic current; pytest -q --tb=short -p no:cacheprovider --junitxml=/tmp/baseline.xml' 2>&1 | grep -vE '\\[(info|warning|debug|error)'; rc=$?; docker compose -p acs-a51-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa51.env' cp api:/tmp/baseline.xml docs/mvp-improvement/evidence/A5.1/baseline/full-suite.xml >/dev/null 2>&1; exit $rc",
+  "started_at": "2026-11-26T10:09:47+0530",
+  "exit_code": 0,
+  "duration_seconds": 459.4,
+  "log": "baseline/full-suite.log"
+}

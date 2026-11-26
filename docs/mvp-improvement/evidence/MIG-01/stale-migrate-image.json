@@ -1,0 +1,8 @@
+{
+  "id": "stale-migrate-image",
+  "command": "docker inspect -f 'container image={{.Image}} created={{.Created}} exit={{.State.ExitCode}}' ai-chatbot-saas-migrate-1; docker image inspect -f 'image created={{.Created}}' ai-chatbot-saas-migrate; docker run --rm --entrypoint ls ai-chatbot-saas-migrate /app/migrations/versions; git log -1 --format='commit adding 0007: %h %ad' --date=iso -- services/api/migrations/versions/20261125_0007_conversation_analytics.py; docker compose config --format json | python -c \"import json,sys;m=json.load(sys.stdin)['services']['migrate'];print('migrate volumes:',m.get('volumes'))\"",
+  "started_at": "2026-11-26T01:30:59+0530",
+  "exit_code": 0,
+  "duration_seconds": 1.615,
+  "log": "stale-migrate-image.log"
+}

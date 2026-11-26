@@ -1,0 +1,8 @@
+{
+  "id": "baseline/repro-lifecycle",
+  "command": "docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' exec -T api pytest tests/integration/api/mvp_improvement/test_a5_baseline_repro.py -q -s -p no:cacheprovider --tb=short -k BASELINE 2>&1 | grep -E 'attempt1=|passed|failed|Error|assert' | tail -15",
+  "started_at": "2026-11-26T01:59:11+0530",
+  "exit_code": 0,
+  "duration_seconds": 6.401,
+  "log": "baseline/repro-lifecycle.log"
+}

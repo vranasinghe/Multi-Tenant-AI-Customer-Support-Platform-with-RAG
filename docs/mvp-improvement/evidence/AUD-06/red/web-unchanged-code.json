@@ -1,0 +1,8 @@
+{
+  "id": "red/web-unchanged-code",
+  "command": "unset MSYS_NO_PATHCONV; cd apps/web && corepack pnpm exec vitest run src/components/conversations 2>&1 | grep -E '\u2713|\u2717|\u00d7|\u276f|Test Files|Tests ' | head -60",
+  "started_at": "2026-11-26T11:06:23+0530",
+  "exit_code": 1,
+  "duration_seconds": 7.827,
+  "log": "red/web-unchanged-code.log"
+}

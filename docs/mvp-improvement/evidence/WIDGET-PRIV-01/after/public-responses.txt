@@ -1,0 +1,59 @@
+POST http://localhost:8010/public/v1/widget/sessions
+{"token":"[REDACTED]","resume_token":"[REDACTED]","expires_at":"2026-11-26T07:47:14.979118Z","retain_until":"2026-12-03T07:32:14.979061Z","retention_days":7,"name":"Lifecycle Bot","welcome":"Hi! How can I help you today?","branding":{"primary_color":"#4F46E5","accent_color":"#FFFFFF","avatar_url":null,"position":"bottom-right","launcher_label":"Chat with us","show_branding":true}}
+
+GET http://localhost:8010/public/v1/chat
+{"messages":[]}
+
+POST http://localhost:8010/public/v1/widget/sessions
+{"token":"[REDACTED]","resume_token":"[REDACTED]","expires_at":"2026-11-26T07:47:15.077830Z","retain_until":"2026-12-03T07:32:15.077777Z","retention_days":7,"name":"Lifecycle Bot","welcome":"Hi! How can I help you today?","branding":{"primary_color":"#4F46E5","accent_color":"#FFFFFF","avatar_url":null,"position":"bottom-right","launcher_label":"Chat with us","show_branding":true}}
+
+GET http://localhost:8010/public/v1/chat
+{"messages":[]}
+
+POST http://localhost:8010/public/v1/chat/messages
+event: meta
+data: {"message_id": "01a216c4-f0bf-7261-9efd-35ba503c0ef7"}
+
+event: delta
+data: {"text": "Demo "}
+
+event: delta
+data: {"text": "response: "}
+
+event: delta
+data: {"text": "this "}
+
+event: delta
+data: {"text": "confirms "}
+
+event: delta
+data: {"text": "the "}
+
+event: delta
+data: {"text": "streaming "}
+
+event: delta
+data: {"text": "pipeline "}
+
+event: delta
+data: {"text": "works. "}
+
+event: delta
+data: {"text": "Check "}
+
+event: delta
+data: {"text": "source "}
+
+event: delta
+data: {"text": "[1]. "}
+
+event: done
+data: {"id": "01a216c4-f0bf-7261-9efd-35ba503c0ef7", "role": "assistant", "content": "Demo response: this confirms the streaming pipeline works. Check source [1]. ", "status": "complete", "feedback": null, "citations": [{"id": 1, "title": "returns.txt", "uri": ""}]}
+
+
+
+POST http://localhost:8010/public/v1/widget/sessions
+{"token":"[REDACTED]","resume_token":"[REDACTED]","expires_at":"2026-11-26T07:47:15.516048Z","retain_until":"2026-12-03T07:32:15.077777Z","retention_days":7,"name":"Lifecycle Bot","welcome":"Hi! How can I help you today?","branding":{"primary_color":"#4F46E5","accent_color":"#FFFFFF","avatar_url":null,"position":"bottom-right","launcher_label":"Chat with us","show_branding":true}}
+
+GET http://localhost:8010/public/v1/chat
+{"messages":[{"id":"01a216c4-f0c2-7112-91bf-880a6f6768b1","role":"user","content":"Are returns allowed with proof?","status":"complete","feedback":null,"citations":[]},{"id":"01a216c4-f0bf-7261-9efd-35ba503c0ef7","role":"assistant","content":"Demo response: this confirms the streaming pipeline works. Check source [1]. ","status":"complete","feedback":null,"citations":[{"id":1,"title":"returns.txt","uri":""}]}]}

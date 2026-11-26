@@ -1,0 +1,8 @@
+{
+  "id": "static/third",
+  "command": "docker compose -p acs-a7-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/d2b7d2600a5d9399/dace9c57-ab8b-412a-ad71-f4a0330f6eb6/scratchpad/qa7.env' exec -T -e RUFF_CACHE_DIR=/tmp/ruff -e MYPY_CACHE_DIR=/tmp/mypy api sh -c 'ruff check . ; a=$?; ruff format --check . ; b=$?; mypy ; c=$?; echo ruff=$a format=$b mypy=$c; test $a$b$c = 000'",
+  "started_at": "2026-11-26T13:00:25+0530",
+  "exit_code": 0,
+  "duration_seconds": 1.839,
+  "log": "static/third.log"
+}

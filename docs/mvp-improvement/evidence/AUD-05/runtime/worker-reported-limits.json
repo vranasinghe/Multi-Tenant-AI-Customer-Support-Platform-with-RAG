@@ -1,0 +1,8 @@
+{
+  "id": "runtime/worker-reported-limits",
+  "command": "docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' exec -T worker celery -A app.workers.celery_app inspect registered soft_time_limit time_limit --timeout 10 2>&1 | grep -E 'ingest\\.|node'",
+  "started_at": "2026-11-26T03:21:58+0530",
+  "exit_code": 0,
+  "duration_seconds": 11.372,
+  "log": "runtime/worker-reported-limits.log"
+}

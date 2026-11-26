@@ -1,0 +1,8 @@
+{
+  "id": "red/deletion-with-purge-and-overtaken-document",
+  "command": "docker compose -p acs-a51-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/d2b7d2600a5d9399/dace9c57-ab8b-412a-ad71-f4a0330f6eb6/scratchpad/qa51.env' exec -T api pytest 'tests/integration/api/mvp_improvement/test_original_ownership.py::test_deleting_the_source_during_a_write_leaves_no_object_behind' -q --tb=line -p no:cacheprovider --show-capture=no 2>&1 | grep -vE '\\[(info|warning|debug|error)'; docker compose -p acs-a51-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/d2b7d2600a5d9399/dace9c57-ab8b-412a-ad71-f4a0330f6eb6/scratchpad/qa51.env' exec -T api pytest tests/integration/api/mvp_improvement/test_zz_probe_overtaken.py -k overtaken_or_replaced -s -q --tb=short -p no:cacheprovider 2>&1 | grep -E 'PROBE|passed|failed'",
+  "started_at": "2026-11-26T10:20:00+0530",
+  "exit_code": 1,
+  "duration_seconds": 11.205,
+  "log": "red/deletion-with-purge-and-overtaken-document.log"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "green/pollution-minimal",
+  "command": "docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' exec -T api pytest tests/integration/api/mvp_improvement/test_ingestion_isolation.py tests/integration/api/mvp_improvement/test_ingestion_worker.py tests/integration/api/test_knowledge_jobs.py tests/integration/api/test_log_hygiene.py -q -p no:cacheprovider --tb=short 2>&1 | grep -E 'passed|failed|^FAILED|^E ' | cut -c1-200 | tail -12",
+  "started_at": "2026-11-26T02:41:47+0530",
+  "exit_code": 0,
+  "duration_seconds": 171.488,
+  "log": "green/pollution-minimal.log"
+}

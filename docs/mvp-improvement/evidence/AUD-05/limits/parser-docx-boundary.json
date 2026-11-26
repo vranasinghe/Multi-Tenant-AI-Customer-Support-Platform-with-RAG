@@ -1,0 +1,8 @@
+{
+  "id": "limits/parser-docx-boundary",
+  "command": "docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' cp docs/mvp-improvement/tools/measure_a5.py worker:/tmp/measure_a5.py >/dev/null 2>&1; docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' exec -T worker python - < docs/mvp-improvement/tools/measure_a5_docx.py 2>&1 | grep MEASURE",
+  "started_at": "2026-11-26T02:25:15+0530",
+  "exit_code": 0,
+  "duration_seconds": 16.346,
+  "log": "limits/parser-docx-boundary.log"
+}

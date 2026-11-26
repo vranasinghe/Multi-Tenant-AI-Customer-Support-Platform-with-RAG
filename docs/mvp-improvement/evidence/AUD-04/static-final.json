@@ -1,0 +1,8 @@
+{
+  "id": "static-final",
+  "command": "docker compose -p acs-a4-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/fdcd6f6bc2bba37f/23716622-310b-4277-812c-896cbc074d51/scratchpad/qa.env' exec -T api sh -c 'echo == ruff; ruff check --no-cache . --output-format=concise; a=$?; echo == ruff-excluding-preexisting-migration; ruff check --no-cache . --exclude migrations/versions/20261125_0007_conversation_analytics.py; d=$?; echo == format; ruff format --no-cache --check .; b=$?; echo == mypy; mypy --cache-dir /tmp/mypy; c=$?; echo exit codes ruff=$a ruff_without_0007=$d format=$b mypy=$c; exit $((a+b+c))'",
+  "started_at": "2026-11-26T00:34:29+0530",
+  "exit_code": 1,
+  "duration_seconds": 9.453,
+  "log": "static-final.log"
+}

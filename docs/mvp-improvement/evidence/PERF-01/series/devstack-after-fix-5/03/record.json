@@ -1,0 +1,83 @@
+{
+  "run": 3,
+  "started_at": "2026-11-26T01:24:34+0530",
+  "before": {
+    "host_cpu_percent": 16.1,
+    "containers": [
+      "acs-a41-qa-api-1 cpu=15.28% mem=185.8MiB / 15.49GiB",
+      "acs-a41-qa-storage-1 cpu=0.04% mem=40.83MiB / 15.49GiB",
+      "acs-a41-qa-redis-1 cpu=0.13% mem=8.172MiB / 15.49GiB",
+      "acs-a41-qa-postgres-1 cpu=0.01% mem=56.46MiB / 15.49GiB",
+      "acs-a41-qa-mailpit-1 cpu=2.74% mem=14.22MiB / 15.49GiB",
+      "ai-chatbot-saas-api-1 cpu=6.90% mem=162.5MiB / 15.49GiB",
+      "ai-chatbot-saas-worker-1 cpu=0.07% mem=203.5MiB / 15.49GiB",
+      "ai-chatbot-saas-postgres-1 cpu=0.02% mem=29.19MiB / 15.49GiB",
+      "ai-chatbot-saas-beat-1 cpu=0.00% mem=90.86MiB / 15.49GiB",
+      "ai-chatbot-saas-storage-1 cpu=0.05% mem=39.01MiB / 15.49GiB",
+      "ai-chatbot-saas-redis-1 cpu=0.14% mem=8.156MiB / 15.49GiB",
+      "ai-chatbot-saas-mailpit-1 cpu=0.00% mem=11.03MiB / 15.49GiB"
+    ]
+  },
+  "exit_code": 0,
+  "failed_tests": [],
+  "1": {
+    "success": 10,
+    "rejected": 0,
+    "failed": 0,
+    "successful_p95_ms": 56.15090599985706,
+    "rejected_p95_ms": 0,
+    "overlap_peak": 1,
+    "provider_peak": 1,
+    "pool": {
+      "checked_out": 0,
+      "peak": 1,
+      "checkouts": 50,
+      "checkins": 50
+    }
+  },
+  "10": {
+    "success": 10,
+    "rejected": 0,
+    "failed": 0,
+    "successful_p95_ms": 329.36791199972504,
+    "rejected_p95_ms": 0,
+    "overlap_peak": 10,
+    "provider_peak": 2,
+    "pool": {
+      "checked_out": 0,
+      "peak": 5,
+      "checkouts": 50,
+      "checkins": 50
+    }
+  },
+  "50": {
+    "success": 43,
+    "rejected": 7,
+    "failed": 0,
+    "successful_p95_ms": 1183.4144860004017,
+    "rejected_p95_ms": 1196.7594010002358,
+    "overlap_peak": 50,
+    "provider_peak": 2,
+    "pool": {
+      "checked_out": 0,
+      "peak": 8,
+      "checkouts": 222,
+      "checkins": 222
+    }
+  },
+  "100": {
+    "success": 43,
+    "rejected": 57,
+    "failed": 0,
+    "successful_p95_ms": 1705.609684000592,
+    "rejected_p95_ms": 1597.4916129998746,
+    "overlap_peak": 100,
+    "provider_peak": 2,
+    "pool": {
+      "checked_out": 0,
+      "peak": 8,
+      "checkouts": 272,
+      "checkins": 272
+    }
+  }
+}

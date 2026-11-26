@@ -1,0 +1,8 @@
+{
+  "id": "baseline/container-limits-2",
+  "command": "for c in ai-chatbot-saas-worker-1 acs-a5-qa-worker-1; do docker inspect $c --format '{{.Name}} Memory={{.HostConfig.Memory}} NanoCpus={{.HostConfig.NanoCpus}} PidsLimit={{.HostConfig.PidsLimit}}'; done; docker stats --no-stream --format '{{.Name}} {{.MemUsage}} pids={{.PIDs}}' acs-a5-qa-worker-1 ai-chatbot-saas-worker-1",
+  "started_at": "2026-11-26T01:50:38+0530",
+  "exit_code": 0,
+  "duration_seconds": 1.864,
+  "log": "baseline/container-limits-2.log"
+}

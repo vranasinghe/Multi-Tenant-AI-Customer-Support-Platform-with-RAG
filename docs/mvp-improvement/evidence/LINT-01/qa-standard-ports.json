@@ -1,0 +1,8 @@
+{
+  "id": "qa-standard-ports",
+  "command": "API_HOST_PORT=8000 MAILPIT_UI_HOST_PORT=8025 MAILPIT_SMTP_HOST_PORT=1025 CORS_ALLOWED_ORIGINS=http://localhost:3000 docker compose -p acs-a41-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/fdcd6f6bc2bba37f/23716622-310b-4277-812c-896cbc074d51/scratchpad/qa.env' up -d --wait postgres redis mailpit storage api worker beat 2>&1 | tail -3",
+  "started_at": "2026-11-26T01:31:52+0530",
+  "exit_code": 0,
+  "duration_seconds": 9.799,
+  "log": "qa-standard-ports.log"
+}

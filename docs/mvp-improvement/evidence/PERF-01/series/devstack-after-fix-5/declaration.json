@@ -1,0 +1,18 @@
+{
+  "series": "devstack-after-fix-5",
+  "planned_runs": 5,
+  "condition": "same as devstack-baseline-5: developer stack (7 containers) up beside acs-a41-qa; with admission backoff 10-50 ms",
+  "declared_at": "2026-11-26T01:23:59+0530",
+  "head": "db4d352fdde162ffa38eb2c6522e5805a2a892f4",
+  "app_diff_sha256": "d0c9abe9583906d20ef176de95eb7aeb729b873de2ff5336f38b56c81ee0b6cb",
+  "app_diff_stat": [
+    " services/api/Dockerfile                            |   8 +-",
+    " services/api/app/core/config.py                    |  20 ++",
+    " services/api/app/main.py                           |   2 +-",
+    " services/api/app/services/chat_controls.py         |  25 ++",
+    " services/api/app/services/conversations.py         |  12 +-",
+    " .../api/tests/integration/test_chat_migration.py   | 285 +++++++++++++++++++--",
+    " services/api/tests/support/database.py             |  12 +-",
+    " 7 files changed, 331 insertions(+), 33 deletions(-)"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "id": "baseline/full-suite",
+  "command": "docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' exec -T -e LIVE_INGESTION=1 -e AUDIT_OUTPUT_DIR=/tmp/a5/baseline api pytest -q --tb=short -p no:cacheprovider --junitxml=/tmp/a5/baseline.xml 2>&1; rc=$?; docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' cp api:/tmp/a5/baseline.xml docs/mvp-improvement/evidence/AUD-05/baseline/full-suite.xml >/dev/null 2>&1; exit $rc",
+  "started_at": "2026-11-26T01:47:09+0530",
+  "exit_code": 0,
+  "duration_seconds": 161.599,
+  "log": "baseline/full-suite.log"
+}

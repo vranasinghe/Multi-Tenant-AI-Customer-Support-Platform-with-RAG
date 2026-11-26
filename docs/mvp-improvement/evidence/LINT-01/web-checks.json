@@ -1,0 +1,8 @@
+{
+  "id": "web-checks",
+  "command": "unset MSYS_NO_PATHCONV; echo '== eslint'; corepack pnpm --filter @acs/web lint 2>&1 | tail -4; a=$?; echo '== typecheck'; corepack pnpm --filter @acs/web typecheck 2>&1 | tail -3; b=$?; echo '== vitest'; corepack pnpm --filter @acs/web test 2>&1 | tail -7; c=$?; echo '== widget tests'; corepack pnpm --filter @acs/widget test 2>&1 | tail -6; d=$?; echo '== format:check'; corepack pnpm format:check 2>&1 | tail -6; e=$?; echo exit lint=$a typecheck=$b web=$c widget=$d format=$e; exit $((a+b+c+d+e))",
+  "started_at": "2026-11-26T01:31:13+0530",
+  "exit_code": 1,
+  "duration_seconds": 39.308,
+  "log": "web-checks.log"
+}

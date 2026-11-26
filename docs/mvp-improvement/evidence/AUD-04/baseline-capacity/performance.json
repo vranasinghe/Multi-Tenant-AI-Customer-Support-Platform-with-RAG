@@ -1,0 +1,930 @@
+[
+  {
+    "concurrency": 1,
+    "requests": 10,
+    "statuses": {
+      "200": 10
+    },
+    "p50_ms": 49.111350999737624,
+    "p95_ms": 62.213221000092744,
+    "successful_ttft_p50_ms": 39.149059999999736,
+    "successful_ttft_p95_ms": 50.741635999656864,
+    "successful_requests_per_second": 14.95642157167689,
+    "http_error_rate": 0.0,
+    "server_5xx_rate": 0.0,
+    "cpu_seconds": 0.47095699999999896,
+    "peak_process_rss_kib": 158532,
+    "scope": "ASGI app + real isolated Postgres/Redis; fixture LLM; default org concurrency cap 3; no proxy/browser/provider network",
+    "raw": [
+      {
+        "status": 200,
+        "duration_ms": 210.08583099956013,
+        "ttft_ms": 83.49593699995239
+      },
+      {
+        "status": 200,
+        "duration_ms": 60.7979700002943,
+        "ttft_ms": 47.46142000021791
+      },
+      {
+        "status": 200,
+        "duration_ms": 62.213221000092744,
+        "ttft_ms": 50.741635999656864
+      },
+      {
+        "status": 200,
+        "duration_ms": 50.47330300021713,
+        "ttft_ms": 40.48856400004297
+      },
+      {
+        "status": 200,
+        "duration_ms": 50.64340100034315,
+        "ttft_ms": 39.149059999999736
+      },
+      {
+        "status": 200,
+        "duration_ms": 45.58720600016386,
+        "ttft_ms": 34.127007000279264
+      },
+      {
+        "status": 200,
+        "duration_ms": 44.39711899976828,
+        "ttft_ms": 35.40999300003023
+      },
+      {
+        "status": 200,
+        "duration_ms": 49.111350999737624,
+        "ttft_ms": 39.3723899996985
+      },
+      {
+        "status": 200,
+        "duration_ms": 49.04079300013109,
+        "ttft_ms": 39.02494900012243
+      },
+      {
+        "status": 200,
+        "duration_ms": 45.53912399978799,
+        "ttft_ms": 34.29932099970756
+      }
+    ]
+  },
+  {
+    "concurrency": 10,
+    "requests": 10,
+    "statuses": {
+      "200": 10
+    },
+    "p50_ms": 245.86519100012083,
+    "p95_ms": 305.85188499981086,
+    "successful_ttft_p50_ms": 231.24493100021937,
+    "successful_ttft_p95_ms": 290.896857000007,
+    "successful_requests_per_second": 29.9526433732246,
+    "http_error_rate": 0.0,
+    "server_5xx_rate": 0.0,
+    "cpu_seconds": 0.2724879999999992,
+    "peak_process_rss_kib": 159044,
+    "scope": "ASGI app + real isolated Postgres/Redis; fixture LLM; default org concurrency cap 3; no proxy/browser/provider network",
+    "raw": [
+      {
+        "status": 200,
+        "duration_ms": 179.7255500000574,
+        "ttft_ms": 161.6450609999447
+      },
+      {
+        "status": 200,
+        "duration_ms": 245.86519100012083,
+        "ttft_ms": 231.24493100021937
+      },
+      {
+        "status": 200,
+        "duration_ms": 257.30801300005623,
+        "ttft_ms": 238.21451499998147
+      },
+      {
+        "status": 200,
+        "duration_ms": 284.4831119996343,
+        "ttft_ms": 270.5810509996809
+      },
+      {
+        "status": 200,
+        "duration_ms": 331.8251790001341,
+        "ttft_ms": 321.13155500019275
+      },
+      {
+        "status": 200,
+        "duration_ms": 190.89670900029887,
+        "ttft_ms": 166.84327600023607
+      },
+      {
+        "status": 200,
+        "duration_ms": 301.36905700010175,
+        "ttft_ms": 285.333663000074
+      },
+      {
+        "status": 200,
+        "duration_ms": 197.12100700007795,
+        "ttft_ms": 173.47212699996817
+      },
+      {
+        "status": 200,
+        "duration_ms": 228.38500900024883,
+        "ttft_ms": 216.7993260000003
+      },
+      {
+        "status": 200,
+        "duration_ms": 305.85188499981086,
+        "ttft_ms": 290.896857000007
+      }
+    ]
+  },
+  {
+    "concurrency": 50,
+    "requests": 50,
+    "statuses": {
+      "200": 37,
+      "429": 13
+    },
+    "p50_ms": 1010.0038529999438,
+    "p95_ms": 1338.9042779999727,
+    "successful_ttft_p50_ms": 1016.9725440000548,
+    "successful_ttft_p95_ms": 1333.0919589998302,
+    "successful_requests_per_second": 26.54981521809162,
+    "http_error_rate": 0.26,
+    "server_5xx_rate": 0.0,
+    "cpu_seconds": 1.2457270000000003,
+    "peak_process_rss_kib": 160324,
+    "scope": "ASGI app + real isolated Postgres/Redis; fixture LLM; default org concurrency cap 3; no proxy/browser/provider network",
+    "raw": [
+      {
+        "status": 200,
+        "duration_ms": 472.9000359998281,
+        "ttft_ms": 295.0822349998816
+      },
+      {
+        "status": 200,
+        "duration_ms": 1002.3805559999346,
+        "ttft_ms": 963.7443319998056
+      },
+      {
+        "status": 200,
+        "duration_ms": 478.98893199999293,
+        "ttft_ms": 320.31029100016895
+      },
+      {
+        "status": 200,
+        "duration_ms": 334.9497889998929,
+        "ttft_ms": 265.65496600005645
+      },
+      {
+        "status": 429,
+        "duration_ms": 967.2656439997809,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 966.676649999954,
+        "ttft_ms": 943.245602999923
+      },
+      {
+        "status": 429,
+        "duration_ms": 990.9612039996318,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 1070.199632999902,
+        "ttft_ms": 1041.7363869996734
+      },
+      {
+        "status": 429,
+        "duration_ms": 990.1712539999608,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 1149.0899579998768,
+        "ttft_ms": 1123.3954419999463
+      },
+      {
+        "status": 200,
+        "duration_ms": 1233.8606140001502,
+        "ttft_ms": 1212.9170430002887
+      },
+      {
+        "status": 200,
+        "duration_ms": 1111.9395590003478,
+        "ttft_ms": 1091.106241000034
+      },
+      {
+        "status": 429,
+        "duration_ms": 990.8477429999039,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 1193.811443999948,
+        "ttft_ms": 1170.1438750001216
+      },
+      {
+        "status": 200,
+        "duration_ms": 603.79479500034,
+        "ttft_ms": 532.9933749999327
+      },
+      {
+        "status": 429,
+        "duration_ms": 1005.0785329999599,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1010.0038529999438,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1242.683470999964,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 618.4054839995952,
+        "ttft_ms": 572.8537840000172
+      },
+      {
+        "status": 429,
+        "duration_ms": 1003.8699570000063,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1182.0366219999414,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 1042.3724030001722,
+        "ttft_ms": 1016.9725440000548
+      },
+      {
+        "status": 200,
+        "duration_ms": 816.4047179998306,
+        "ttft_ms": 772.5463420001688
+      },
+      {
+        "status": 200,
+        "duration_ms": 1345.9124169999086,
+        "ttft_ms": 1333.0919589998302
+      },
+      {
+        "status": 200,
+        "duration_ms": 1001.728827000079,
+        "ttft_ms": 963.4026809999341
+      },
+      {
+        "status": 429,
+        "duration_ms": 1060.1884870002323,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1167.762052999933,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 1076.2093480002477,
+        "ttft_ms": 1044.5336040002076
+      },
+      {
+        "status": 200,
+        "duration_ms": 640.8212810001714,
+        "ttft_ms": 596.8754650002666
+      },
+      {
+        "status": 200,
+        "duration_ms": 1128.6933480000698,
+        "ttft_ms": 1108.1855970001016
+      },
+      {
+        "status": 429,
+        "duration_ms": 1171.9752300000437,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 707.4686639998617,
+        "ttft_ms": 668.2817279997835
+      },
+      {
+        "status": 200,
+        "duration_ms": 823.2538310003292,
+        "ttft_ms": 775.8078920001026
+      },
+      {
+        "status": 200,
+        "duration_ms": 898.2712219999485,
+        "ttft_ms": 863.5723580000558
+      },
+      {
+        "status": 200,
+        "duration_ms": 1258.60723400001,
+        "ttft_ms": 1235.2794989997165
+      },
+      {
+        "status": 200,
+        "duration_ms": 1338.9042779999727,
+        "ttft_ms": 1324.112748999596
+      },
+      {
+        "status": 429,
+        "duration_ms": 1200.1712360001875,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 1248.4414400000787,
+        "ttft_ms": 1224.4059979998383
+      },
+      {
+        "status": 200,
+        "duration_ms": 913.7547730001643,
+        "ttft_ms": 873.0137470001864
+      },
+      {
+        "status": 200,
+        "duration_ms": 1162.441523000325,
+        "ttft_ms": 1146.3759070002197
+      },
+      {
+        "status": 200,
+        "duration_ms": 874.8640699996031,
+        "ttft_ms": 852.0732259999022
+      },
+      {
+        "status": 200,
+        "duration_ms": 734.1736030002721,
+        "ttft_ms": 701.3903239999308
+      },
+      {
+        "status": 200,
+        "duration_ms": 1194.7424549998686,
+        "ttft_ms": 1170.0094970001373
+      },
+      {
+        "status": 200,
+        "duration_ms": 1358.952735999992,
+        "ttft_ms": 1349.3426949999048
+      },
+      {
+        "status": 200,
+        "duration_ms": 716.0381579997193,
+        "ttft_ms": 681.392348999907
+      },
+      {
+        "status": 200,
+        "duration_ms": 790.7966829998259,
+        "ttft_ms": 759.6381270000165
+      },
+      {
+        "status": 200,
+        "duration_ms": 1295.2624480003578,
+        "ttft_ms": 1281.1125500002163
+      },
+      {
+        "status": 200,
+        "duration_ms": 1311.6404279999188,
+        "ttft_ms": 1297.7092139999513
+      },
+      {
+        "status": 200,
+        "duration_ms": 1377.9376269999375,
+        "ttft_ms": 1368.1134670000574
+      },
+      {
+        "status": 200,
+        "duration_ms": 1288.1413109998903,
+        "ttft_ms": 1267.910056999881
+      }
+    ]
+  },
+  {
+    "concurrency": 100,
+    "requests": 100,
+    "statuses": {
+      "200": 37,
+      "429": 63
+    },
+    "p50_ms": 1362.719540999933,
+    "p95_ms": 1979.7818390002249,
+    "successful_ttft_p50_ms": 1659.1246849998242,
+    "successful_ttft_p95_ms": 2019.6902390002833,
+    "successful_requests_per_second": 17.598348416499437,
+    "http_error_rate": 0.63,
+    "server_5xx_rate": 0.0,
+    "cpu_seconds": 1.6528249999999989,
+    "peak_process_rss_kib": 162116,
+    "scope": "ASGI app + real isolated Postgres/Redis; fixture LLM; default org concurrency cap 3; no proxy/browser/provider network",
+    "raw": [
+      {
+        "status": 200,
+        "duration_ms": 600.7973669998137,
+        "ttft_ms": 454.8411109999506
+      },
+      {
+        "status": 429,
+        "duration_ms": 1287.097053999787,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1286.5491000002294,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1286.8216199999551,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1234.167110999806,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 561.9204220001848,
+        "ttft_ms": 398.54961699984415
+      },
+      {
+        "status": 429,
+        "duration_ms": 1233.3241100000123,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 359.32956600026955,
+        "ttft_ms": 234.3942210000023
+      },
+      {
+        "status": 429,
+        "duration_ms": 1284.2872520000128,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1283.320182999887,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1231.258496999999,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 296.476609000365,
+        "ttft_ms": 212.74477600036334
+      },
+      {
+        "status": 429,
+        "duration_ms": 1230.511270000079,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1281.9163180001851,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 1239.2109470001742,
+        "ttft_ms": 698.2324430000517
+      },
+      {
+        "status": 429,
+        "duration_ms": 1229.1384619998098,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1284.138831999826,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 249.98298500031524,
+        "ttft_ms": 185.94598500021675
+      },
+      {
+        "status": 429,
+        "duration_ms": 1228.6255839999285,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1281.2108520001857,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1227.8770349998922,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1227.296452000246,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 1286.1331750000318,
+        "ttft_ms": 730.0623810001525
+      },
+      {
+        "status": 200,
+        "duration_ms": 662.8019620002306,
+        "ttft_ms": 532.1911129999535
+      },
+      {
+        "status": 200,
+        "duration_ms": 1430.8926230000907,
+        "ttft_ms": 1356.7352540003412
+      },
+      {
+        "status": 429,
+        "duration_ms": 1279.416461999972,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1226.0247310000523,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1226.3529840001866,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1225.4240570000547,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1277.6040039998406,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1225.3313470000649,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1278.1784099997822,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1277.1558419999565,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1223.9978220000012,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1276.801401999819,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1224.372350000067,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1276.6092349997962,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1510.1907109997228,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1222.5451369999973,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1223.7027520000083,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1701.433349999661,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1274.1939460001959,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1446.535841000241,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1556.8976909999037,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1257.571889999781,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1588.579655999638,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1367.8991369997675,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1628.3018220001395,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1262.6376719999826,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1497.1353999999337,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 2033.247645999836,
+        "ttft_ms": 2007.1838200001366
+      },
+      {
+        "status": 429,
+        "duration_ms": 1557.780675000231,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1260.9554460000254,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1660.775442999693,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1365.2099369996904,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1546.9949229996018,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1459.2464669999572,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 1766.3006420002603,
+        "ttft_ms": 1740.3170820002742
+      },
+      {
+        "status": 429,
+        "duration_ms": 1271.8597419998332,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1271.4684459997443,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1584.1979380002158,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1362.719540999933,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1693.9316529997086,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1498.861019999822,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 1784.3016960000568,
+        "ttft_ms": 1754.6778720002294
+      },
+      {
+        "status": 429,
+        "duration_ms": 1323.7631769998188,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1545.4157040003338,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 1442.735137999989,
+        "ttft_ms": 1386.7417009996643
+      },
+      {
+        "status": 429,
+        "duration_ms": 1581.6728130002957,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1322.680438000134,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1625.2871859996958,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1336.7894869998054,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1254.38680499974,
+        "ttft_ms": null
+      },
+      {
+        "status": 429,
+        "duration_ms": 1576.5636880000784,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 1478.594601000168,
+        "ttft_ms": 1429.8289530001966
+      },
+      {
+        "status": 429,
+        "duration_ms": 1411.9495700001607,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 1690.4615419998663,
+        "ttft_ms": 1659.1246849998242
+      },
+      {
+        "status": 200,
+        "duration_ms": 1306.205580999631,
+        "ttft_ms": 1203.8772659998358
+      },
+      {
+        "status": 429,
+        "duration_ms": 1617.907601999832,
+        "ttft_ms": null
+      },
+      {
+        "status": 200,
+        "duration_ms": 1910.9543170002325,
+        "ttft_ms": 1890.711476999968
+      },
+      {
+        "status": 200,
+        "duration_ms": 1601.1305970000649,
+        "ttft_ms": 1578.2991060000313
+      },
+      {
+        "status": 200,
+        "duration_ms": 1728.006830999675,
+        "ttft_ms": 1698.5037549998196
+      },
+      {
+        "status": 200,
+        "duration_ms": 1890.1194479999504,
+        "ttft_ms": 1870.1470309997603
+      },
+      {
+        "status": 200,
+        "duration_ms": 1640.1939699999275,
+        "ttft_ms": 1605.7612690001406
+      },
+      {
+        "status": 200,
+        "duration_ms": 1841.2085199997819,
+        "ttft_ms": 1823.0283359998793
+      },
+      {
+        "status": 200,
+        "duration_ms": 1695.623658000386,
+        "ttft_ms": 1671.1004280000452
+      },
+      {
+        "status": 200,
+        "duration_ms": 1979.7818390002249,
+        "ttft_ms": 1956.5824740002427
+      },
+      {
+        "status": 200,
+        "duration_ms": 1534.4788120000885,
+        "ttft_ms": 1497.5687179999113
+      },
+      {
+        "status": 200,
+        "duration_ms": 1948.7870529997053,
+        "ttft_ms": 1929.0430900000501
+      },
+      {
+        "status": 200,
+        "duration_ms": 2040.745797999989,
+        "ttft_ms": 2019.6902390002833
+      },
+      {
+        "status": 200,
+        "duration_ms": 1999.5873980001306,
+        "ttft_ms": 1979.9370740001905
+      },
+      {
+        "status": 200,
+        "duration_ms": 2059.454903000187,
+        "ttft_ms": 2050.5317380002452
+      },
+      {
+        "status": 200,
+        "duration_ms": 1823.2535209999696,
+        "ttft_ms": 1799.712327999714
+      },
+      {
+        "status": 200,
+        "duration_ms": 2072.298907000004,
+        "ttft_ms": 2063.2135719997677
+      },
+      {
+        "status": 200,
+        "duration_ms": 1857.9543320001903,
+        "ttft_ms": 1835.9733209999831
+      },
+      {
+        "status": 200,
+        "duration_ms": 1931.2618160001875,
+        "ttft_ms": 1908.0042230002618
+      },
+      {
+        "status": 200,
+        "duration_ms": 1515.0103020000643,
+        "ttft_ms": 1482.390299999679
+      },
+      {
+        "status": 200,
+        "duration_ms": 1557.9080340003202,
+        "ttft_ms": 1523.5450170002878
+      },
+      {
+        "status": 200,
+        "duration_ms": 1608.493879999969,
+        "ttft_ms": 1585.3761589996793
+      },
+      {
+        "status": 200,
+        "duration_ms": 1791.5288689996487,
+        "ttft_ms": 1766.7764969996824
+      }
+    ]
+  }
+]

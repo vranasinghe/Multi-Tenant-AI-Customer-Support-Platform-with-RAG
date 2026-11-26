@@ -1,0 +1,24 @@
+{
+  "declared_at": "2026-11-26T12:08:20+0530",
+  "before_any_run": true,
+  "frozen_sha256": {
+    "services/api/app/services/chat_controls.py": "bd8c2025d5911783dc5387fdb6861587cd154fd79d5fd8f67fb07b6fdddd310d",
+    "services/api/app/services/conversations.py": "e8251e1d981499df27047098020e1c7d198351cf759f037b99d34b01b4d90460",
+    "services/api/tests/integration/api/mvp_improvement/test_chat_capacity.py": "bd0f4f0c3bb1350f2be177f2a73bbb577661c701bae139be5deaafdeffb5a93c"
+  },
+  "series": [
+    {
+      "name": "accept-unloaded-5",
+      "runs": 5,
+      "load": "none"
+    },
+    {
+      "name": "accept-crawl-5",
+      "runs": 5,
+      "load": "two tenants re-syncing a 12-page website through a real prefork worker"
+    }
+  ],
+  "gates": "unchanged strict capacity file: c1/10/50/100, success P95<=2000, rejection P95<=3000, floors, fairness",
+  "headroom_objective": "median c100 success P95 <= 1600 ms unloaded (not a gate)",
+  "rule": "every run kept; none repeated or replaced; no further source change after this declaration"
+}

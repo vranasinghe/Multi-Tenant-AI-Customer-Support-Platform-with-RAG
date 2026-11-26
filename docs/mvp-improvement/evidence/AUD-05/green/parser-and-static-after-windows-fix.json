@@ -1,0 +1,8 @@
+{
+  "id": "green/parser-and-static-after-windows-fix",
+  "command": "docker compose -p acs-a5-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa.env' exec -T api sh -c 'pytest tests/unit/mvp_improvement/test_parser_runner.py tests/integration/api/mvp_improvement/test_ingestion_isolation.py -q -p no:cacheprovider --tb=short 2>&1 | tail -2; ruff check --no-cache --output-format=concise . && ruff format --no-cache --check . && mypy --no-incremental'",
+  "started_at": "2026-11-26T03:04:33+0530",
+  "exit_code": 1,
+  "duration_seconds": 57.56,
+  "log": "green/parser-and-static-after-windows-fix.log"
+}

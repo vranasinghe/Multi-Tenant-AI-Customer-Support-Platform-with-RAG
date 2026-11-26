@@ -1,0 +1,76 @@
+{
+  "run": 2,
+  "started_at": "2026-11-26T01:22:09+0530",
+  "before": {
+    "host_cpu_percent": 10.4,
+    "containers": [
+      "acs-a41-qa-api-1 cpu=6.02% mem=175.9MiB / 15.49GiB",
+      "acs-a41-qa-storage-1 cpu=0.03% mem=42.4MiB / 15.49GiB",
+      "acs-a41-qa-redis-1 cpu=0.11% mem=10.11MiB / 15.49GiB",
+      "acs-a41-qa-postgres-1 cpu=2.11% mem=63.99MiB / 15.49GiB",
+      "acs-a41-qa-mailpit-1 cpu=0.00% mem=15.11MiB / 15.49GiB"
+    ]
+  },
+  "exit_code": 0,
+  "failed_tests": [],
+  "1": {
+    "success": 10,
+    "rejected": 0,
+    "failed": 0,
+    "successful_p95_ms": 41.81730299933406,
+    "rejected_p95_ms": 0,
+    "overlap_peak": 1,
+    "provider_peak": 1,
+    "pool": {
+      "checked_out": 0,
+      "peak": 1,
+      "checkouts": 50,
+      "checkins": 50
+    }
+  },
+  "10": {
+    "success": 10,
+    "rejected": 0,
+    "failed": 0,
+    "successful_p95_ms": 276.3208090000262,
+    "rejected_p95_ms": 0,
+    "overlap_peak": 10,
+    "provider_peak": 3,
+    "pool": {
+      "checked_out": 0,
+      "peak": 5,
+      "checkouts": 50,
+      "checkins": 50
+    }
+  },
+  "50": {
+    "success": 41,
+    "rejected": 9,
+    "failed": 0,
+    "successful_p95_ms": 1286.5090599998439,
+    "rejected_p95_ms": 1272.0167560000846,
+    "overlap_peak": 50,
+    "provider_peak": 2,
+    "pool": {
+      "checked_out": 0,
+      "peak": 8,
+      "checkouts": 214,
+      "checkins": 214
+    }
+  },
+  "100": {
+    "success": 46,
+    "rejected": 54,
+    "failed": 0,
+    "successful_p95_ms": 1986.8108720002056,
+    "rejected_p95_ms": 1821.9703579998168,
+    "overlap_peak": 100,
+    "provider_peak": 2,
+    "pool": {
+      "checked_out": 0,
+      "peak": 8,
+      "checkouts": 284,
+      "checkins": 284
+    }
+  }
+}

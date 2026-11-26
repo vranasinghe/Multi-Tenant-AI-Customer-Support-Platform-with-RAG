@@ -1,0 +1,8 @@
+{
+  "id": "baseline-migration-detail",
+  "command": "docker compose -p acs-a4-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/fdcd6f6bc2bba37f/23716622-310b-4277-812c-896cbc074d51/scratchpad/qa.env' exec -T api sh -c 'python - <<EOF\nimport subprocess, pytest\norig = subprocess.run\ndef run(*a, **k):\n    try: return orig(*a, **k)\n    except subprocess.CalledProcessError as e:\n        print(e.stderr.decode()[-1800:]); raise\nsubprocess.run = run\npytest.main([\"-q\", \"-s\", \"--tb=line\", \"-p\", \"no:cacheprovider\", \"tests/integration/test_chat_migration.py\"])\nEOF'",
+  "started_at": "2026-11-26T00:24:44+0530",
+  "exit_code": 0,
+  "duration_seconds": 7.216,
+  "log": "baseline-migration-detail.log"
+}

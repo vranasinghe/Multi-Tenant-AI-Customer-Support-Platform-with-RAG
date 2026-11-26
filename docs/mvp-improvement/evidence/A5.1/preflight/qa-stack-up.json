@@ -1,0 +1,8 @@
+{
+  "id": "preflight/qa-stack-up",
+  "command": "docker compose -p acs-a51-qa --env-file 'C:/Users/LENOVO/AppData/Local/Temp/claude/cb6070448edc9281/55407c94-75df-404c-82a9-431e746744c3/scratchpad/qa51.env' up -d --build --wait --wait-timeout 300 postgres redis mailpit storage storage-init migrate api worker beat 2>&1 | tail -20",
+  "started_at": "2026-11-26T10:09:22+0530",
+  "exit_code": 0,
+  "duration_seconds": 19.513,
+  "log": "preflight/qa-stack-up.log"
+}
