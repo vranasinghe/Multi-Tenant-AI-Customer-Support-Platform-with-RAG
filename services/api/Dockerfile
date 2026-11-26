@@ -3,7 +3,7 @@
 #   target "dev"     — all dependency groups, source bind-mounted by docker compose
 #   target "runtime" — production dependencies only, non-root, source baked in
 
-FROM ghcr.io/astral-sh/uv:0.13.9 AS uv
+FROM ghcr.io/astral-sh/uv:0.13.10 AS uv
 
 FROM python:3.13.13-slim-bookworm AS base
 ENV PYTHONDONTWRITEBYTECODE=1 \
