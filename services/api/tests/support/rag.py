@@ -12,9 +12,10 @@ from app.core.config import Settings
 from app.rag.crawl_job import run_crawl_job
 from app.rag.embeddings import Embedder, HashingEmbedder
 from app.rag.errors import TransientIngestionError
+from app.rag.parser_runner import ParserRunner
 from app.rag.pipeline import run_document_job
 from app.rag.queue import RecordingJobQueue
-from app.rag.runtime import Runtime, build_fetcher
+from app.rag.runtime import Runtime, build_fetcher, build_parser
 from app.rag.safe_fetch import SafeFetcher
 from app.rag.storage import ObjectStore
 
@@ -26,6 +27,7 @@ def make_runtime(
     *,
     embedder: Embedder | None = None,
     fetcher: SafeFetcher | None = None,
+    parser: ParserRunner | None = None,
 ) -> Runtime:
     return Runtime(
         settings=settings,
@@ -33,6 +35,7 @@ def make_runtime(
         store=store,
         embedder=embedder or HashingEmbedder(settings.embedding_model),
         fetcher=fetcher or build_fetcher(settings),
+        parser=parser or build_parser(settings),
         engine=engine,
     )
 

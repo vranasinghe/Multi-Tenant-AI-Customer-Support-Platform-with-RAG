@@ -1,0 +1,565 @@
+"""AUD05-STORAGE: who may change the stored original of a crawled page, and when.
+
+The original of a web page is what reprocessing reads. A crawl attempt writes it outside any
+database transaction, so these tests pause, break or overtake a writer at exact moments and then
+look at what is authoritative: the database reference, the bytes behind it and what reprocessing
+publishes from them.
+"""
+
+from __future__ import annotations
+
+import contextlib
+import os
+import sys
+import threading
+import time
+import uuid
+from collections.abc import Iterator
+from concurrent.futures import Future, ThreadPoolExecutor
+from typing import Any
+
+import pytest
+from sqlalchemy import Engine
+
+from app.core.config import Settings
+from app.rag import pipeline
+from app.rag.crawl_job import run_crawl_job
+from app.rag.embeddings import HashingEmbedder
+from app.rag.errors import IngestionError, TransientIngestionError
+from app.rag.maintenance import purge_storage, sweep_jobs
+from app.rag.pipeline import run_document_job
+from app.rag.queue import RecordingJobQueue
+from app.rag.runtime import Runtime
+from app.rag.safe_fetch import SafeFetcher
+from app.rag.storage import MemoryObjectStore, S3ObjectStore, StorageError
+from tests.integration.api.conftest import Actor, Api
+from tests.integration.api.test_knowledge_documents import docs_path, new_bot
+from tests.support.gated_store import GatedStore, Pause
+from tests.support.rag import rows, run_jobs, scalar
+from tests.support.site import Site, serve
+
+pytestmark = pytest.mark.integration
+
+FILLER = "Standard shipping takes three to five business days after the order is dispatched. " * 4
+ALPHA, BRAVO, CHARLIE = "alphamarker", "bravomarker", "charliemarker"
+ORIGINAL = "zeromarker"
+
+
+class WorkerDied(BaseException):
+    """Stands in for a process that stops: no handler in the product may catch it."""
+
+
+@pytest.fixture(autouse=True)
+def nothing_is_left_behind(owner_engine: Engine) -> Iterator[None]:
+    """The session database is shared: sweeps and purges count every organization's rows."""
+    yield
+    with owner_engine.begin() as connection:
+        connection.exec_driver_sql(
+            "UPDATE ingestion_jobs SET status = 'failed' WHERE status IN ('queued', 'processing')"
+        )
+        connection.exec_driver_sql("DELETE FROM storage_deletions")
+
+
+@pytest.fixture
+def store_kind() -> str:
+    return "memory"
+
+
+@pytest.fixture
+def object_store(store_kind: str, api_settings: Settings) -> GatedStore:
+    if store_kind == "memory":
+        return GatedStore(MemoryObjectStore())
+    if not os.environ.get("S3_ENDPOINT_URL"):
+        pytest.skip("S3_ENDPOINT_URL is required for the real object storage cases")
+    return GatedStore(S3ObjectStore(api_settings))
+
+
+@pytest.fixture
+def site() -> Iterator[Site]:
+    with serve() as s:
+        s.text("/robots.txt", "User-agent: *\n")
+        yield s
+
+
+@pytest.fixture
+def web_fetcher(site: Site) -> SafeFetcher:
+    return site.fetcher()
+
+
+def show(site: Site, marker: str) -> None:
+    site.page("/", "Help", f"<p>{marker} {marker}. {FILLER}</p>")
+
+
+class Crawled:
+    """One website source with one page, driven attempt by attempt."""
+
+    def __init__(
+        self, api: Api, runtime: Runtime, queue: RecordingJobQueue, site: Site, marker: str
+    ) -> None:
+        self.api, self.runtime, self.queue, self.site = api, runtime, queue, site
+        runtime.fetcher = site.fetcher()
+        self.owner: Actor = api.signup()
+        self.bot = new_bot(self.owner)
+        show(site, marker)
+        response = self.owner.post(
+            f"{docs_path(self.owner, self.bot)}/sources",
+            {"url": f"{site.base}/", "confirm_authorized": True},
+        )
+        assert response.status_code == 201, response.text
+        self.org_id, self.first_job, _ = queue.jobs.pop(0)
+        self.source_id = scalar(
+            api.owner_engine,
+            "SELECT source_id FROM ingestion_jobs WHERE id = :j",
+            j=self.first_job,
+        )
+
+    def publish_first(self) -> None:
+        assert run_crawl_job(self.runtime, self.org_id, self.first_job) == "done"
+
+    def sync(self, marker: str) -> uuid.UUID:
+        show(self.site, marker)
+        path = f"{docs_path(self.owner, self.bot)}/sources/{self.source_id}/sync"
+        response = self.owner.post(path)
+        assert response.status_code < 300, response.text
+        _, job_id, _ = self.queue.jobs.pop(0)
+        return job_id
+
+    def document(self) -> Any:
+        [row] = rows(
+            self.api.owner_engine,
+            "SELECT id, status, version, storage_key, size_bytes, error_code FROM documents "
+            "WHERE source_id = :s",
+            s=self.source_id,
+        )
+        return row
+
+    @property
+    def store(self) -> GatedStore:
+        store = self.runtime.store
+        assert isinstance(store, GatedStore)
+        return store
+
+    def original(self) -> str:
+        text = self.store.read(self.document().storage_key)
+        assert text is not None, "the authoritative original is missing"
+        return text
+
+    def published(self) -> str:
+        return " ".join(
+            content
+            for (content,) in rows(
+                self.api.owner_engine,
+                "SELECT content FROM document_chunks WHERE document_id = :d ORDER BY ordinal",
+                d=self.document().id,
+            )
+        )
+
+    def reprocess(self) -> list[str]:
+        path = f"{docs_path(self.owner, self.bot)}/documents/{self.document().id}/reprocess"
+        assert self.owner.post(path).status_code == 200
+        return run_jobs(self.runtime, self.queue)
+
+    def supersede(self, job_id: uuid.UUID) -> None:
+        """What the sweeper does to a worker that went silent."""
+        self.api.sql(
+            "UPDATE ingestion_jobs SET heartbeat_at = now() - interval '2 hours' WHERE id = :j",
+            j=job_id,
+        )
+        sweep_jobs(self.runtime, RecordingJobQueue())
+
+    def pending(self) -> list[Any]:
+        return rows(
+            self.api.owner_engine,
+            "SELECT storage_key, extract(epoch FROM created_at - now()) AS due_in "
+            "FROM storage_deletions WHERE org_id = :o ORDER BY created_at",
+            o=self.org_id,
+        )
+
+    def let_grace_pass(self) -> None:
+        self.api.sql(
+            "UPDATE storage_deletions SET created_at = now() - interval '1 second' "
+            "WHERE org_id = :o",
+            o=self.org_id,
+        )
+
+
+@pytest.fixture
+def crawled(api: Api, runtime: Runtime, job_queue: RecordingJobQueue, site: Site) -> Crawled:
+    page = Crawled(api, runtime, job_queue, site, ORIGINAL)
+    page.publish_first()
+    return page
+
+
+def paused_attempt(
+    pool: ThreadPoolExecutor, page: Crawled, job_id: uuid.UUID, pause: Pause
+) -> Future[str]:
+    running = pool.submit(run_crawl_job, page.runtime, page.org_id, job_id)
+    assert pause.reached.wait(30), "the attempt never reached its upload"
+    return running
+
+
+def abandon_cleanup(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A killed process runs no cleanup of its own."""
+    with contextlib.suppress(ImportError):
+        from app.rag import originals
+
+        monkeypatch.setattr(originals, "release", lambda *_args, **_kwargs: None)
+
+
+# ---------------------------------------------------------------- superseded writers
+
+
+@pytest.mark.parametrize("store_kind", ["memory", "s3"])
+def test_a_superseded_attempt_cannot_change_the_original_a_newer_one_published(
+    crawled: Crawled,
+) -> None:
+    job = crawled.sync(ALPHA)
+    pause = Pause(ALPHA)
+    crawled.store.before_put = pause  # after A's ownership check, before A's write
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        attempt_a = paused_attempt(pool, crawled, job, pause)
+        crawled.supersede(job)
+        show(crawled.site, BRAVO)
+        assert run_crawl_job(crawled.runtime, crawled.org_id, job) == "done"
+        pause.release.set()
+        assert attempt_a.result(timeout=30) == "stale"
+
+    assert BRAVO in crawled.original() and ALPHA not in crawled.original()
+    assert BRAVO in crawled.published() and ALPHA not in crawled.published()
+
+    assert crawled.reprocess() == ["done"]
+    assert BRAVO in crawled.published() and ALPHA not in crawled.published()
+
+    purge_storage(crawled.runtime)  # no waiting: a writer that finished released its object
+    assert crawled.store.surviving() == [crawled.document().storage_key]
+
+
+def test_a_superseded_attempt_that_fails_late_changes_nothing(crawled: Crawled) -> None:
+    def outage() -> None:
+        raise StorageError("simulated outage")
+
+    job = crawled.sync(ALPHA)
+    pause = Pause(ALPHA, then=outage)
+    crawled.store.before_put = pause
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        attempt_a = paused_attempt(pool, crawled, job, pause)
+        crawled.supersede(job)
+        show(crawled.site, BRAVO)
+        assert run_crawl_job(crawled.runtime, crawled.org_id, job) == "done"
+        published = crawled.document()
+        pause.release.set()
+        assert attempt_a.result(timeout=30) == "stale"
+
+    assert crawled.document() == published and BRAVO in crawled.original()
+    status = scalar(
+        crawled.api.owner_engine, "SELECT status FROM ingestion_jobs WHERE id = :j", j=job
+    )
+    assert status == "succeeded"
+
+
+# ---------------------------------------------------------------- a writer that dies
+
+
+@pytest.mark.parametrize("moment", ["before_put", "after_put"])
+def test_a_worker_lost_around_the_upload_leaves_the_published_original(
+    crawled: Crawled, moment: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """``after_put``: the object exists, the commit that would publish it never happens."""
+
+    def die(_key: str, data: bytes) -> None:
+        if ALPHA.encode() in data:
+            raise WorkerDied
+
+    before = crawled.document()
+    job = crawled.sync(ALPHA)
+    setattr(crawled.store, moment, die)
+    abandon_cleanup(monkeypatch)
+
+    with contextlib.suppress(WorkerDied):
+        run_crawl_job(crawled.runtime, crawled.org_id, job)
+
+    after = crawled.document()
+    assert (after.storage_key, after.version, after.size_bytes) == (
+        before.storage_key,
+        before.version,
+        before.size_bytes,
+    )
+    assert ORIGINAL in crawled.original() and ORIGINAL in crawled.published()
+
+    # The abandoned write is on record, with a time before which it must not be touched.
+    [abandoned] = crawled.pending()
+    assert abandoned.storage_key != before.storage_key
+    assert abandoned.due_in >= crawled.runtime.settings.crawl_hard_time_limit_seconds
+    purge_storage(crawled.runtime)
+    assert len(crawled.pending()) == 1
+
+    crawled.let_grace_pass()
+    purge_storage(crawled.runtime)
+    assert crawled.pending() == []
+    assert crawled.store.surviving() == [before.storage_key]
+
+
+def test_a_duplicate_delivery_writes_and_publishes_once(crawled: Crawled) -> None:
+    job = crawled.sync(ALPHA)
+    pause = Pause(ALPHA)
+    crawled.store.before_put = pause
+    written = len(crawled.store.written)
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        first = paused_attempt(pool, crawled, job, pause)
+        assert run_crawl_job(crawled.runtime, crawled.org_id, job) == "skipped"
+        pause.release.set()
+        assert first.result(timeout=30) == "done"
+    assert run_crawl_job(crawled.runtime, crawled.org_id, job) == "skipped"
+
+    assert len(crawled.store.written) == written + 1
+    assert crawled.document().version == 2 and ALPHA in crawled.original()
+
+
+# ---------------------------------------------------------------- deletion
+
+
+def everything_goes(page: Crawled) -> None:
+    purge_storage(page.runtime)
+    assert page.pending() == []
+    assert page.store.surviving() == []
+
+
+@pytest.mark.parametrize("store_kind", ["memory", "s3"])
+def test_deleting_the_source_during_a_write_leaves_no_object_behind(crawled: Crawled) -> None:
+    job = crawled.sync(ALPHA)
+    pause = Pause(ALPHA)
+    crawled.store.before_put = pause
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        running = paused_attempt(pool, crawled, job, pause)
+        path = f"{docs_path(crawled.owner, crawled.bot)}/sources/{crawled.source_id}"
+        assert crawled.owner.delete(path).status_code == 204
+        purge_storage(crawled.runtime)  # the periodic purge runs before the late write lands
+        pause.release.set()
+        assert running.result(timeout=30) in {"gone", "stale"}
+
+    everything_goes(crawled)
+
+
+@pytest.mark.parametrize("target", ["source", "document"])
+def test_deleting_while_a_new_original_is_published_removes_the_new_one(
+    crawled: Crawled, monkeypatch: pytest.MonkeyPatch, target: str
+) -> None:
+    """Deletion must read the reference after the publication it waited for."""
+    publishing = threading.Event()
+    original = pipeline.lock_claim
+
+    def slow_lock(session: Any, claim: Any) -> bool:
+        owned = original(session, claim)
+        if sys._getframe(1).f_code.co_name == "index_document":
+            publishing.set()
+            time.sleep(1.5)
+        return owned
+
+    monkeypatch.setattr(pipeline, "lock_claim", slow_lock)
+    base = docs_path(crawled.owner, crawled.bot)
+    path = (
+        f"{base}/sources/{crawled.source_id}"
+        if target == "source"
+        else f"{base}/documents/{crawled.document().id}"
+    )
+    job = crawled.sync(ALPHA)
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        running = pool.submit(run_crawl_job, crawled.runtime, crawled.org_id, job)
+        assert publishing.wait(30)
+        assert crawled.owner.delete(path).status_code == 204
+        running.result(timeout=30)
+
+    everything_goes(crawled)
+
+
+# ---------------------------------------------------------------- cleanup against publication
+
+
+def test_cleanup_that_claims_a_staged_object_first_stops_its_publication(
+    crawled: Crawled,
+) -> None:
+    def reclaim(_key: str, data: bytes) -> None:
+        if ALPHA.encode() in data:
+            crawled.let_grace_pass()
+            purge_storage(crawled.runtime)
+
+    before = crawled.document()
+    job = crawled.sync(ALPHA)
+    crawled.store.after_put = reclaim
+
+    with pytest.raises(TransientIngestionError) as failure:
+        run_crawl_job(crawled.runtime, crawled.org_id, job)
+
+    assert failure.value.code == "storage_error"
+    assert crawled.document().storage_key == before.storage_key
+    assert ORIGINAL in crawled.original() and ORIGINAL in crawled.published()
+
+    crawled.store.after_put = lambda _key, _data: None
+    assert run_crawl_job(crawled.runtime, crawled.org_id, job) == "done"
+    assert ALPHA in crawled.original() and ALPHA in crawled.published()
+
+
+def test_cleanup_never_deletes_an_object_a_document_points_at(crawled: Crawled) -> None:
+    key = crawled.document().storage_key
+    crawled.api.sql(
+        "INSERT INTO storage_deletions (id, org_id, storage_key) VALUES (gen_random_uuid(), :o, :k)",
+        o=crawled.org_id,
+        k=key,
+    )
+
+    purge_storage(crawled.runtime)
+
+    assert ORIGINAL in crawled.original() and crawled.pending() == []
+
+
+# ---------------------------------------------------------------- failed and successful reindex
+
+
+class Refuses(HashingEmbedder):
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        raise IngestionError("embedding_failed", "refused")
+
+
+@pytest.mark.parametrize("store_kind", ["memory", "s3"])
+def test_a_failed_reindex_keeps_the_previous_original_and_chunks(crawled: Crawled) -> None:
+    before = crawled.document()
+    job = crawled.sync(ALPHA)
+    crawled.runtime.embedder = Refuses()
+
+    assert run_crawl_job(crawled.runtime, crawled.org_id, job) == "done"
+
+    failed = crawled.document()
+    assert (failed.status, failed.error_code) == ("failed", "embedding_failed")
+    assert (failed.storage_key, failed.version, failed.size_bytes) == (
+        before.storage_key,
+        before.version,
+        before.size_bytes,
+    )
+    assert ORIGINAL in crawled.original() and ORIGINAL in crawled.published()
+    purge_storage(crawled.runtime)
+    assert crawled.store.surviving() == [before.storage_key]
+
+    crawled.runtime.embedder = HashingEmbedder()
+    assert crawled.reprocess() == ["done"]
+    assert crawled.document().version == 2 and ORIGINAL in crawled.published()
+    assert ALPHA not in crawled.published()
+
+
+def test_a_successful_recrawl_switches_the_reference_and_removes_the_old_object(
+    crawled: Crawled,
+) -> None:
+    before = crawled.document()
+    job = crawled.sync(ALPHA)
+
+    assert run_crawl_job(crawled.runtime, crawled.org_id, job) == "done"
+
+    after = crawled.document()
+    assert after.storage_key != before.storage_key and after.version == before.version + 1
+    assert after.size_bytes == len(crawled.original().encode())
+    assert [row.storage_key for row in crawled.pending()] == [before.storage_key]
+    purge_storage(crawled.runtime)
+    assert crawled.store.surviving() == [after.storage_key]
+    assert crawled.reprocess() == ["done"] and ALPHA in crawled.published()
+
+
+def test_a_page_that_never_published_keeps_its_own_original_for_reprocessing(
+    api: Api, runtime: Runtime, job_queue: RecordingJobQueue, site: Site
+) -> None:
+    page = Crawled(api, runtime, job_queue, site, CHARLIE)
+    runtime.embedder = Refuses()
+    assert run_crawl_job(runtime, page.org_id, page.first_job) == "done"
+    assert page.document().status == "failed" and CHARLIE in page.original()
+
+    runtime.embedder = HashingEmbedder()
+    assert page.reprocess() == ["done"] and CHARLIE in page.published()
+    assert page.pending() == []
+
+
+def test_a_document_stored_under_the_earlier_fixed_key_moves_to_a_new_one(
+    crawled: Crawled,
+) -> None:
+    legacy = (
+        f"orgs/{crawled.org_id}/chatbots/{crawled.bot}"
+        f"/documents/{crawled.document().id}/v0/original"
+    )
+    crawled.store.put(legacy, crawled.original().encode(), content_type="text/html")
+    crawled.api.sql(
+        "UPDATE documents SET storage_key = :k WHERE id = :d", k=legacy, d=crawled.document().id
+    )
+    job = crawled.sync(ALPHA)
+
+    assert run_crawl_job(crawled.runtime, crawled.org_id, job) == "done"
+    purge_storage(crawled.runtime)
+
+    assert crawled.document().storage_key != legacy and crawled.store.read(legacy) is None
+    assert ALPHA in crawled.original()
+
+
+# ---------------------------------------------------------------- a document job overtaken
+
+
+@pytest.mark.parametrize("moment", ["while reading", "while indexing"])
+def test_a_document_job_never_publishes_an_original_that_was_replaced(
+    crawled: Crawled, api_settings: Settings, moment: str
+) -> None:
+    """Only possible with more than one active job per organization, or after a silent job."""
+    api_settings.ingest_max_active_per_org = 2
+    path = f"{docs_path(crawled.owner, crawled.bot)}/documents/{crawled.document().id}/reprocess"
+    assert crawled.owner.post(path).status_code == 200
+    _, document_job, _ = crawled.queue.jobs.pop(0)
+    old_key = crawled.document().storage_key
+    done: list[bool] = []
+
+    def replace_the_original() -> None:
+        if done:
+            return
+        done.append(True)
+        crawl_job = crawled.sync(ALPHA)
+        embedder, crawled.runtime.embedder = crawled.runtime.embedder, HashingEmbedder()
+        assert run_crawl_job(crawled.runtime, crawled.org_id, crawl_job) == "done"
+        crawled.runtime.embedder = embedder
+        purge_storage(crawled.runtime)  # the old object is gone
+
+    if moment == "while reading":
+        crawled.store.before_get = lambda key: replace_the_original() if key == old_key else None
+    else:
+
+        class Overtaken(HashingEmbedder):
+            def embed_documents(self, texts: list[str]) -> list[list[float]]:
+                replace_the_original()
+                return super().embed_documents(texts)
+
+        crawled.runtime.embedder = Overtaken()
+
+    with pytest.raises(TransientIngestionError):
+        run_document_job(crawled.runtime, crawled.org_id, document_job)
+
+    assert ALPHA in crawled.published() and ORIGINAL not in crawled.published()
+    assert run_document_job(crawled.runtime, crawled.org_id, document_job) == "done"
+    assert ALPHA in crawled.published() and ALPHA in crawled.original()
+
+
+# ---------------------------------------------------------------- tenant isolation
+
+
+def test_originals_stay_inside_their_organization(
+    api: Api, runtime: Runtime, job_queue: RecordingJobQueue, site: Site
+) -> None:
+    from app.rag import originals
+
+    first = Crawled(api, runtime, job_queue, site, ALPHA)
+    first.publish_first()
+    second = Crawled(api, runtime, job_queue, site, ALPHA)
+    second.publish_first()
+    theirs = second.document().storage_key
+    assert first.document().storage_key.startswith(f"orgs/{first.org_id}/")
+    assert theirs.startswith(f"orgs/{second.org_id}/")
+
+    with runtime.tenant_tx(second.org_id) as session:
+        originals.stage(session, second.org_id, f"{theirs}-staged", grace_seconds=3600)
+    originals.release(runtime, first.org_id, f"{theirs}-staged")  # another tenant's record
+
+    [pending] = second.pending()
+    assert pending.due_in > 3000
+    purge_storage(runtime)
+    assert second.store.read(theirs) is not None
