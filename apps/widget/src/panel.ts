@@ -42,7 +42,9 @@ export function mountFrame(script: HTMLScriptElement) {
   const key = script.dataset.frameKey!;
   const parent = script.dataset.parentOrigin!;
   const instance = script.dataset.instance!;
-  const storageKey = `acs:v1:${parent}:${key}`;
+  // An explicit second instance of one chatbot keeps its own conversation.
+  const instanceKey = script.dataset.instanceKey;
+  const storageKey = `acs:v1:${parent}:${key}` + (instanceKey ? `:${instanceKey}` : "");
   const style = el("style");
   style.textContent = `*{box-sizing:border-box}body{margin:0;font:14px system-ui,sans-serif;color:#171717;background:transparent}button,textarea{font:inherit}button{cursor:pointer;border:1px solid #d4d4d4;border-radius:8px;padding:10px;background:#fff;color:#171717}button:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid #2563eb;outline-offset:2px}button:disabled{opacity:.6;cursor:wait}#launcher{position:fixed;bottom:8px;right:8px;width:60px;height:60px;border-radius:30px;padding:5px;overflow:hidden;font-size:12px;overflow-wrap:anywhere}#panel{height:100dvh;display:flex;flex-direction:column;border:1px solid #d4d4d4;border-radius:14px;background:#fff;overflow:hidden}header{display:flex;align-items:center;gap:8px;padding:12px}header strong{flex:1;overflow-wrap:anywhere}header img{width:30px;height:30px;border-radius:50%}#log{flex:1;overflow:auto;padding:16px;min-height:0}article{white-space:pre-wrap;overflow-wrap:anywhere;margin-bottom:18px;line-height:1.5}article[data-role=user]{color:#171717;background:#f3f4f6;border-radius:8px;padding:10px}article small{display:block;font-weight:600;margin-bottom:4px}article>span+span{display:block;font-size:12px;margin-top:6px}article a{display:block;font-size:12px;color:inherit;text-underline-offset:3px}footer{padding:12px;border-top:1px solid #ddd;display:grid;gap:8px}textarea{width:100%;resize:none;border:1px solid #aaa;border-radius:8px;padding:10px;color:#171717;background:#fff}#status{padding:0 12px;font-size:12px;line-height:1.5;overflow-wrap:anywhere}#controls{display:flex;justify-content:space-between;gap:8px}label{font-weight:600;font-size:12px}.branding{font-size:11px;text-align:center;color:inherit;opacity:.75}[hidden]{display:none!important}`;
   document.head.append(style);
@@ -93,6 +95,9 @@ export function mountFrame(script: HTMLScriptElement) {
   let abort: AbortController | null = null;
   let resume: string | undefined;
   let left = false;
+  // Raised by "New chat" and "forget": work started before it must not touch what comes after.
+  let generation = 0;
+  let loading: AbortController | null = null;
   function size(open: boolean) {
     window.parent.postMessage({ type: "acs-size", instance, open, left }, parent);
     panel.hidden = !open;
@@ -140,6 +145,7 @@ export function mountFrame(script: HTMLScriptElement) {
     return { article, body };
   }
   async function request(path: string, init: RequestInit = {}) {
+    const asked = generation;
     const r = await fetch(path, {
       ...init,
       credentials: "omit",
@@ -149,6 +155,7 @@ export function mountFrame(script: HTMLScriptElement) {
         ...(session ? { Authorization: `Bearer ${session.token}` } : {}),
       },
     });
+    if (asked !== generation) throw Error("Superseded");
     if (!r.ok) {
       if (r.status === 401) session = null;
       throw Error(
@@ -162,7 +169,10 @@ export function mountFrame(script: HTMLScriptElement) {
     return r;
   }
   async function load() {
-    status.textContent = "Connecting�";
+    loading?.abort();
+    const { signal } = (loading = new AbortController());
+    const mine = generation;
+    status.textContent = "Connecting…";
     try {
       if (!resume)
         try {
@@ -174,9 +184,12 @@ export function mountFrame(script: HTMLScriptElement) {
         }
       const r = await request("/public/v1/widget/sessions", {
         method: "POST",
+        signal,
         body: JSON.stringify({ key, parent_origin: parent, resume_token: resume }),
       });
-      session = (await r.json()) as Session;
+      const opened = (await r.json()) as Session;
+      if (mine !== generation) return;
+      session = opened;
       save(session);
       title.textContent = session.name;
       launcher.textContent = session.branding.launcher_label ?? "Chat";
@@ -203,32 +216,31 @@ export function mountFrame(script: HTMLScriptElement) {
         header.prepend(img);
       }
       branding.hidden = session.branding.show_branding === false;
-      const history = (await (await request("/public/v1/chat")).json()) as { messages: Message[] };
+      const history = (await (await request("/public/v1/chat", { signal })).json()) as {
+        messages: Message[];
+      };
+      if (mine !== generation) return;
       log.replaceChildren();
       if (!history.messages.length) append({ role: "assistant", content: session.welcome });
       for (const m of history.messages) append(m);
       status.textContent = "";
       size(!panel.hidden);
     } catch (e) {
+      if (mine !== generation) return;
       status.textContent = e instanceof Error ? e.message : "Could not connect";
       session = null;
     }
   }
-  launcher.onclick = () => {
-    size(true);
-    input.focus();
-    if (!session && !opening) {
-      opening = load().finally(() => {
-        opening = null;
-      });
-    }
-  };
-  close.onclick = () => {
-    size(false);
-    launcher.focus();
-  };
-  reset.onclick = () => {
+  function start() {
+    const run = load().finally(() => {
+      if (opening === run) opening = null;
+    });
+    opening = run;
+  }
+  function discard() {
+    generation++;
     abort?.abort();
+    loading?.abort();
     resume = undefined;
     session = null;
     try {
@@ -236,10 +248,28 @@ export function mountFrame(script: HTMLScriptElement) {
     } catch {
       /* Optional storage. */
     }
-    opening = load().finally(() => {
-      opening = null;
-    });
+  }
+  launcher.onclick = () => {
+    size(true);
+    input.focus();
+    if (!session && !opening) start();
   };
+  close.onclick = () => {
+    size(false);
+    launcher.focus();
+  };
+  reset.onclick = () => {
+    discard();
+    log.replaceChildren();
+    start();
+  };
+  window.addEventListener("message", (event) => {
+    // Only the page that embedded this frame, naming this very instance.
+    if (event.source !== window.parent || event.origin !== parent) return;
+    if (event.data?.instance !== instance || event.data.type !== "acs-forget") return;
+    discard();
+    window.parent.postMessage({ type: "acs-forgotten", instance }, parent);
+  });
   stop.onclick = () => abort?.abort();
   async function submit() {
     if (abort || !input.value.trim()) return;
@@ -260,7 +290,7 @@ export function mountFrame(script: HTMLScriptElement) {
     send.disabled = true;
     reset.disabled = true;
     stop.hidden = false;
-    status.textContent = "Finding an answer�";
+    status.textContent = "Finding an answer…";
     try {
       const r = await request("/public/v1/chat/messages", {
         method: "POST",
@@ -294,7 +324,7 @@ export function mountFrame(script: HTMLScriptElement) {
             const data = JSON.parse(raw);
             if (kind === "delta") {
               answer.body.textContent += data.text;
-              status.textContent = "Answering�";
+              status.textContent = "Answering…";
               log.scrollTop = log.scrollHeight;
             }
             if (kind === "error") throw Error(data.message);
@@ -392,9 +422,10 @@ export function mountFrame(script: HTMLScriptElement) {
       }
     }
   };
-  window.addEventListener("pagehide", () => abort?.abort());
-  size(false);
-  opening = load().finally(() => {
-    opening = null;
+  window.addEventListener("pagehide", () => {
+    abort?.abort();
+    loading?.abort();
   });
+  size(false);
+  start();
 }
