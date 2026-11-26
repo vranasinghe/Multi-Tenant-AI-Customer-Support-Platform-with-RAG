@@ -3,9 +3,14 @@
     python -m app.cli check-worker [--timeout SECONDS]
     python -m app.cli check-rls
     python -m app.cli init-storage
+    python -m app.cli verify-data
 
 `check-rls` exits 1 when any tenant table (has `org_id`, or is `organizations`) lacks enabled and
 forced Row-Level Security plus at least one policy (docs/DATABASE.md §4.4).
+
+`verify-data` prints a fingerprint of the database and its stored originals (no row contents), to
+compare a restored backup with its source (docs/RECOVERY.md). It exits 1 when an original is
+missing or a tenant table is unprotected.
 
 Exits 0 when a Celery worker executed `system.ping` and returned its result via the backend.
 """
@@ -74,6 +79,23 @@ def init_storage(timeout: float) -> int:
             return 0
 
 
+def verify_data() -> int:
+    from sqlalchemy import create_engine  # noqa: PLC0415
+
+    from app.core.config import MigrationSettings, get_settings  # noqa: PLC0415
+    from app.core.data_check import fingerprint  # noqa: PLC0415
+    from app.rag.storage import build_object_store  # noqa: PLC0415
+
+    engine = create_engine(MigrationSettings().url)
+    try:
+        with engine.connect() as conn:
+            report = fingerprint(conn, build_object_store(get_settings()))
+    finally:
+        engine.dispose()
+    print(json.dumps(report, indent=1, sort_keys=True, default=str))
+    return 1 if report["objects"]["problems"] or report["unprotected_tables"] else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m app.cli")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -82,12 +104,14 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("check-rls", help="fail if a tenant table lacks forced RLS and a policy")
     storage = sub.add_parser("init-storage", help="create the private object-storage bucket")
     storage.add_argument("--timeout", type=float, default=60.0)
+    sub.add_parser("verify-data", help="fingerprint data, protections and stored originals")
     args = parser.parse_args(argv)  # argparse exits with status 2 on unknown commands
 
     commands: dict[str, Callable[[], int]] = {
         "check-worker": lambda: check_worker(args.timeout),
         "check-rls": check_rls,
         "init-storage": lambda: init_storage(args.timeout),
+        "verify-data": verify_data,
     }
     return commands[args.command]()
 

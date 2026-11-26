@@ -12,13 +12,19 @@ from celery import Celery
 from kombu import Queue
 
 from app.core.config import Settings, get_settings
+from app.rag import parser_process
+from app.workers.health import MAINTENANCE_QUEUE, SWEEP_ENTRY
 
-#: Queues from docs/ARCHITECTURE.md §13.
-QUEUES = ("default", "ingest", "crawl", "chat_out", "billing")
+#: Queues from docs/ARCHITECTURE.md §13. ``maintenance`` has its own consumer, so recovery never
+#: waits behind the ingestion jobs it is there to recover.
+QUEUES = ("default", "ingest", "crawl", "chat_out", "billing", MAINTENANCE_QUEUE)
 
 
 def create_celery_app(settings: Settings) -> Celery:
     settings.validate_provider_transport()
+    if settings.app_env in {"staging", "production"} and not parser_process.containment_supported():
+        msg = "Parser containment requires Linux; refusing to start a deployed worker"
+        raise RuntimeError(msg)
     app = Celery(
         settings.app_name,
         broker=settings.broker_url,
@@ -41,12 +47,28 @@ def create_celery_app(settings: Settings) -> Celery:
             "system.*": {"queue": "default"},
             "ingest.process_document": {"queue": "ingest"},
             "ingest.crawl_source": {"queue": "crawl"},
-            "ingest.sweep": {"queue": "default"},
+            "ingest.sweep": {"queue": MAINTENANCE_QUEUE},
             "analytics.retention": {"queue": "default"},
             "analytics.rollup": {"queue": "default"},
         },
+        # Execution limits (prefork pool): soft raises in the task, hard kills the pool process.
+        task_annotations={
+            "ingest.process_document": {
+                "soft_time_limit": settings.ingest_soft_time_limit_seconds,
+                "time_limit": settings.ingest_hard_time_limit_seconds,
+            },
+            "ingest.crawl_source": {
+                "soft_time_limit": settings.crawl_soft_time_limit_seconds,
+                "time_limit": settings.crawl_hard_time_limit_seconds,
+            },
+        },
         beat_schedule={
-            "ingest-sweep": {"task": "ingest.sweep", "schedule": 120.0},
+            SWEEP_ENTRY: {
+                "task": "ingest.sweep",
+                "schedule": settings.ingest_sweep_interval_seconds,
+                # A sweep nobody took in time is dropped: the next one does the same work.
+                "options": {"expires": settings.ingest_sweep_interval_seconds},
+            },
             "analytics-rollup": {"task": "analytics.rollup", "schedule": 3600.0},
             "conversation-retention": {"task": "analytics.retention", "schedule": 86400.0},
         },

@@ -133,6 +133,23 @@ async def get_conversation(
     return detail
 
 
+@router.get("/conversations/{conversation_id}/messages")
+async def list_messages(
+    org_id: uuid.UUID,
+    conversation_id: uuid.UUID,
+    ctx: ChatRead,
+    services: ServicesDep,
+    cursor: str | None = None,
+    limit: Annotated[int, Query(ge=1, le=100)] = inbox.MESSAGE_PAGE_DEFAULT,
+) -> dict[str, Any]:
+    """Transcript pages, newest first: ``next_cursor`` leads to earlier messages."""
+    async with services.session_factory() as db:
+        await set_org_context(db, ctx.org_id)
+        return await inbox.list_messages(
+            db, ctx.org_id, conversation_id, service.message_out, cursor=cursor, limit=limit
+        )
+
+
 @router.post("/conversations/{conversation_id}/messages")
 async def send_message(
     org_id: uuid.UUID,

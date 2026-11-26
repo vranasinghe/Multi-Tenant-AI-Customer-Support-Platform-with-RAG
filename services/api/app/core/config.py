@@ -8,7 +8,7 @@ HTTPS-only CORS origins).
 from __future__ import annotations
 
 from functools import lru_cache
-from math import isfinite
+from math import ceil, isfinite
 from typing import Annotated, Literal
 from urllib.parse import urlsplit
 
@@ -16,12 +16,15 @@ from pydantic import Field, PostgresDsn, RedisDsn, SecretStr, field_validator, m
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 from app.core.provider_urls import provider_url
+from app.core.proxy_trust import parse_trusted_proxies
 
 AppEnv = Literal["local", "test", "staging", "production"]
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR"]
 LogFormat = Literal["console", "json"]
 
 PLACEHOLDER_MARKER = "change-me"
+#: Largest ``Crawl-delay`` from robots.txt the crawler honours.
+MAX_CRAWL_DELAY_SECONDS = 10.0
 SQLALCHEMY_DRIVER = "postgresql+psycopg"
 
 
@@ -62,6 +65,13 @@ class Settings(BaseSettings):
 
     cors_allowed_origins: Annotated[list[str], NoDecode] = Field(default_factory=list)
     readiness_timeout_seconds: float = Field(default=2.0, gt=0, le=30)
+
+    # --- ingress. Peers allowed to set X-Forwarded-For/-Proto (the reverse proxy); empty trusts
+    # nobody. Only `python -m app.server` applies it (see app/core/proxy_trust.py).
+    forwarded_allow_ips: Annotated[list[str], NoDecode] = Field(default_factory=list)
+    # Uvicorn's CLI also reads these, outside this validation: declared only so they are refused.
+    uvicorn_forwarded_allow_ips: str | None = None
+    uvicorn_proxy_headers: str | None = None
 
     # --- web app / links in emails
     web_base_url: str = "http://localhost:3000"
@@ -121,6 +131,12 @@ class Settings(BaseSettings):
     extract_max_chars: int = Field(default=5_000_000, ge=1000)
     docx_max_uncompressed_bytes: int = Field(default=100 * 1024 * 1024, ge=1024)
 
+    # --- document parser isolation (docs/INGESTION.md): each parse runs in its own child process
+    parser_wall_seconds: float = Field(default=60.0, gt=0, le=600)
+    parser_cpu_seconds: int = Field(default=30, ge=1, le=600)
+    parser_memory_bytes: int = Field(default=512 * 1024 * 1024, ge=256 * 1024 * 1024)
+    parser_max_result_bytes: int = Field(default=32 * 1024 * 1024, ge=1024, le=32 * 1024 * 1024)
+
     # --- chunking (tokens are estimated: ~4 characters each, no tokenizer dependency)
     chunk_size_tokens: int = Field(default=350, ge=32, le=2000)
     chunk_overlap_tokens: int = Field(default=50, ge=0, le=500)
@@ -170,6 +186,15 @@ class Settings(BaseSettings):
     ingest_retry_base_seconds: int = Field(default=5, ge=0)
     ingest_retry_max_seconds: int = Field(default=300, ge=0)
     ingest_stuck_after_seconds: int = Field(default=900, ge=30)
+    ingest_sweep_interval_seconds: float = Field(default=120, ge=5, le=3600)
+    # Heavy jobs (documents and crawls) one organization may run at once, and how long a job
+    # that has to wait is first rescheduled for (doubling, capped).
+    ingest_max_active_per_org: int = Field(default=1, ge=1, le=16)
+    ingest_defer_seconds: float = Field(default=2, gt=0, le=15)
+    # Celery task limits. Both stay below the broker's one-hour visibility timeout.
+    ingest_soft_time_limit_seconds: int = Field(default=120, ge=2, le=3500)
+    ingest_hard_time_limit_seconds: int = Field(default=180, ge=3, le=3540)
+    crawl_max_task_seconds: int = Field(default=3300, ge=120, le=3540)  # operator maximum
 
     # --- website crawling (SafeFetcher)
     crawl_user_agent: str = "ACSBot/1.0 (+https://example.com/bot)"
@@ -199,6 +224,18 @@ class Settings(BaseSettings):
             return [int(item) for item in value.split(",") if item.strip()]
         return value
 
+    @field_validator("forwarded_allow_ips", mode="before")
+    @classmethod
+    def _trusted_proxies(cls, value: object) -> list[str]:
+        return parse_trusted_proxies(value)
+
+    @model_validator(mode="after")
+    def _no_uvicorn_proxy_overrides(self) -> Settings:
+        for name in ("uvicorn_forwarded_allow_ips", "uvicorn_proxy_headers"):
+            if getattr(self, name) is not None:
+                raise ValueError(f"{name.upper()} is not supported; use FORWARDED_ALLOW_IPS")
+        return self
+
     @field_validator("web_base_url")
     @classmethod
     def _strip_web_base_url(cls, value: str) -> str:
@@ -226,6 +263,14 @@ class Settings(BaseSettings):
         if self.chunk_overlap_tokens >= self.chunk_size_tokens:
             msg = "CHUNK_OVERLAP_TOKENS must be smaller than CHUNK_SIZE_TOKENS"
             raise ValueError(msg)
+        return self
+
+    @model_validator(mode="after")
+    def _task_limits(self) -> Settings:
+        if self.ingest_soft_time_limit_seconds >= self.ingest_hard_time_limit_seconds:
+            raise ValueError(
+                "INGEST_SOFT_TIME_LIMIT_SECONDS must be below INGEST_HARD_TIME_LIMIT_SECONDS"
+            )
         return self
 
     @model_validator(mode="after")
@@ -304,6 +349,24 @@ class Settings(BaseSettings):
         if problems:
             raise ValueError("; ".join(problems))
         return self
+
+    @property
+    def crawl_hard_time_limit_seconds(self) -> int:
+        """Worst case for the page limit (robots, then delay + fetch + parse + one embedding
+        request per page), capped by the operator maximum."""
+        per_page = (
+            max(self.crawl_delay_seconds, MAX_CRAWL_DELAY_SECONDS)
+            + self.fetch_total_timeout_seconds
+            + self.parser_wall_seconds
+            + self.embedding_timeout_seconds
+        )
+        budget = self.fetch_total_timeout_seconds + self.crawl_max_pages_limit * per_page
+        return min(ceil(budget), self.crawl_max_task_seconds)
+
+    @property
+    def crawl_soft_time_limit_seconds(self) -> int:
+        hard = self.crawl_hard_time_limit_seconds
+        return max(hard - 60, hard // 2)
 
     @property
     def broker_url(self) -> str:

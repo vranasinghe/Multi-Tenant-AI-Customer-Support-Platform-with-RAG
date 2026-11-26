@@ -367,7 +367,11 @@ async def delete_document(
     """Delete the document, its chunks/vectors and jobs in one transaction; queue the original's
     removal from storage (an outbox row, so a crash can't orphan the file forever)."""
     document = await get_document(db, ctx, chatbot_id, document_id)
-    source_id, key = document.source_id, document.storage_key
+    source_id = document.source_id
+    # Locked and read again: a crawl publishing right now moves the document to a new original.
+    key = await db.scalar(
+        select(Document.storage_key).where(Document.id == document.id).with_for_update()
+    )
     await db.execute(
         delete(Document).where(Document.id == document.id, Document.org_id == ctx.org.id)
     )
@@ -598,6 +602,10 @@ async def delete_source(
     meta: RequestMeta,
 ) -> None:
     source = await get_source(db, ctx, chatbot_id, source_id)
+    # Waits for a publication in progress and blocks new ones, so the keys read next are final.
+    await db.execute(
+        select(KnowledgeSource.id).where(KnowledgeSource.id == source.id).with_for_update()
+    )
     keys = (
         await db.execute(
             select(Document.storage_key).where(
