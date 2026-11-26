@@ -7,3 +7,6 @@ coverage
 services
 # Markdown is hand-formatted (wide tables); keep Prettier off it.
 **/*.md
+# Generated audit records from past runs; keep them exactly as produced.
+docs/audit/**/*.json
+docs/**/evidence/
